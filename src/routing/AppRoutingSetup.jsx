@@ -103,7 +103,7 @@ import {
 } from "@/pages/support";
 import { FollowUpListPage } from "@/pages/follow-up";
 import { Dashboard } from "@/pages/dashboard";
-import GuestDashboard from "../pages/GuestDashboard/GuestDashboard";
+import GuestDashboard from "../pages/Guest/GuestDashboard/GuestDashboard";
 import {
   TaskListPage,
   TaskTemplatePage,
@@ -134,7 +134,7 @@ import DishCostingPage from "@/pages/Event/DishCostingPage";
 import QuotationPage from "@/pages/Event/QuotationPage";
 import EventInvoicePage from "@/pages/Event/EventInvoicePage";
 import ProformaInvoicePage from "@/pages/Event/ProformaInvoicePage";
-
+import GuestForm from "../pages/Guest/GuestForm/GuestForm";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -143,6 +143,7 @@ const AppRoutingSetup = () => {
           {/* project routs */}
           <Route path="/" element={<Dashboard />} />
           <Route path="/guest-dashboard" element={<GuestDashboard />} />
+          <Route path="/guest-form" element={<GuestForm />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />

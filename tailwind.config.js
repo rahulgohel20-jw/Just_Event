@@ -55,8 +55,8 @@ module.exports = {
                 inverse: "#FFFFFF",
               },
               primary: {
-                default: "rgba(0, 91, 168, 1)", // #005BA8
-                active: "rgba(0, 73, 134, 1)", // #004986
+                default: "#A57353", // #005BA8
+                active: "#A57353", // #004986
                 light: "rgba(51, 124, 185, 1)", // #e6eff6
                 lighter: "rgba(230, 239, 246, 1)", // #e6eff6
                 inverse: "rgba(255, 255, 255, 1)", // #ffffff
@@ -79,7 +79,7 @@ module.exports = {
                 clarity: "rgba(23, 162, 184, 0.20)",
               },
               danger: {
-                default: "rgba(191, 34, 37, 1)", // #BF2225
+                default: "#FF4141", // #BF2225
                 active: "rgba(153, 27, 30, 1)", // #991B1E
                 light: "rgba(224, 92, 94, 1)", // #FDEBEC
                 lighter: "rgba(253, 235, 236, 1)", // #e6eff6
@@ -143,7 +143,7 @@ module.exports = {
                 inverse: "#ffffff",
               },
               primary: {
-                default: "rgba(0, 91, 168, 1)", // #005BA8
+                default: "#A57353", // #005BA8
                 active: "rgba(0, 73, 134, 1)", // #004986
                 light: "rgba(51, 124, 185, 1)", // #e6eff6
                 lighter: "rgba(230, 239, 246, 1)", // #e6eff6
@@ -167,7 +167,7 @@ module.exports = {
                 clarity: "rgba(23, 162, 184, 0.20)",
               },
               danger: {
-                default: "rgba(191, 34, 37, 1)", // #BF2225
+                default: "#FF4141", // #BF2225
                 active: "rgba(153, 27, 30, 1)", // #991B1E
                 light: "rgba(224, 92, 94, 1)", // #FDEBEC
                 lighter: "rgba(253, 235, 236, 1)", // #e6eff6
@@ -380,6 +380,8 @@ module.exports = {
         warning: "var(--tw-warning-box-shadow)",
         dark: "var(--tw-dark-box-shadow)",
         cancle: "0px 4px 4px 0px #00000040 inset",
+        addGuest: "box-shadow: 4px 4px 10px 0px #CA9F7466 inset",
+        statCard: "box-shadow: 6px 6px 54px 0px #0000000D",
       },
       fontSize: {
         "4xs": [

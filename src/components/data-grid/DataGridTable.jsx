@@ -26,17 +26,17 @@ const DataGridTable = () => {
   return (
     <table
       className={cn(
-        "w-full align-middle text-left rtl:text-right caption-bottom text-sm",
+        "w-full align-middle text-left rtl:text-right caption-bottom text-sm [&_td]:!border-r-0 [&_th]:!border-r-0",
         props.layout?.classes?.table
       )}
       data-table
     >
-      <thead className="[&_tr]:border-b">
+      <thead className="[&_tr]:border-b [&_tr]:border-t border-[#DFDFDF] bg-white">
         {table.getHeaderGroups().map((headerGroup) => (
           <tr
             key={headerGroup.id}
             className={cn(
-              "border-b bg-muted/30 data-[state=selected]:bg-muted",
+              "border-b data-[state=selected]:bg-muted",
               cellBorder && "[&_>:last-child]:border-e-0"
             )}
           >
