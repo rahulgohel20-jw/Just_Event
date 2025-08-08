@@ -16,6 +16,7 @@ module.exports = {
       backgroundImage: {
         lightUserAccessBg: "url('/images/bg_01.png')",
         darkUserAccessBg: "url('/images/bg_01_dark.png')",
+        venueButton: "linear-gradient(180deg, #96644D 0%, #AB7955 100%)",
       },
       base: {
         colors: {
@@ -378,6 +379,7 @@ module.exports = {
         info: "var(--tw-info-box-shadow)",
         warning: "var(--tw-warning-box-shadow)",
         dark: "var(--tw-dark-box-shadow)",
+        cancle: "0px 4px 4px 0px #00000040 inset",
       },
       fontSize: {
         "4xs": [

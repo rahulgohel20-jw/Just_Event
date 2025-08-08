@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { SelectDropdown } from "@/components/form-components/SelectDropdown";
 
-const FunctionTypeDropdown = ({ value, onChange, ...rest }) => {
+const SubVenueDropdown = ({ value, onChange, ...rest }) => {
   const [selectedCompanies, setSelectedCompanies] = useState(value || []);
 
   const handleChange = (event) => {
@@ -14,9 +14,9 @@ const FunctionTypeDropdown = ({ value, onChange, ...rest }) => {
       value={selectedCompanies}
       onChange={handleChange}
       staticOptions={[
-        { label: "Wedding", value: "Wedding" },
-        { label: "Pool Party", value: "PoolParty" },
-        { label: "Sangeet", value: "Sangeet" },
+        { label: "Venue 1", value: "UserA" },
+        { label: "Venue 2", value: "UserB" },
+        { label: "Venue 3", value: "UserC" },
       ]}
       mode="multiple"
       placeholder={"Please select"}
@@ -25,4 +25,4 @@ const FunctionTypeDropdown = ({ value, onChange, ...rest }) => {
   );
 };
 
-export default FunctionTypeDropdown;
+export default SubVenueDropdown;

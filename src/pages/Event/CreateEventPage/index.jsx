@@ -1,26 +1,24 @@
 import React, { Fragment, useState } from "react";
-import {
-  Info as InfoIcon,
-  Settings as FunctionsIcon,
-  Utensils as MealIcon,
-} from "lucide-react";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import StepsComponent from "@/components/StepsComponents";
-import EventBasicInfoStep from "@/container/EventStepsContainer/EventBasicInfoStep";
+import EventDetailsStep from "@/container/EventStepsContainer/EventDetailsStep";
 import FunctionsStep from "@/container/EventStepsContainer/FunctionsStep";
-import MealAndNoteStep from "@/container/EventStepsContainer/MealAndNoteStep";
+import ClientDetailsStep from "@/container/EventStepsContainer/ClientDetailsStep";
 import OtherInfoStep from "@/container/EventStepsContainer/OtherInfoStep";
 import { requiredFields } from "./constant";
 import { useLocation } from "react-router";
+import { toAbsoluteUrl } from "@/utils";
 
 const CreateEventPage = () => {
-const location = useLocation();
+  const location = useLocation();
   const { event_date } = location.state || {};
-  
-  const [formData, setFormData] = useState({...requiredFields.basic_info, event_date: event_date ? event_date : '',
-    meeting_date: dayjs().format('YYYY-MM-DD')
+
+  const [formData, setFormData] = useState({
+    ...requiredFields.basic_info,
+    event_date: event_date ? event_date : "",
+    meeting_date: dayjs().format("YYYY-MM-DD"),
   });
   const [current, setCurrent] = useState(0);
 
@@ -28,10 +26,10 @@ const location = useLocation();
     const nextStep = current + 1;
     switch (nextStep) {
       case 1:
-        setFormData({ ...formData, ...requiredFields.functions });
+        setFormData({ ...formData, ...requiredFields.client_info });
         break;
       case 2:
-        setFormData({ ...formData, ...requiredFields.meal });
+        setFormData({ ...formData, ...requiredFields.functions });
         break;
       default:
         break;
@@ -49,24 +47,55 @@ const location = useLocation();
     setCurrent(0);
   };
 
-  const handleInputChange = ({ target: { value, name } }) => {
-    setFormData({ ...formData, [name]: value });
+  const handleInputChange = (e, fieldName) => {
+    const { value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [fieldName || e.target.name]: value,
+    }));
   };
 
-  const steps = () => [
+  const stepData = [
     {
-      title: "Basic Information",
+      title: "Event Details",
       content: (
-        <EventBasicInfoStep
+        <EventDetailsStep
           formData={formData}
           setFormData={setFormData}
           onInputChange={handleInputChange}
         />
       ),
-      icon: <i className="ki-filled ki-security-user"></i>,
+      icon: (
+        <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#FDE7C5]">
+          <img
+            src={toAbsoluteUrl("/media/steps-image/event.png")}
+            alt="event"
+            className="w-8 h-8 "
+          />
+        </div>
+      ),
     },
     {
-      title: "Functions",
+      title: "Client Details",
+      content: (
+        <ClientDetailsStep
+          formData={formData}
+          setFormData={setFormData}
+          onInputChange={handleInputChange}
+        />
+      ),
+      icon: (
+        <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#FDE7C5]">
+          <img
+            src={toAbsoluteUrl("/media/steps-image/client.png")}
+            alt="event"
+            className="w-8 h-8"
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Function Details",
       content: (
         <FunctionsStep
           formData={formData}
@@ -74,21 +103,18 @@ const location = useLocation();
           onInputChange={handleInputChange}
         />
       ),
-      icon: <i className="ki-filled ki-setting-4"></i>,
-    },
-    {
-      title: "Meal Type & Notes",
-      content: (
-        <MealAndNoteStep
-          formData={formData}
-          setFormData={setFormData}
-          onInputChange={handleInputChange}
-        />
+      icon: (
+        <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#FDE7C5]">
+          <img
+            src={toAbsoluteUrl("/media/steps-image/function.png")}
+            alt="event"
+            className="w-8 h-8"
+          />
+        </div>
       ),
-      icon: <i className="ki-filled ki-note-2"></i>,
     },
     {
-      title: "Other Details",
+      title: "Other Informations",
       content: (
         <OtherInfoStep
           formData={formData}
@@ -96,15 +122,32 @@ const location = useLocation();
           onInputChange={handleInputChange}
         />
       ),
-      icon: <i className="ki-filled ki-information-4"></i>,
+      icon: (
+        <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#FDE7C5]">
+          <img
+            src={toAbsoluteUrl("/media/steps-image/other.png")}
+            alt="event"
+            className="w-8 h-8"
+          />
+        </div>
+      ),
     },
   ];
+  const steps = () => stepData;
   return (
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Create Event" }]} />
+          <Breadcrumbs
+            items={[
+              {
+                title: stepData[current]?.title || "Event Details",
+                subTitle:
+                  "Keep your Event planning seamless from start to finish!",
+              },
+            ]}
+          />
         </div>
         <StepsComponent
           direction="vertical"

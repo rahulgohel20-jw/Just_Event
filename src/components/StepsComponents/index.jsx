@@ -18,18 +18,18 @@ const StepsComponent = ({ steps, current, onNext, onPrev, onFinish }) => {
         <div className="ant-body" style={contentStyle}>
           {steps[current].content}
         </div>
-        <div className="ant-foot mt-4 flex justify-end gap-3">
+        <div className="ant-foot mt-4 flex justify-center gap-3">
           {current > 0 && (
             <button
-              className="btn btn-light justify-center w-32"
+              className="bg-[#fff] shadow-cancle rounded justify-center w-32"
               onClick={onPrev}
             >
-              <i className="ki-filled ki-arrow-left font-14"></i> Prev
+              <i className="ki-filled ki-arrow-left font-14"></i> Back
             </button>
           )}
           {current < steps.length - 1 && (
             <button
-              className="btn btn-primary justify-center w-32"
+              className="btn bg-venueButton text-white justify-center w-32"
               onClick={onNext}
             >
               Next <i className="ki-filled ki-arrow-right font-14"></i>
@@ -37,7 +37,7 @@ const StepsComponent = ({ steps, current, onNext, onPrev, onFinish }) => {
           )}
           {current === steps.length - 1 && (
             <button
-              className="btn btn-success justify-center w-32"
+              className="btn bg-venueButton text-white justify-center w-32"
               onClick={onFinish}
             >
               Save <i className="ki-filled ki-save-2 font-14"></i>

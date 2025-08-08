@@ -54,6 +54,7 @@ const useStyles = makeStyles({
           margin: "0",
           width: "100%",
           display: "flex",
+          gap: "10px",
           flexDirection: "column",
           justifyContent: "center",
           "& .ant-steps-item-tail": {
@@ -87,9 +88,8 @@ const useStyles = makeStyles({
           "& .ant-steps-item-container": {
             "& .ant-steps-item-tail": {},
             "& .ant-steps-item-icon": {
-              "& .ant-steps-icon": {
-                "& > i": {},
-              },
+              display: "flex",
+              justifyContent: "center",
             },
             "& .ant-steps-item-content": {
               "& .ant-steps-item-title": {},
@@ -100,33 +100,30 @@ const useStyles = makeStyles({
         "&.ant-steps-item-process": {
           "&:before": {
             borderRadius: "50rem",
-            border: "1px solid var(--tw-primary)",
-            background: "var(--tw-primary)",
+            border: "1px solid #FDE7C7",
+            background: "#FDE7C7",
           },
           "&:after": {
             height: "10px",
             bottom: "-15px",
             borderRadius: "50rem",
             width: "10px !important",
-            backgroundColor: "var(--tw-gray-100)",
-            border: "1px solid var(--tw-primary)",
+            backgroundColor: "#FDE7C7",
+            border: "1px solid #FDE7C7",
           },
           "& .ant-steps-item-container": {
             "& .ant-steps-item-tail": {
               "&:after": {
-                backgroundColor: "var(--tw-primary)",
+                backgroundColor: "#FDE7C7",
               },
             },
             "& .ant-steps-item-icon": {
-              "& .ant-steps-icon": {
-                "& > i": {
-                  color: "var(--tw-primary)",
-                },
-              },
+              display: "flex",
+              justifyContent: "center",
             },
             "& .ant-steps-item-content": {
               "& .ant-steps-item-title": {
-                color: "var(--tw-primary)",
+                color: "#A57353",
               },
             },
           },
@@ -139,25 +136,22 @@ const useStyles = makeStyles({
             bottom: "-16px",
           },
           "&:before": {
-            border: "1px solid var(--tw-success)",
-            background: "var(--tw-success)",
+            border: "1px solid #C69A6E",
+            background: "#C69A6E",
           },
           "& .ant-steps-item-container": {
             "& .ant-steps-item-tail": {
               "&:after": {
-                backgroundColor: "var(--tw-success)",
+                backgroundColor: "#C69A6E",
               },
             },
             "& .ant-steps-item-icon": {
-              "& .ant-steps-icon": {
-                "& > i": {
-                  color: "var(--tw-success)",
-                },
-              },
+              display: "flex",
+              justifyContent: "center",
             },
             "& .ant-steps-item-content": {
               "& .ant-steps-item-title": {
-                color: "var(--tw-success)",
+                color: "#C69A6E",
               },
             },
           },

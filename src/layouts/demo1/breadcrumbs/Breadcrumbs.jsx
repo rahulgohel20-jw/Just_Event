@@ -81,36 +81,57 @@ const Breadcrumbs = ({ items }) => {
 
   const menuItems = [
     {
-      label: <div onClick={() => setIsLeadModalOpen(true)}><i className="ki-filled ki-ki-filled ki-abstract-18 me-1.5"></i>Lead</div>,
+      label: (
+        <div onClick={() => setIsLeadModalOpen(true)}>
+          <i className="ki-filled ki-ki-filled ki-abstract-18 me-1.5"></i>Lead
+        </div>
+      ),
       key: "0",
     },
     {
-      label: <div onClick={() => setIsFollowUpModalOpen(true)}><i className="ki-filled ki-message-text-2 me-1.5"></i>Follow Up</div>,
+      label: (
+        <div onClick={() => setIsFollowUpModalOpen(true)}>
+          <i className="ki-filled ki-message-text-2 me-1.5"></i>Follow Up
+        </div>
+      ),
       key: "1",
     },
     {
-      label: <div onClick={() => setIsContactModalOpen(true)}><i className="ki-filled ki-user me-1.5"></i>Contact</div>,
+      label: (
+        <div onClick={() => setIsContactModalOpen(true)}>
+          <i className="ki-filled ki-user me-1.5"></i>Contact
+        </div>
+      ),
       key: "2",
     },
     {
-      label: <div onClick={() => setIsCompanyModalOpen(true)}><i className="ki-filled ki-bank me-1.5"></i>Company</div>,
+      label: (
+        <div onClick={() => setIsCompanyModalOpen(true)}>
+          <i className="ki-filled ki-bank me-1.5"></i>Company
+        </div>
+      ),
       key: "3",
     },
   ];
   return (
     <div className="flex [.header_&]:below-lg:hidden justify-between items-center gap-1.25 text-xs lg:text-sm font-medium">
-      <h1 className="text-xl font-medium leading-none text-gray-900">
-        {items && items[items.length - 1].title}
-      </h1>
-      <div className="flex flex-wrap items-center gap-3">
+      <div>
+        <h1 className="text-xl font-bold leading-none text-[#96644D]">
+          {items && items[items.length - 1].title}
+        </h1>
+        <p className="mt-2 font-medium leading-none text-[#242424]">
+          {items && items[items.length - 1].subTitle}
+        </p>
+      </div>
+      {/* <div className="flex flex-wrap items-center gap-3">
         <div className="sm:flex hidden flex flex-wrap items-center gap-1">
           {items && renderItems(items)}
         </div>
-        {/* Menu Dropdown */}
+     
         <Dropdown
           menu={{ items: menuItems }}
           trigger={["click"]}
-          // className="max-w-[370px] w-full"
+          className="max-w-[370px] w-full"
         >
           <a onClick={(e) => e.preventDefault()}>
             <Space>
@@ -121,24 +142,24 @@ const Breadcrumbs = ({ items }) => {
             </Space>
           </a>
         </Dropdown>
-        {/* End Menu Dropdown */}
-      </div>
-      <AddLead
+     
+      </div> */}
+      {/* <AddLead
         isModalOpen={isLeadModalOpen}
         setIsModalOpen={setIsLeadModalOpen}
-      />
-      <AddFollowUp
+      /> */}
+      {/* <AddFollowUp
         isModalOpen={isFollowUpModalOpen}
         setIsModalOpen={setIsFollowUpModalOpen}
-      />
-      <AddContact
+      /> */}
+      {/* <AddContact
         isModalOpen={isContactModalOpen}
         setIsModalOpen={setIsContactModalOpen}
-      />
-      <AddCompany
+      /> */}
+      {/* <AddCompany
         isModalOpen={isCompanyModalOpen}
         setIsModalOpen={setIsCompanyModalOpen}
-      />
+      /> */}
     </div>
   );
 };

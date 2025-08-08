@@ -103,6 +103,7 @@ import {
 } from "@/pages/support";
 import { FollowUpListPage } from "@/pages/follow-up";
 import { Dashboard } from "@/pages/dashboard";
+import GuestDashboard from "../pages/GuestDashboard/GuestDashboard";
 import {
   TaskListPage,
   TaskTemplatePage,
@@ -141,6 +142,7 @@ const AppRoutingSetup = () => {
         <Route element={<Demo1Layout />}>
           {/* project routs */}
           <Route path="/" element={<Dashboard />} />
+          <Route path="/guest-dashboard" element={<GuestDashboard />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />
@@ -165,10 +167,22 @@ const AppRoutingSetup = () => {
           <Route path="/event" element={<EventListPage />} />
           <Route path="/add-event" element={<CreateEventPage />} />
           <Route path="/menu-preparation" element={<EventPreparationPage />} />
-          <Route path="/menu-allocation" element={<EventMenuAllocationPage />} />
-          <Route path="/raw-material-allocation" element={<RawMaterialAllocationPage />} />
-          <Route path="/labour-and-other-management" element={<LabourOtherManagementPage />} />
-          <Route path="/order-booking-reports" element={<OrderBookingReportsPage />} />
+          <Route
+            path="/menu-allocation"
+            element={<EventMenuAllocationPage />}
+          />
+          <Route
+            path="/raw-material-allocation"
+            element={<RawMaterialAllocationPage />}
+          />
+          <Route
+            path="/labour-and-other-management"
+            element={<LabourOtherManagementPage />}
+          />
+          <Route
+            path="/order-booking-reports"
+            element={<OrderBookingReportsPage />}
+          />
           <Route path="/dish-costing" element={<DishCostingPage />} />
           <Route path="/quotation" element={<QuotationPage />} />
           <Route path="/event-invoice" element={<EventInvoicePage />} />
