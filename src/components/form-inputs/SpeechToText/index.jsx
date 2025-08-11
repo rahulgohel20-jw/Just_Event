@@ -16,9 +16,7 @@ const SpeechToText = ({
   const silenceTimeoutRef = useRef(null);
 
   useEffect(() => {
-    if (
-      !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
-    ) {
+    if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
       alert("Speech Recognition not supported in this browser.");
       return;
     }
@@ -92,7 +90,7 @@ const SpeechToText = ({
 
   const renderField = () => {
     const commonProps = {
-      className: `input ${className}`,
+      className: `input pr-12 ${className}`, // Add padding for mic
       name,
       placeholder,
       value,
@@ -100,31 +98,30 @@ const SpeechToText = ({
     };
 
     return type === "textarea" ? (
-      <textarea rows={4} {...commonProps} />
+      <textarea rows={4}  {...commonProps} />
     ) : (
       <input type="text" {...commonProps} />
     );
   };
 
   return (
-    <div className="sg__inner flex items-center gap-1 relative">
+    <div className="relative w-full">
       {renderField()}
+
+      {/* Mic inside field */}
       <button
         type="button"
         onClick={toggleMic}
-        // className="sga__btn me-1.5 btn btn-success flex items-center justify-center rounded-full p-0 w-8 h-8"
-        className="relative w-10 h-10 flex items-center justify-center "
+        className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white shadow"
       >
         {isListening && isSpeaking && (
           <span className="absolute w-full h-full rounded-full bg-purple-400 opacity-30 animate-ping z-0"></span>
         )}
-        <span className="me-1.5 btn btn-light flex items-center justify-center rounded-full p-0 w-8 h-8">
-          {isListening ? (
-            <Square size={18} className="text-danger" />
-          ) : (
-            <Mic size={18} className="text-primary" />
-          )}
-        </span>
+        {isListening ? (
+          <Square size={22} className="text-red-500 z-10" />
+        ) : (
+          <Mic size={22} className="text-primary z-10" />
+        )}
       </button>
     </div>
   );

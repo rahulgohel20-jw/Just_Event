@@ -47,6 +47,23 @@ const CalendarPage = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Events" }]} />
         </div>
+        <div className="flex items-center justify-center gap-1 mb-2">
+          <span className="text-xs font-medium text-gray-900 bg-info rounded px-3 py-1 text-white">
+            Inquiry
+          </span>
+          <span className="text-xs font-medium text-gray-900 bg-indigo-400 rounded px-3 py-1 text-white">
+            Confirm
+          </span>
+          <span className="text-xs font-medium text-gray-900 bg-warning rounded px-3 py-1 text-white">
+            Confirm Without Menu
+          </span>
+          <span className="text-xs font-medium text-gray-900 bg-success rounded px-3 py-1 text-white">
+            Completed
+          </span>
+          <span className="text-xs font-medium text-gray-900 bg-danger rounded px-3 py-1 text-white">
+            Cancel
+          </span>
+        </div>
         <CalendarComponent
           data={calendarData}
           openEvent={openEvent}

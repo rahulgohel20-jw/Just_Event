@@ -5,6 +5,7 @@ import StatsCard from "@/components/gujestDashboard/StatsCard";
 import GuestTable from "@/components/gujestDashboard/GuestTable";
 import { columns, defaultData } from "./constant";
 import { Button } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { toAbsoluteUrl } from "@/utils";
 import { useNavigate } from "react-router-dom";
 
@@ -28,11 +29,13 @@ function GuestDashboard() {
             ]}
           />
           <Button
-            className="bg-[#FDE7C7] rounded-xl text-[#845A12] font-semibold 
-                           hover:!bg-[#FDE7C7] hover:!text-[#845A12] hover:!border-none 
-                           shadow-addGuest"
+          icon={<PlusOutlined />}
+            className="bg-[#FDE7C7] rounded-lg text-[#845A12] border-[#845A12] font-semibold 
+                       hover:!bg-[#FDE7C7] hover:!text-[#845A12] hover:!border-[#845A12] 
+                       shadow-addGuest flex items-center gap-2"
             onClick={handleAddGuestClick}
           >
+            
             Add Guest
           </Button>
         </div>
