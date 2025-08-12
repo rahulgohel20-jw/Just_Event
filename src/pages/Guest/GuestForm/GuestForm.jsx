@@ -29,13 +29,6 @@ function GuestForm() {
     }));
   };
 
-  const addGuest = () => {
-    setSubGuests((prev) => [
-      ...prev,
-      { id: Date.now(), fullName: "", email: "", mobile: "", attending: false },
-    ]);
-  };
-
   const removeGuest = (id) => {
     setSubGuests((prev) => prev.filter((guest) => guest.id !== id));
   };
@@ -178,18 +171,6 @@ function GuestForm() {
           </div>
 
           <Divider />
-
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-[#1A170F]">Sub Guest</h3>
-            <Button
-              type="button"
-              onClick={handleAddSubGuest}
-              className="bg-[#A57353] border-none text-white"
-            >
-              Add Sub Guest
-              <PlusOutlined className="bg-white rounded-lg text-[#A57353]" />
-            </Button>
-          </div>
 
           {subGuests.map((guest, index) => (
             <div key={guest.id} className="flex items-center gap-4">
