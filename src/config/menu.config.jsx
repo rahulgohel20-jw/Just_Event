@@ -5,6 +5,16 @@ export const MENU_SIDEBAR = [
     path: "/",
   },
   {
+    title: "Guest",
+    icon: "ki-filled ki-users text-primary",
+    children: [
+      {
+        title: "Dashboard",
+        path: "/guest-dashboard",
+      },
+    ],
+  },
+  {
     title: "Event Management",
     icon: "ki-filled ki-calendar-tick text-primary",
     children: [
@@ -15,6 +25,10 @@ export const MENU_SIDEBAR = [
       {
         title: "Event",
         path: "/event",
+      },
+      {
+        title: "Event Overview",
+        path: "/event-overview",
       },
     ],
   },
@@ -193,7 +207,7 @@ export const MENU_SIDEBAR = [
         path: "billing/wallet-logs",
       },
     ],
-  }, 
+  },
 ];
 export const MENU_MEGA = [
   {

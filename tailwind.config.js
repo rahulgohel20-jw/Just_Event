@@ -382,6 +382,7 @@ module.exports = {
         cancle: "0px 4px 4px 0px #00000040 inset",
         addGuest: "box-shadow: 4px 4px 10px 0px #CA9F7466 inset",
         statCard: "box-shadow: 6px 6px 54px 0px #0000000D",
+        eventbtn: "box-shadow: 4px 4px 10px 0px #CA9F7466 inset",
       },
       fontSize: {
         "4xs": [

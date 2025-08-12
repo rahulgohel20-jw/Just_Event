@@ -10,8 +10,10 @@ import OtherInfoStep from "@/container/EventStepsContainer/OtherInfoStep";
 import { requiredFields } from "./constant";
 import { useLocation } from "react-router";
 import { toAbsoluteUrl } from "@/utils";
+import { useNavigate } from "react-router-dom";
 
 const CreateEventPage = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const { event_date } = location.state || {};
 
@@ -45,6 +47,7 @@ const CreateEventPage = () => {
     // Reset form or redirect as needed
     setFormData(requiredFields.basic_info);
     setCurrent(0);
+    navigate("/event-overview");
   };
 
   const handleInputChange = (e, fieldName) => {

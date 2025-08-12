@@ -9,6 +9,23 @@
 /* Shadcn UI */
 @import "shadcn.ui";
 
+.ant-checkbox-checked .ant-checkbox-inner {
+  @apply bg-white border-2 border-green-500;
+}
+
+.ant-checkbox-checked .ant-checkbox-inner::after {
+  border-color: #0fb709;
+}
+
+.ant-checkbox:hover .ant-checkbox-inner {
+  @apply border-green-500;
+}
+.ant-checkbox-label {
+  @apply text-[#4B4B4B];
+  font-weight: 400;
+  font-size: 18px;
+}
+
 .font-14 {
   font-size: 14px !important;
 }
@@ -46,11 +63,14 @@
   /* Firefox */
 }
 
-.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+.ant-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
   background-color: var(--tw-primary);
 }
 
-.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) .ant-select-item-option-state {
+.ant-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-state {
   color: var(--tw-primary);
 }
 
@@ -63,29 +83,49 @@
   gap: 6px;
 }
 
-.segmentedTabs .ant-segmented-group .ant-segmented-item .ant-segmented-item-label {
+.segmentedTabs
+  .ant-segmented-group
+  .ant-segmented-item
+  .ant-segmented-item-label {
   min-height: unset;
   line-height: unset;
   padding: 10px 14px;
 }
 
-.segmentedTabs .ant-segmented-group .ant-segmented-item.ant-segmented-item-selected .ant-segmented-item-label {
+.segmentedTabs
+  .ant-segmented-group
+  .ant-segmented-item.ant-segmented-item-selected
+  .ant-segmented-item-label {
   color: var(--tw-primary);
 }
 
-.segmentedTabs .ant-segmented-group .ant-segmented-item .ant-segmented-item-label>span i {
+.segmentedTabs
+  .ant-segmented-group
+  .ant-segmented-item
+  .ant-segmented-item-label
+  > span
+  i {
   font-size: 18px;
 }
 
-.segmentedTabs .ant-segmented-group .ant-segmented-item:hover:not(.ant-segmented-item-selected):not(.ant-segmented-item-disabled)::after {
+.segmentedTabs
+  .ant-segmented-group
+  .ant-segmented-item:hover:not(.ant-segmented-item-selected):not(
+    .ant-segmented-item-disabled
+  )::after {
   background-color: #fff;
 }
 
-.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+.ant-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
   color: #fff;
 }
 
-.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) .anticon.anticon-check>svg>path {
+.ant-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .anticon.anticon-check
+  > svg
+  > path {
   fill: #fff;
 }
 

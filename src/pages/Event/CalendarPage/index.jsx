@@ -12,6 +12,14 @@ const CalendarPage = () => {
   const [eventData, setEventData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventModalData, setEventModalData] = useState(false);
+
+  const statuses = [
+    { label: "Confirm", color: "bg-[#1AFF00]" },
+    { label: "Estimate", color: "bg-[#0011FF]" },
+    { label: "High Priority", color: "bg-[#FFB700]" },
+    { label: "Inquiry", color: "bg-[#00FFFF]" },
+    { label: "Cancel", color: "bg-[#FF0000]" },
+  ];
   const openEvent = (data) => {
     setEventModalData(data);
     setIsModalOpen(true);
@@ -47,22 +55,13 @@ const CalendarPage = () => {
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Events" }]} />
         </div>
-        <div className="flex items-center justify-center gap-1 mb-2">
-          <span className="text-xs font-medium text-gray-900 bg-info rounded px-3 py-1 text-white">
-            Inquiry
-          </span>
-          <span className="text-xs font-medium text-gray-900 bg-indigo-400 rounded px-3 py-1 text-white">
-            Confirm
-          </span>
-          <span className="text-xs font-medium text-gray-900 bg-warning rounded px-3 py-1 text-white">
-            Confirm Without Menu
-          </span>
-          <span className="text-xs font-medium text-gray-900 bg-success rounded px-3 py-1 text-white">
-            Completed
-          </span>
-          <span className="text-xs font-medium text-gray-900 bg-danger rounded px-3 py-1 text-white">
-            Cancel
-          </span>
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
+          {statuses.map((status, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <span className={`w-8 h-6 rounded-[8px] ${status.color}`} />
+              <span className="text-sm text-[#6D6D6D]">{status.label}</span>
+            </div>
+          ))}
         </div>
         <CalendarComponent
           data={calendarData}
