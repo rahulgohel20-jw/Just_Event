@@ -133,9 +133,11 @@ import OrderBookingReportsPage from "@/pages/Event/OrderBookingReportsPage";
 import DishCostingPage from "@/pages/Event/DishCostingPage";
 import QuotationPage from "@/pages/Event/QuotationPage";
 import EventInvoicePage from "@/pages/Event/EventInvoicePage";
+import AddInvoicePage from "@/pages/Event/AddInvoicePage";
+import InvoiceViewPage from "@/pages/Event/InvoiceViewPage";
 import ProformaInvoicePage from "@/pages/Event/ProformaInvoicePage";
-import GuestForm from "../pages/Guest/GuestForm/GuestForm";
-import { EventOverviewPage } from "../pages/Event/EventOverViewPage";
+import GuestForm from "@/pages/Guest/GuestForm/GuestForm";
+import { EventOverviewPage } from "@/pages/Event/EventOverViewPage";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -189,6 +191,8 @@ const AppRoutingSetup = () => {
           <Route path="/dish-costing" element={<DishCostingPage />} />
           <Route path="/quotation" element={<QuotationPage />} />
           <Route path="/event-invoice" element={<EventInvoicePage />} />
+          <Route path="/add-invoice" element={<AddInvoicePage />} />
+          <Route path="/view-invoice" element={<InvoiceViewPage />} />
           <Route path="/proforma-invoice" element={<ProformaInvoicePage />} />
 
           {/* Tasks routes */}

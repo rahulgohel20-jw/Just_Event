@@ -208,6 +208,24 @@ export const MENU_SIDEBAR = [
       },
     ],
   },
+  {
+    title: "Event Invoice",
+    icon: "ki-filled ki-cheque text-primary",
+    children: [
+      {
+        title: "Invoice Overview",
+        path: "/event-invoice",
+      },
+      {
+        title: "Invoice",
+        path: "/add-invoice",
+      },
+      {
+        title: "View Invoice",
+        path: "/view-invoice",
+      },
+    ],
+  },
 ];
 export const MENU_MEGA = [
   {
