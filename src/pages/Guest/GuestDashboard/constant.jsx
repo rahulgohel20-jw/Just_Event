@@ -21,19 +21,18 @@ const StatusDropdown = ({ initialStatus = "Confirmed" }) => {
     <Dropdown overlay={menu} trigger={["click"]}>
       <div className="flex items-center gap-1 cursor-pointer">
         <span
-          className={`px-3 py-2 text-xs font-medium rounded-md  ${
+          className={` flex gap-1 items-center px-2 py-1 text-xs font-medium rounded-md  ${
             status === "Confirmed"
               ? "text-[#0FB709] bg-[#0FB70926]"
               : "text-[#DF0404] bg-[#DF040426]"
           }`}
         >
           {status}
-        </span>
-        <span className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]">
+        <span className="  text-primary ">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="w-4 h-4 text-gray-500"
-            fill="#A57353"
+            className="w-3 h-3 text-gray-500"
+            fill="black"
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
@@ -44,6 +43,7 @@ const StatusDropdown = ({ initialStatus = "Confirmed" }) => {
               d="M19 9l-7 7-7-7"
             />
           </svg>
+        </span>
         </span>
       </div>
     </Dropdown>

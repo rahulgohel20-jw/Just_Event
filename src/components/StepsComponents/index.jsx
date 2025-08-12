@@ -40,7 +40,7 @@ const StepsComponent = ({ steps, current, onNext, onPrev, onFinish }) => {
               className="btn bg-venueButton text-white justify-center w-32"
               onClick={onFinish}
             >
-              Save <i className="ki-filled ki-save-2 font-14"></i>
+              Submit
             </button>
           )}
         </div>

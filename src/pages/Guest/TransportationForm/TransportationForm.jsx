@@ -1,9 +1,9 @@
 import { Input, DatePicker, Select } from "antd";
-
+import SpeechToText from "@/components/form-inputs/SpeechToText";
 const { Option } = Select;
 const { TextArea } = Input;
 
-function TransportationForm() {
+function TransportationForm({ formData, onInputChange }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
       <div>
@@ -62,10 +62,15 @@ function TransportationForm() {
       </div>
       <div className="md:col-span-3">
         <label className="text-black">Special Requests</label>
-        <TextArea
-          placeholder="Any allergies, dietary restrictions, or other requests?"
-          rows={5}
-        />
+        <SpeechToText
+              type="textarea"
+              rows={4}
+              className="p-3 pr-10 "
+              name="transportSpecialRequests"
+              placeholder="Special Requests"
+              value={formData.transportSpecialRequests || ""} // ✅ Avoid undefined
+              onChange={onInputChange}
+            />
       </div>
     </div>
   );

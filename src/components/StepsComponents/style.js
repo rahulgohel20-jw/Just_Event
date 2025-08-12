@@ -10,7 +10,6 @@ const useStyles = makeStyles({
       padding: "20px 30px 40px 30px !important",
       borderTopLeftRadius: "12px",
       borderTopRightRadius: "12px",
-      background: "var(--tw-gray-100)",
       border: "1px solid var(--tw-gray-200)",
       position: "relative",
       // "&:after": {
