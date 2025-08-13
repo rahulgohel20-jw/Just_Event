@@ -1,4 +1,5 @@
 import { Fragment, useRef, useState } from "react";
+import { TableComponent } from "@/components/table/TableComponent";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { DragAndDrop } from "@/components/drag-and-drop/DragAndDrop";
@@ -8,13 +9,16 @@ import AddLeadNote from "@/partials/modals/add-lead-note/AddLeadNote";
 import AddFollowUp from "@/partials/modals/add-follow-up/AddFollowUp";
 import { defaultData } from "./constant";
 import LeadContext from "./LeadContext";
+import { tablecolumns, defaultTableData } from "./tableconstant";
 
-const LeadPage = () => {
+const LeadPage = ({ children }) => {
   const scrollRef = useRef(null);
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [isFollowUpModalOpen, setIsFollowUpModalOpen] = useState(false);
   const [columns, setColumns] = useState(defaultData);
+  const [isActive, setIsActive] = useState(0);
+  const [tableData, setTableData] = useState(defaultTableData);
   const handleModalOpen = () => {
     setIsLeadModalOpen(true);
   };
@@ -61,6 +65,10 @@ const LeadPage = () => {
   const onPointerUp = () => {
     isDragging.current = false;
     scrollRef.current.classList.remove("cursor-grabbing");
+  };
+
+  const handleToggle = (index) => {
+    setIsActive(index);
   };
   return (
     <Fragment>
@@ -110,10 +118,16 @@ const LeadPage = () => {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="btn-tabs">
-              <button className="btn btn-icon active">
+              <button
+                className={`btn btn-icon ${isActive === 0 ? "active" : ""}`}
+                onClick={() => handleToggle(0)}
+              >
                 <i className="ki-outline ki-element-11"></i>
               </button>
-              <button className="btn btn-icon">
+              <button
+                className={`btn btn-icon ${isActive === 1 ? "active" : ""}`}
+                onClick={() => handleToggle(1)}
+              >
                 <i className="ki-outline ki-row-horizontal"></i>
               </button>
             </div>
@@ -251,31 +265,39 @@ const LeadPage = () => {
               </button>
             </div>
           </div>
-          <div
-            ref={scrollRef}
-            className={`${dndActive ? "dnd-active" : ""} overflow-x-auto flex space-x-4 cursor-grab`}
-            onMouseDown={onPointerDown}
-            onMouseMove={onPointerMove}
-            onMouseUp={onPointerUp}
-            onMouseLeave={onPointerUp}
-            onTouchStart={onPointerDown}
-            onTouchMove={onPointerMove}
-            onTouchEnd={onPointerUp}
-          >
-            <LeadContext.Provider
-              value={{
-                setIsLeadModalOpen,
-                setIsNoteModalOpen,
-                setIsFollowUpModalOpen,
-              }}
+          {isActive === 0 ? (
+            <div
+              ref={scrollRef}
+              className={`${dndActive ? "dnd-active" : ""} overflow-x-auto flex space-x-4 cursor-grab`}
+              onMouseDown={onPointerDown}
+              onMouseMove={onPointerMove}
+              onMouseUp={onPointerUp}
+              onMouseLeave={onPointerUp}
+              onTouchStart={onPointerDown}
+              onTouchMove={onPointerMove}
+              onTouchEnd={onPointerUp}
             >
-              <DragAndDrop
-                columns={columns}
-                setColumns={setColumns}
-                setDndActive={setDndActive}
-              />
-            </LeadContext.Provider>
-          </div>
+              <LeadContext.Provider
+                value={{
+                  setIsLeadModalOpen,
+                  setIsNoteModalOpen,
+                  setIsFollowUpModalOpen,
+                }}
+              >
+                <DragAndDrop
+                  columns={columns}
+                  setColumns={setColumns}
+                  setDndActive={setDndActive}
+                />
+              </LeadContext.Provider>
+            </div>
+          ) : (
+            <TableComponent
+              columns={tablecolumns}
+              tableData={defaultTableData}
+              paginationSize={10}
+            />
+          )}
         </div>
       </Container>
       {/* AddLead */}
