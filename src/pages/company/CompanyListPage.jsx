@@ -2,7 +2,7 @@ import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { TableComponent } from "@/components/table/TableComponent";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import AddContact from "@/partials/modals/add-company/AddCompany";
+import AddCompany from "@/partials/modals/add-company/AddCompany";
 import { columns, defaultData } from "./constant";
 
 const CompanyListPage = () => {
@@ -65,12 +65,12 @@ const CompanyListPage = () => {
         {/* TableComponent */}
         <TableComponent
           columns={columns}
-          data={tableData}
+          tableData={tableData}
           paginationSize={10}
         />
       </Container>
       {/* AddContact */}
-      <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      <AddCompany isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </Fragment>
   );
 };

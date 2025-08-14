@@ -1,6 +1,8 @@
 import { DataGridColumnHeader } from "@/components";
 import { Link } from "react-router-dom";
 import { Tooltip } from "antd";
+import { useState } from "react";
+import { LeadQuickView } from "@/components/lead/LeadQuickView";
 export const tablecolumns = [
   {
     accessorKey: "user_full_name",
@@ -43,27 +45,44 @@ export const tablecolumns = [
     accessorKey: "status",
     header: "Action",
     cell: () => {
+      const [IsLeadShow, setIsLeadShow] = useState(false);
       return (
-        <div className="flex items-center gap-2">
-          <Tooltip title="View">
-            <Link to="">
+        <>
+          <div className="flex items-center gap-2">
+            <Tooltip title="View">
               <button
                 className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
                 title="View"
+                onClick={() => setIsLeadShow(true)}
               >
                 <i className="ki-filled ki-eye"></i>
               </button>
-            </Link>
-          </Tooltip>
-          <Tooltip title="More">
-            <button
-              className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
-              title="More"
-            >
-              <i className="ki-filled ki-dots-vertical"></i>
-            </button>
-          </Tooltip>
-        </div>
+            </Tooltip>
+            <Tooltip title="More">
+              <button
+                className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
+                title="More"
+              >
+                <i className="ki-filled ki-dots-vertical"></i>
+              </button>
+            </Tooltip>
+          </div>
+
+          {IsLeadShow && (
+            <div className="fixed inset-0 z-50 flex">
+              <div
+                className="absolute inset-0 bg-black bg-opacity-50"
+                onClick={() => setIsLeadShow(false)}
+              />
+              <div className="ml-auto w-96 bg-white shadow-lg h-full relative z-50">
+                <LeadQuickView
+                  onClose={() => setIsLeadShow(false)}
+                  dropdown={true}
+                />
+              </div>
+            </div>
+          )}
+        </>
       );
     },
   },

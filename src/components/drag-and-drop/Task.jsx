@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useLanguage } from "@/i18n";
 import {
   KeenIcon,
@@ -13,9 +13,11 @@ import {
 } from "@/components";
 import LeadContext from "@/pages/lead/LeadContext";
 import { Link } from "react-router-dom";
+import { LeadQuickView } from "@/components/lead/LeadQuickView";
 
 const Task = ({ item, dropdown, index }) => {
   const { isRTL } = useLanguage();
+  const [IsLeadShow, setIsLeadShow] = useState(false);
   const { setIsLeadModalOpen, setIsNoteModalOpen, setIsFollowUpModalOpen } =
     useContext(LeadContext);
 
@@ -36,14 +38,13 @@ const Task = ({ item, dropdown, index }) => {
               </small>
             </div>
             <div className="flex items-center">
-              <Link to="/lead/details">
-                <button
-                  className="btn btn-sm btn-icon btn-light btn-clear"
-                  title="View"
-                >
-                  <i className="ki-filled ki-eye"></i>
-                </button>
-              </Link>
+              <button
+                className="btn btn-sm btn-icon btn-light btn-clear"
+                title="View"
+                onClick={() => setIsLeadShow(true)}
+              >
+                <i className="ki-filled ki-eye"></i>
+              </button>
               {dropdown && (
                 <Menu className="items-stretch">
                   <MenuItem
@@ -140,52 +141,56 @@ const Task = ({ item, dropdown, index }) => {
             </div>
           </div>
           <hr />
-          <div className="flex flex-col gap-2">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
-              <div className="col-span-1 flex items-center gap-3">
-                <KeenIcon icon="user" className="text-success" />
-                <div className="flex flex-col">
-                  <span className="text-xs text-gray-600 mb-0.5">User:</span>
-                  <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
-                    {item.user_full_name}
-                  </p>
+          <Link to="/lead/details">
+            <div className="flex flex-col gap-2">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                <div className="col-span-1 flex items-center gap-3">
+                  <KeenIcon icon="user" className="text-success" />
+                  <div className="flex flex-col">
+                    <span className="text-xs text-gray-600 mb-0.5">User:</span>
+                    <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
+                      {item.user_full_name}
+                    </p>
+                  </div>
+                </div>
+                <div className="col-span-1 flex items-center gap-3">
+                  <KeenIcon icon="bill" className="text-success" />
+                  <div className="flex flex-col">
+                    <span className="text-xs text-gray-600 mb-0.5">
+                      Amount:
+                    </span>
+                    <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
+                      {item.amount}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="col-span-1 flex items-center gap-3">
-                <KeenIcon icon="bill" className="text-success"  />
-                <div className="flex flex-col">
-                  <span className="text-xs text-gray-600 mb-0.5">Amount:</span>
-                  <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
-                    {item.amount}
-                  </p>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                <div className="col-span-1 flex items-center gap-3">
+                  <KeenIcon icon="calendar" className="text-success" />
+                  <div className="flex flex-col">
+                    <span className="text-xs text-gray-600 mb-0.5">
+                      Close date:
+                    </span>
+                    <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
+                      {item.close_date}
+                    </p>
+                  </div>
+                </div>
+                <div className="col-span-1 flex items-center gap-3">
+                  <KeenIcon icon="user-tick" className="text-success" />
+                  <div className="flex flex-col">
+                    <span className="text-xs text-gray-600 mb-0.5">
+                      Assigned to:
+                    </span>
+                    <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
+                      {item.assign_to}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
-              <div className="col-span-1 flex items-center gap-3">
-                <KeenIcon icon="calendar" className="text-success"  />
-                <div className="flex flex-col">
-                  <span className="text-xs text-gray-600 mb-0.5">
-                    Close date:
-                  </span>
-                  <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
-                    {item.close_date}
-                  </p>
-                </div>
-              </div>
-              <div className="col-span-1 flex items-center gap-3">
-                <KeenIcon icon="user-tick" className="text-success"  />
-                <div className="flex flex-col">
-                  <span className="text-xs text-gray-600 mb-0.5">
-                    Assigned to:
-                  </span>
-                  <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
-                    {item.assign_to}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          </Link>
           <hr />
           <div className="flex items-center justify-start gap-2">
             <div
@@ -222,6 +227,21 @@ const Task = ({ item, dropdown, index }) => {
          */}
         </div>
       </div>
+
+      {IsLeadShow && (
+        <div className="fixed inset-0 z-50 flex">
+          <div
+            className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={() => setIsLeadShow(false)}
+          />
+          <div className="ml-auto w-96 bg-white shadow-lg h-full relative z-50">
+            <LeadQuickView
+              onClose={() => setIsLeadShow(false)}
+              dropdown={true}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };

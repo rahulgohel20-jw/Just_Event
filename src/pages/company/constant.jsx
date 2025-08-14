@@ -12,7 +12,13 @@ export const columns = [
   {
     accessorKey: "address",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Address" column={column} />
+      <DataGridColumnHeader title="Billing Address" column={column} />
+    ),
+  },
+  {
+    accessorKey: "address",
+    header: ({ column }) => (
+      <DataGridColumnHeader title="Shipping Address" column={column} />
     ),
   },
   {
@@ -32,7 +38,7 @@ export const columns = [
     header: "Action",
     cell: ({ cell }) => {
       return (
-        <div className="flex items-center justify-center gap-1">
+        <div className="flex  gap-1">
           <Tooltip title="View">
             <Link to="/companydetails">
               <button className="btn btn-sm btn-icon btn-clear" title="View">

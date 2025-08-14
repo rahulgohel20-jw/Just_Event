@@ -3,10 +3,12 @@ import { CustomModal } from "@/components/custom-modal/CustomModal";
 import DatePicker from "@/components/form-inputs/DatePicker/DatePicker";
 import AddProduct from "../add-product/AddProduct";
 import AddContact from "@/partials/modals/add-contact/AddContact";
+import AddSource from "@/partials/modals/add-source/AddSource";
 
 const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
   const [dateOfBirth, setDateOfBirth] = useState(null);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [issourceModalOpen, setIssourceModalOpen] = useState(false);
   const [dateOfAnniversary, setDateOfAnniversary] = useState(null);
   const [formData, setFormData] = useState();
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -28,6 +30,10 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
   const handleOpenContactModal = () => {
     setIsModalOpen(false);
     setIsContactModalOpen(true);
+  };
+
+  const handleOpenSourceModal = () => {
+    setIssourceModalOpen(true);
   };
 
   const handleModalClose = () => {
@@ -116,7 +122,15 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                   </select>
                 </div>
                 <div className="flex flex-col">
-                  <label className="form-label">Source</label>
+                  <div className="flex flex-row items-center gap-3">
+                    <label className="form-label w-fit">Source</label>
+                    <span
+                      className="text-blue-500 underline cursor-pointer"
+                      onClick={handleOpenSourceModal}
+                    >
+                      Add Source
+                    </span>
+                  </div>
                   <select
                     className="select pe-7.5"
                     data-control="select2"
@@ -382,6 +396,17 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
         }}
         // editData={editData}
       />
+      <CustomModal
+        open={issourceModalOpen}
+        onClose={() => setIssourceModalOpen(false)}
+        title="Add Source"
+        width={500}
+      >
+        <AddSource
+          isModalOpen={issourceModalOpen}
+          setIsModalOpen={setIssourceModalOpen}
+        />
+      </CustomModal>
     </>
   );
 };

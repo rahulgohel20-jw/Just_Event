@@ -51,7 +51,11 @@ const RoleAndPermission = () => {
           </button>
         </div>
       </div>
-      <TableComponent columns={columns} data={tableData} paginationSize={10} />
+      <TableComponent
+        columns={columns}
+        tableData={tableData}
+        paginationSize={10}
+      />
       <AddRole
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}

@@ -18,29 +18,29 @@ const EventListPage = () => {
         ...item,
         proforma_invoice: (
           <Link to="/proforma-invoice">
-          <Tooltip className="cursor-pointer" title="Proforma Invoice">
-            <div className="flex justify-center items-center w-full">
-              <FileText className="w-5 h-5 text-primary" />
-            </div>
-          </Tooltip>
+            <Tooltip className="cursor-pointer" title="Proforma Invoice">
+              <div className="flex justify-center items-center w-full">
+                <FileText className="w-5 h-5 text-primary" />
+              </div>
+            </Tooltip>
           </Link>
         ),
         invoice: (
           <Link to="/event-invoice">
-          <Tooltip className="cursor-pointer" title="Invoice">
-            <div className="flex justify-center items-center w-full">
-              <Receipt className="w-5 h-5 text-success" />
-            </div>
-          </Tooltip>
+            <Tooltip className="cursor-pointer" title="Invoice">
+              <div className="flex justify-center items-center w-full">
+                <Receipt className="w-5 h-5 text-success" />
+              </div>
+            </Tooltip>
           </Link>
         ),
         quotation: (
           <Link to="/quotation">
-          <Tooltip className="cursor-pointer" title="Quotation">
-            <div className="flex justify-center items-center w-full">
-              <BadgeDollarSign className="w-5 h-5 text-blue-600" />
-            </div>
-          </Tooltip>
+            <Tooltip className="cursor-pointer" title="Quotation">
+              <div className="flex justify-center items-center w-full">
+                <BadgeDollarSign className="w-5 h-5 text-blue-600" />
+              </div>
+            </Tooltip>
           </Link>
         ),
         handleModalOpen: handleModalOpen,
@@ -80,19 +80,19 @@ const EventListPage = () => {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link to="/add-event">
-            <button
-              className="btn btn-primary"
-              onClick={handleModalOpen}
-              title="Add Event"
-            >
-              <i className="ki-filled ki-plus"></i> Add Event
-            </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleModalOpen}
+                title="Add Event"
+              >
+                <i className="ki-filled ki-plus"></i> Add Event
+              </button>
             </Link>
           </div>
         </div>
         <TableComponent
           columns={columns}
-          data={tableData}
+          tableData={tableData}
           paginationSize={10}
         />
       </Container>
