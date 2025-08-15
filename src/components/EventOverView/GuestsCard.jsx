@@ -1,11 +1,19 @@
 import { Card, Button } from "antd";
 import { EditOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import AddEvent from "@/partials/modals/add-event/AddEvent";
+import { useState } from "react";
 const GuestsCard = () => {
-  const navigate = useNavigate();
-  const handleAddGuestClick = () => {
-    navigate("/guest-form");
+const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editData, setEditData] = useState(null);
+
+    const handleModalOpen = () => {
+    setIsModalOpen(true);
   };
+
+
+  const navigate = useNavigate();
+  
   return (
     <Card className="rounded-xl border-none shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)]">
       <div className="flex justify-between items-start mb-4">
@@ -36,7 +44,7 @@ const GuestsCard = () => {
         <Button
           size="small"
           className="p-4 bg-[#FDE7C7] hover:!bg-[#FDE7C7] hover:!text-[#845A12] hover:!border-none  shadow-eventbtn text-[#845A12] font-medium rounded-md border-none"
-          onClick={handleAddGuestClick}
+          onClick={handleModalOpen}
         >
           Add Guest
         </Button>
@@ -50,6 +58,11 @@ const GuestsCard = () => {
           Confirm Rsvp : <span className="text-black">0</span>
         </span>
       </div>
+      <AddEvent
+                            isModalOpen={isModalOpen}
+                      setIsModalOpen={setIsModalOpen}
+                      editData={editData}
+                          />
     </Card>
   );
 };

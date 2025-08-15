@@ -57,10 +57,10 @@ export default function InvoiceList() {
         {invoices.map((inv) => (
           <div
             key={inv.id}
-            className="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg"
+            className="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
           >
-            <div className="flex items-start gap-2">
-              <input type="checkbox" className="mt-1" />
+            <div className="flex items-start gap-2 ">
+              
               <div className="text-sm">
                 <p className="font-medium text-gray-800">{inv.name}</p>
                 <p className="text-xs text-gray-500">

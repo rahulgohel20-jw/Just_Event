@@ -7,8 +7,14 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns, defaultData } from "./constant";
 import useStyle from "./style";
 import { Link } from "react-router-dom";
+import AddEvent from "@/partials/modals/add-event/AddEvent";
 
 const EventListPage = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editData, setEditData] = useState(null);
+
+    
+
   const classes = useStyle();
 
   const [tableData, setTableData] = useState();
@@ -79,6 +85,16 @@ const EventListPage = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+
+            
+            <button
+              className="btn btn-primary"
+              onClick={handleModalOpen}
+              title="Add Event"
+            >
+              <i className="ki-filled ki-plus"></i> Add Event
+            </button>
+        
             <Link to="/add-event">
               <button
                 className="btn btn-primary"
@@ -88,13 +104,21 @@ const EventListPage = () => {
                 <i className="ki-filled ki-plus"></i> Add Event
               </button>
             </Link>
+
           </div>
         </div>
+
+
         <TableComponent
           columns={columns}
           tableData={tableData}
           paginationSize={10}
         />
+        <AddEvent
+                      isModalOpen={isModalOpen}
+                setIsModalOpen={setIsModalOpen}
+                editData={editData}
+                    />
       </Container>
     </Fragment>
   );

@@ -45,24 +45,29 @@ const ClientDetailsStep = ({
                 <option value="Mr.">Mr.</option>
                 <option value="Ms.">Ms.</option>
               </select>
+              <div className="input">
+                <i className="ki-filled ki-user text-[#97654D]"></i>
               <Input
                 placeholder="Alex Roy"
                 value={formData.name}
                 onChange={(e) => onInputChange(e, "name")}
               />
             </div>
+              </div>
           </div>
 
           <div>
             <label className="text-sm font-normal text-black mb-1 block">
               Address
             </label>
-            <Textarea
+            <div className="input">
+              <i className="ki-filled ki-geolocation text-[#97654D]"></i>
+            <Input
               placeholder="Enter Order Address"
-              rows={2}
               value={formData.address}
               onChange={(e) => onInputChange(e, "address")}
             />
+            </div>
           </div>
 
           <div className="flex flex-col md:flex-row md:items-center gap-x-32">
@@ -70,15 +75,19 @@ const ClientDetailsStep = ({
               <label className="text-sm font-normal text-black mb-1 block">
                 Mobile Number
               </label>
+              <div className="input">
+                <i className="ki-filled ki-phone text-[#97654D]"></i>
               <Input
                 placeholder="Enter Mobile Number"
                 value={formData.mobile}
                 onChange={(e) => onInputChange(e, "mobile")}
               />
+              </div>
             </div>
 
             <div className="flex items-center gap-10 mt-2 md:mt-6">
-              <span className="text-sm font-normal text-black">
+              
+              <span className="text-sm font-normal text-black"><i className="ki-filled ki-flag text-lg -left-2 text-[#97654D]"></i>
                 High Priority:
               </span>
               <label className="flex items-center gap-1 text-sm">
@@ -110,11 +119,13 @@ const ClientDetailsStep = ({
             <label className="text-sm font-normal text-black mb-1 block">
               Lead Source :
             </label>
+            <div className="input">
+              <i className="ki-filled ki-instagram text-[#97654D]"></i>
             <Input
-              placeholder=""
+              placeholder="Lead Source"
               value={formData.leadSource}
               onChange={(e) => onInputChange(e, "leadSource")}
-            />
+            /></div>
           </div>
         </>
       )}

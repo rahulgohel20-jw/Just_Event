@@ -18,6 +18,7 @@ function GuestDashboard() {
   };
   return (
     <Fragment>
+      
       <Container>
         <div className="flex justify-between items-center mb-4">
           <Breadcrumbs
@@ -42,20 +43,18 @@ function GuestDashboard() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-10">
-          <StatsCard
-            icon={
-              <img
-                src={toAbsoluteUrl("/media/guest/invite.png")}
-                alt="invite"
-              />
-            }
-            title="Total Invited Guest"
-            value={463}
-            subStats={[
-              { label: "Groom", value: 231 },
-              { label: "Bride", value: 231 },
-            ]}
-          />
+        
+  <StatsCard
+    icon={<img src={toAbsoluteUrl("/media/guest/invite.png")}  alt="invite" />}
+    title="Total Invited Guest"
+    value={463}
+    subStats={[
+      { label: "Groom", value: 231 },
+      { label: "Bride", value: 231 },
+    ]}
+  />
+
+
           <StatsCard
             icon={
               <img

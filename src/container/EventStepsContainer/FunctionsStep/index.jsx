@@ -4,6 +4,7 @@ import { MapPin, StickyNote, Trash2, Plus } from "lucide-react";
 import FunctionTypeDropdown from "@/components/dropdowns/FunctionTypeDropdown";
 import SubVenueDropdown from "@/components/dropdowns/SubVenueDropdown";
 import useStyles from "./style";
+import { Search } from "lucide-react";
 
 // DnD-kit imports
 import {
@@ -107,7 +108,15 @@ const FunctionsStep = ({ formData, setFormData }) => {
   return (
     <div className="rounded-md border border-[#C3C3C3] bg-white">
       <div className="p-4 flex justify-between items-center">
-        <Input placeholder="Quick Search" className="w-1/3" allowClear />
+        
+          
+        <Input
+  placeholder="Quick Search"
+  className="w-1/3"
+  allowClear
+  prefix={<Search size={16} className="text-gray-700" />}
+/>
+        
         <button
           className="bg-[#A36C48] text-white px-4 py-2 rounded-md flex items-center gap-2"
           onClick={handleAddFunction}

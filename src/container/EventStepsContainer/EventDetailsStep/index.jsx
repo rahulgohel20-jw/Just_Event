@@ -10,6 +10,7 @@ import SpeechToText from "@/components/form-inputs/SpeechToText";
 import useStyles from "./style";
 
 const EventDetailsStep = ({ formData, setFormData, onInputChange }) => {
+    const [dateOfBirth, setDateOfBirth] = useState(null);
   const classes = useStyles();
   const [showCustomerModal, setShowCustomerModal] = useState(false);
 
@@ -22,20 +23,25 @@ const EventDetailsStep = ({ formData, setFormData, onInputChange }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="flex flex-col">
           <label className="form-label text-black">Client Id</label>
+          <div className="input">
+
+          <i className="ki-filled ki-sms text-[#97654D]"></i>
           <input
-            className="textarea"
-            type="text"
-            name="client_id"
-            placeholder="Client Id"
-            value={formData.client_id || ""}
-            onChange={onInputChange}
+            className="h-full"
+                      type="text"
+                      placeholder="Client Id"
+            // value={formData.client_id || ""}
+            // onChange={onInputChange}
           />
+          </div>
         </div>
 
         <div className="flex flex-col">
           <label className="form-label text-black">Inquiry Date :</label>
+          
           <DatePicker
             className="input border rounded-lg"
+            date={dateOfBirth} setDate={setDateOfBirth}
             value={formData.meeting_date ? dayjs(formData.meeting_date) : null}
             onChange={(date, dateString) =>
               setFormData({ ...formData, meeting_date: dateString })
@@ -67,7 +73,7 @@ const EventDetailsStep = ({ formData, setFormData, onInputChange }) => {
               title="Add"
               className="sga__btn me-1.5 w-5 h-5 bg-[#A57353]   text-white flex items-center justify-center rounded-full p-0 w-8 h-8"
             >
-              <i className="ki-filled ki-plus"></i>
+              <i className="ki-filled ki-plus "></i>
             </button>
           </div>
         </div>
@@ -76,14 +82,18 @@ const EventDetailsStep = ({ formData, setFormData, onInputChange }) => {
           <label className="form-label text-black">
             Event Budget (Approx) :
           </label>
+          <div className="input">
+
+          <i className="ki-filled ki-wallet text-[#97654D]"></i>
           <input
             type="number"
             name="budget"
-            className="textarea"
+            
             value={formData.budget || ""}
             onChange={onInputChange}
             placeholder="Event Budget"
           />
+          </div>
         </div>
       </div>
 
@@ -144,14 +154,18 @@ const EventDetailsStep = ({ formData, setFormData, onInputChange }) => {
       <div className="flex flex-col w-10/12">
         <label className="form-label text-black">Venue Name :</label>
         <div className="flex flex-row gap-4">
+          <div className="input">
+
+          <i className="ki-filled ki-bank text-[#97654D]"></i>
           <input
-            className="textarea"
+            
             type="text"
             name="Venue_name"
             placeholder="Venue Name"
             value={formData.Venue_name || ""}
             onChange={onInputChange}
           />
+          </div>
           <div className="relative w-60">
             <input
               type="text"
@@ -193,14 +207,18 @@ const EventDetailsStep = ({ formData, setFormData, onInputChange }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-14">
         <div className="flex flex-col">
           <label className="form-label text-black">Notes :</label>
+          <div className="input">
+
+          <i className="ki-filled ki-note text-[#97654D]"></i>
           <input
             type="text"
             name="notes"
-            className="textarea"
+            
             placeholder="Notes"
             value={formData.notes || ""}
             onChange={onInputChange}
           />
+          </div>
         </div>
 
         <div className="flex items-center gap-4 pt-6">
