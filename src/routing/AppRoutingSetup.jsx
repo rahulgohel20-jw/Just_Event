@@ -145,9 +145,6 @@ const AppRoutingSetup = () => {
         <Route element={<Demo1Layout />}>
           {/* project routs */}
           <Route path="/" element={<Dashboard />} />
-          <Route path="/guest-dashboard" element={<GuestDashboard />} />
-          <Route path="/event-overview" element={<EventOverviewPage />} />
-          <Route path="/guest-form" element={<GuestForm />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />
           <Route path="/lead" element={<LeadPage />} />
@@ -157,6 +154,11 @@ const AppRoutingSetup = () => {
           <Route path="/company" element={<CompanyListPage />}></Route>
           <Route path="/companydetails" element={<CompanyDetails />}></Route>
           <Route path="/followup" element={<FollowUpListPage />}></Route>
+
+          {/* guest routes */}
+          <Route path="/guest-dashboard" element={<GuestDashboard />} />
+          <Route path="/guest-form" element={<GuestForm />} />
+
           {/* Theme routes */}
           <Route path="/company" element={<CompanyListPage />}></Route>
           <Route path="/companydetail" element={<CompanyDetails />}></Route>
@@ -170,6 +172,7 @@ const AppRoutingSetup = () => {
           {/* event management routes */}
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/event" element={<EventListPage />} />
+          <Route path="/event-overview" element={<EventOverviewPage />} />
           <Route path="/add-event" element={<CreateEventPage />} />
           <Route path="/menu-preparation" element={<EventPreparationPage />} />
           <Route

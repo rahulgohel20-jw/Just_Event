@@ -31,8 +31,8 @@ function GuestDashboard() {
           />
           <Button
           icon={<PlusOutlined />}
-            className="bg-[#FDE7C7] rounded-lg text-[#845A12] border-[#845A12] font-semibold 
-                       hover:!bg-[#FDE7C7] hover:!text-[#845A12] hover:!border-[#845A12] 
+            className="rounded-lg  btn btn-primary
+                        hover:!text-[#845A12] hover:!border-[#845A12] 
                        shadow-addGuest flex items-center gap-2"
             onClick={handleAddGuestClick}
           >
