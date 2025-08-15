@@ -25,7 +25,7 @@ const EventDetailsStep = ({ formData, setFormData, onInputChange }) => {
           <label className="form-label text-black">Client Id</label>
           <div className="input">
 
-          <i className="ki-filled ki-sms text-[#97654D]"></i>
+          <i className="ki-filled ki-user text-[#97654D]"></i>
           <input
             className="h-full"
                       type="text"
@@ -82,6 +82,7 @@ const EventDetailsStep = ({ formData, setFormData, onInputChange }) => {
           <label className="form-label text-black">
             Event Budget (Approx) :
           </label>
+          
           <div className="input">
 
           <i className="ki-filled ki-wallet text-[#97654D]"></i>
