@@ -2,9 +2,13 @@ import { useEffect, useState } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import DatePicker from "@/components/form-inputs/DatePicker/DatePicker";
 import AddProduct from "../add-product/AddProduct";
+import AddContact from "@/partials/modals/add-contact/AddContact";
+import AddSource from "@/partials/modals/add-source/AddSource";
 
 const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
   const [dateOfBirth, setDateOfBirth] = useState(null);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [issourceModalOpen, setIssourceModalOpen] = useState(false);
   const [dateOfAnniversary, setDateOfAnniversary] = useState(null);
   const [formData, setFormData] = useState();
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -23,6 +27,14 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
 
     setIsModalOpen(false);
   };
+  const handleOpenContactModal = () => {
+    setIsModalOpen(false);
+    setIsContactModalOpen(true);
+  };
+
+  const handleOpenSourceModal = () => {
+    setIssourceModalOpen(true);
+  };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
@@ -36,6 +48,26 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
           <div id="tab_1" className="tab-content active">
             <div className="flex flex-col gap-y-2 gap-x-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
+                <div className="flex flex-col">
+                  <label className="form-label">Pipeline</label>
+                  <select
+                    className="select pe-7.5"
+                    data-control="select2"
+                    data-placeholder="Contact"
+                  >
+                    <option value="">Sales Pipeline</option>
+                  </select>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Stage</label>
+                  <select
+                    className="select pe-7.5"
+                    data-control="select2"
+                    data-placeholder="Contact"
+                  >
+                    <option value="">Select Stage</option>
+                  </select>
+                </div>
                 <div className="flex flex-col">
                   <label className="form-label">Lead Title</label>
                   <div className="input">
@@ -62,7 +94,15 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
                 <div className="flex flex-col">
-                  <label className="form-label">Contact</label>
+                  <div className="flex flex-row items-center gap-3">
+                    <label className="form-label w-fit">Contact</label>
+                    <span
+                      className="text-blue-500 underline cursor-pointer"
+                      onClick={handleOpenContactModal}
+                    >
+                      Add Contact
+                    </span>
+                  </div>
                   <select
                     className="select pe-7.5"
                     data-control="select2"
@@ -82,7 +122,15 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
                   </select>
                 </div>
                 <div className="flex flex-col">
-                  <label className="form-label">Source</label>
+                  <div className="flex flex-row items-center gap-3">
+                    <label className="form-label w-fit">Source</label>
+                    <span
+                      className="text-blue-500 underline cursor-pointer"
+                      onClick={handleOpenSourceModal}
+                    >
+                      Add Source
+                    </span>
+                  </div>
                   <select
                     className="select pe-7.5"
                     data-control="select2"
@@ -108,7 +156,6 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
         );
       case "tab_2":
         console.log(formData && formData.product_data, "formData.product_data");
-
         return (
           <div id="tab_2" className="tab-content mb-2">
             <div className="text-end mb-2 mt-4">
@@ -210,6 +257,46 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
             </div>
           </div>
         );
+
+      case "tab_3":
+        return (
+          <div id="tab_3" className="tab-content">
+            <div className="flex flex-col gap-y-2 gap-x-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
+                <div className="flex flex-col">
+                  <label className="form-label">Text Field</label>
+                  <div className="input">
+                    <input
+                      className="h-full"
+                      type="text"
+                      placeholder="Text Field"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Number</label>
+                  <div className="input">
+                    <input
+                      className="h-full"
+                      type="number"
+                      placeholder="Number"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <label className="form-label">Drop Down</label>
+                  <select
+                    className="select pe-7.5"
+                    data-control="select2"
+                    data-placeholder="Drop Down"
+                  >
+                    <option value="">Drop Down</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
     }
   };
 
@@ -230,65 +317,97 @@ const AddLead = ({ isModalOpen, setIsModalOpen, editData }) => {
   }, [isModalOpen]);
 
   return (
-    isModalOpen && (
-      <>
-        <CustomModal
-          open={isModalOpen}
-          onClose={handleModalClose}
-          title="Add Lead"
-          width={640}
-          footer={[
-            <div className="flex justify-between" key={"footer-buttons"}>
-              <button
-                key="cancel"
-                className="btn btn-light"
-                onClick={handleModalClose}
-                title="Cancel"
-              >
-                Cancel
-              </button>
-              <button
-                key="save"
-                className="btn btn-success"
-                title="Save"
-                onClick={saveData}
-              >
-                Save
-              </button>
-            </div>,
-          ]}
-        >
-          <div
-            className="btn-tabs btn-tabs-lg flex justify-between mb-3 w-full"
-            data-tabs="true"
+    <>
+      {isModalOpen && (
+        <>
+          <CustomModal
+            open={isModalOpen}
+            onClose={handleModalClose}
+            title="Add Lead"
+            width={640}
+            footer={[
+              <div className="flex justify-between" key={"footer-buttons"}>
+                <button
+                  key="cancel"
+                  className="btn btn-light"
+                  onClick={handleModalClose}
+                  title="Cancel"
+                >
+                  Cancel
+                </button>
+                <button
+                  key="save"
+                  className="btn btn-success"
+                  title="Save"
+                  onClick={saveData}
+                >
+                  Save
+                </button>
+              </div>,
+            ]}
           >
-            <a
-              className={`btn btn-clear w-full flex justify-center ${
-                activeTab === "tab_1" ? "active" : ""
-              }`}
-              onClick={() => setActiveTab("tab_1")}
+            <div
+              className="btn-tabs btn-tabs-lg flex justify-between mb-3 w-full"
+              data-tabs="true"
             >
-              <i className="ki-filled ki-autobrightness"></i>
-              Lead Details
-            </a>
-            <a
-              className={`btn btn-clear w-full flex justify-center ${
-                activeTab === "tab_2" ? "active" : ""
-              }`}
-              onClick={() => setActiveTab("tab_2")}
-            >
-              <i className="ki-filled ki-bookmark"></i>
-              Product Details
-            </a>
-          </div>
-          {renderTabContent(formData)}
-        </CustomModal>
-        <AddProduct
-          isModalOpen={isProductModalOpen}
-          setIsModalOpen={setIsProductModalOpen}
+              <a
+                className={`btn btn-clear w-full flex justify-center ${
+                  activeTab === "tab_1" ? "active" : ""
+                }`}
+                onClick={() => setActiveTab("tab_1")}
+              >
+                <i className="ki-filled ki-autobrightness"></i>
+                Lead Details
+              </a>
+              <a
+                className={`btn btn-clear w-full flex justify-center ${
+                  activeTab === "tab_2" ? "active" : ""
+                }`}
+                onClick={() => setActiveTab("tab_2")}
+              >
+                <i className="ki-filled ki-bookmark"></i>
+                Product Details
+              </a>
+              <a
+                className={`btn btn-clear w-full flex justify-center ${
+                  activeTab === "tab_3" ? "active" : ""
+                }`}
+                onClick={() => setActiveTab("tab_3")}
+              >
+                <i className="ki-filled ki-bookmark"></i>
+                Custom Fields
+              </a>
+            </div>
+            {renderTabContent(formData)}
+          </CustomModal>
+          <AddProduct
+            isModalOpen={isProductModalOpen}
+            setIsModalOpen={setIsProductModalOpen}
+          />
+        </>
+      )}
+      <AddContact
+        isModalOpen={isContactModalOpen}
+        setIsModalOpen={(val) => {
+          setIsContactModalOpen(val);
+          if (!val) {
+            setIsModalOpen(true);
+          }
+        }}
+        // editData={editData}
+      />
+      <CustomModal
+        open={issourceModalOpen}
+        onClose={() => setIssourceModalOpen(false)}
+        title="Add Source"
+        width={500}
+      >
+        <AddSource
+          isModalOpen={issourceModalOpen}
+          setIsModalOpen={setIssourceModalOpen}
         />
-      </>
-    )
+      </CustomModal>
+    </>
   );
 };
 export default AddLead;

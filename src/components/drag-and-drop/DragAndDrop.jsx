@@ -57,10 +57,14 @@ const SortableColumn = ({ column }) => {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className="border rounded-lg bg-gray-100 w-64 transition-all duration-200 min-w-[20%]"
+      className="border rounded-lg bg-gray-100 w-64 transition-all duration-200 min-w-[300px] flex-shrink-0 flex flex-col"
       id={column.id}
+      style={{
+        maxHeight: "calc(100vh - 150px)", // adjust based on your top bar height
+      }}
     >
-      <div className="flex items-center justify-between border-b rounded-t-lg w-full light:bg-white dark:bg-coal-600 py-2 px-3">
+      {/* Column Header */}
+      <div className="flex items-center justify-between border-b rounded-t-lg w-full py-2 px-3 bg-white flex-shrink-0">
         <div className="flex flex-col">
           <p className="text-sm font-semibold text-gray-900">{column.name}</p>
           <small className="text-xs">
@@ -72,7 +76,9 @@ const SortableColumn = ({ column }) => {
           <i className="ki-filled ki-dots-horizontal"></i>
         </button>
       </div>
-      <div className="min-h-[20px] p-3">
+
+      {/* Cards List - scrollable */}
+      <div className="overflow-y-auto flex-1 scrollbar-hide p-3">
         {column.children.length > 0 ? (
           <SortableContext
             items={[column.id, ...column.children.map((task) => task.id)]}
@@ -84,7 +90,6 @@ const SortableColumn = ({ column }) => {
           </SortableContext>
         ) : (
           <div className="p-4 flex flex-col items-center">
-            {/* No data available */}
             <img
               src={toAbsoluteUrl(`/images/empty_icn.svg`)}
               className="dark:hidden max-h-[120px]"
@@ -206,7 +211,7 @@ export const DragAndDrop = ({ columns, setColumns, setDndActive }) => {
       onDragCancel={() => setDndActive(false)}
       onDragOver={handleDragOver}
     >
-      <div className="flex gap-4">
+      <div className="flex gap-4 overflow-x-auto">
         {columns.map((column) => (
           <SortableColumn key={column.id} column={column} />
         ))}

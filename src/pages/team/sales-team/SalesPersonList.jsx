@@ -52,17 +52,17 @@ const SalesPersonList = () => {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
-                className="btn btn-primary"
-                onClick={handleModalOpen}
-                title="Add Member"
-              >
-                <i className="ki-filled ki-plus"></i> Add Membero
+              className="btn btn-primary"
+              onClick={handleModalOpen}
+              title="Add Member"
+            >
+              <i className="ki-filled ki-plus"></i> Add Membero
             </button>
           </div>
         </div>
         <TableComponent
           columns={columns}
-          data={tableData}
+          tableData={tableData}
           paginationSize={10}
         />
       </Container>

@@ -93,7 +93,7 @@ const Holiday = () => {
         {/* TableComponent */}
         <TableComponent
           columns={columns}
-          data={tableData}
+          tableData={tableData}
           paginationSize={10}
         />
       </Container>

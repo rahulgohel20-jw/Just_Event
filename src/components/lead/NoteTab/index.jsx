@@ -69,7 +69,11 @@ const NoteTab = () => {
           </div>
         </div>
       </div>
-      <TableComponent columns={columns} data={tableData} paginationSize={10} />
+      <TableComponent
+        columns={columns}
+        tableData={tableData}
+        paginationSize={10}
+      />
     </>
   );
 };

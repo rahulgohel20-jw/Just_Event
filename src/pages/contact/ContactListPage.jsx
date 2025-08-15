@@ -30,9 +30,10 @@ const ContactListPage = () => {
   const responseFormate = () => {
     const data = defaultData.map((item) => {
       return {
+        key: item.id,
         ...item,
         action: (
-          <div className="flex items-center justify-center gap-1">
+          <div className="flex gap-1">
             <Tooltip className="cursor-pointer" title="View">
               <Link
                 to={`/contacts/details`}
@@ -123,7 +124,7 @@ const ContactListPage = () => {
         {/* TableComponent */}
         <TableComponent
           columns={columns}
-          data={tableData}
+          tableData={tableData}
           paginationSize={10}
         />
       </Container>

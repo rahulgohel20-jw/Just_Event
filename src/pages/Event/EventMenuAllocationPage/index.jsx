@@ -9,18 +9,18 @@ import useStyles from "./style";
 
 const EventMenuAllocationPage = () => {
   const classes = useStyles();
-const [tableData, setTableData] = useState();
+  const [tableData, setTableData] = useState();
   const responseFormate = () => {
-      const data = defaultData.map((item) => {
-        return {
-          ...item,
-        };
-      });
-      return data;
-    };
+    const data = defaultData.map((item) => {
+      return {
+        ...item,
+      };
+    });
+    return data;
+  };
   useEffect(() => {
-      setTableData(responseFormate());
-    }, []);
+    setTableData(responseFormate());
+  }, []);
   return (
     <Fragment>
       <Container>
@@ -28,22 +28,22 @@ const [tableData, setTableData] = useState();
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs items={[{ title: "Menu Allocation" }]} />
         </div>
-        <div
-          className={`grid grid-cols-1 xl:grid-cols-3 gap-5 lg:gap-7.5`}
-        >
+        <div className={`grid grid-cols-1 xl:grid-cols-3 gap-5 lg:gap-7.5`}>
           <div className="col-span-2">
-            <div className={`flex flex-col gap-5 lg:gap-7.5 border rounded-lg gap-4 p-4 ${classes.customStyle}`}>
-            <div className="kt-card">
-              <div className="kt-card-header gap-2">
-                <p><span>Date & Time: 30/07/2025 06:00 PM</span> <span>Person: 400</span></p>
-              </div>
-              <hr />  
-              <div id="notifications_cards">
-                <TableComponent
-                          columns={columns}
-                          data={tableData}
-                        />
-                 {/* <table className="ant-table">
+            <div
+              className={`flex flex-col gap-5 lg:gap-7.5 border rounded-lg gap-4 p-4 ${classes.customStyle}`}
+            >
+              <div className="kt-card">
+                <div className="kt-card-header gap-2">
+                  <p>
+                    <span>Date & Time: 30/07/2025 06:00 PM</span>{" "}
+                    <span>Person: 400</span>
+                  </p>
+                </div>
+                <hr />
+                <div id="notifications_cards">
+                  <TableComponent columns={columns} tableData={tableData} />
+                  {/* <table className="ant-table">
                   <thead>
                     <tr>
                       <th>#</th>
@@ -87,19 +87,21 @@ const [tableData, setTableData] = useState();
                     </tr>
                   </tbody>
                 </table> */}
+                </div>
               </div>
-            </div>
             </div>
           </div>
           <div className="col-span-1">
-            <div className={`flex flex-col gap-5 lg:gap-7.5 border rounded-lg gap-4 p-4 ${classes.customStyle}`}>
-            <div className="kt-card">
-              <div className="kt-card-header">
-              <h3 className="kt-card-title">
-                WELCOME DRINKS AND SPRITZERS
-              </h3>
+            <div
+              className={`flex flex-col gap-5 lg:gap-7.5 border rounded-lg gap-4 p-4 ${classes.customStyle}`}
+            >
+              <div className="kt-card">
+                <div className="kt-card-header">
+                  <h3 className="kt-card-title">
+                    WELCOME DRINKS AND SPRITZERS
+                  </h3>
+                </div>
               </div>
-            </div>
             </div>
           </div>
         </div>
