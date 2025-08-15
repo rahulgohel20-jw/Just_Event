@@ -689,7 +689,7 @@ export const columns = [
                 className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
                 title="View"
               >
-                <i className="ki-filled ki-eye"></i>
+                <i className="ki-filled ki-eye text-purple-700"></i>
               </button>
             </Link>
           </Tooltip>
@@ -698,7 +698,7 @@ export const columns = [
               className="btn btn-sm btn-icon btn-clear text-primary border border-[#E3E3E3]"
               title="Edit"
             >
-              <i className="ki-filled ki-notepad-edit"></i>
+              <i className="ki-filled ki-notepad-edit text-blue-700"></i>
             </button>
           </Tooltip>
 

@@ -9,8 +9,8 @@ const SidebarHeader = forwardRef((props, ref) => {
   } = useDemo1Layout();
   const lightLogo = () => <Fragment>
       <Link to="/" className="dark:hidden">
-        <img src={toAbsoluteUrl('/images/logo.svg')} className="default-logo h-[40px] max-w-none transition-all" />
-        <img src={toAbsoluteUrl('/images/monogram.svg')} className="small-logo h-[36px] max-w-none transition-all" />
+        <img src={toAbsoluteUrl('/images/justevent.svg')} className="default-logo  w-[200px] max-w-none transition-all" />
+        <img src={toAbsoluteUrl('/images/filcon.png')} className="small-logo h-[40px] max-w-none transition-all" />
       </Link>
       <Link to="/" className="hidden dark:block">
         <img src={toAbsoluteUrl('/images/logo_white.svg')} className="default-logo h-[40px] max-w-none transition-all" />

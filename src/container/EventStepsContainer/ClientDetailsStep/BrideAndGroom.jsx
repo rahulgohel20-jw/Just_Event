@@ -7,6 +7,10 @@ import { toAbsoluteUrl } from "@/utils";
 function BrideAndGroom({ formData, setFormData, handleInputChange }) {
   const namePrefixes = ["Mr.", "Mrs."];
 
+  const IconWrapper = ({ icon }) => (
+    <i className={`ki-filled ${icon} text-[#97654D] text-lg`} />
+  );
+
   return (
     <div className="p-6 space-y-8 text-sm text-gray-800">
       {/* Client 1 */}
@@ -24,19 +28,22 @@ function BrideAndGroom({ formData, setFormData, handleInputChange }) {
               <option key={prefix}>{prefix}</option>
             ))}
           </select>
-          <Input
-            type="text"
-            placeholder="Alex Roy"
-            className="border px-2 py-1 rounded-xl w-5/12"
-            value={formData.client1Name}
-            onChange={(e) => handleInputChange(e, "client1Name")}
-          />
-          <div className="ml-4 flex items-center gap-2 w-2/5">
+          <div className="flex items-center gap-2 border rounded-xl px-2 w-5/12">
+            <IconWrapper icon="ki-user" />
+            <Input
+              type="text"
+              placeholder="Alex Roy"
+              className="border-0 focus:ring-0"
+              value={formData.client1Name}
+              onChange={(e) => handleInputChange(e, "client1Name")}
+            />
+          </div>
+          <div className="ml-4 flex items-center gap-2 w-2/5 min-w-[160px]">
             <Button
               onClick={() => setFormData({ ...formData, client1Type: "groom" })}
-              className={`flex items-center justify-start gap-2 px-4 py-1 rounded-xl w-1/3 ${
+              className={`flex items-center gap-2 px-4 py-1 rounded-xl w-1/3 ${
                 formData.client1Type === "groom"
-                  ? "bg-[#99694F] text-white"
+                  ? "bg-[#96644D] text-white"
                   : "bg-white text-black border"
               }`}
             >
@@ -49,9 +56,9 @@ function BrideAndGroom({ formData, setFormData, handleInputChange }) {
             </Button>
             <Button
               onClick={() => setFormData({ ...formData, client1Type: "bride" })}
-              className={`flex items-center justify-start gap-2 px-4 py-1 rounded-xl w-1/3 ${
+              className={`flex items-center gap-2 px-4 py-1 rounded-xl w-1/3 ${
                 formData.client1Type === "bride"
-                  ? "bg-[#99694F] text-white"
+                  ? "bg-[#96644D] text-white"
                   : "bg-white text-black border"
               }`}
             >
@@ -64,20 +71,26 @@ function BrideAndGroom({ formData, setFormData, handleInputChange }) {
             </Button>
           </div>
         </div>
-        <Textarea
-          placeholder="Enter Order Address"
-          className="mt-3 w-full border px-2 py-1 resize-none rounded-xl"
-          rows={2}
-          value={formData.client1Address}
-          onChange={(e) => handleInputChange(e, "client1Address")}
-        />
-        <Input
-          type="text"
-          placeholder="Enter Mobile Number"
-          className="mt-3 w-1/2 border px-2 py-1 rounded-xl"
-          value={formData.client1Mobile}
-          onChange={(e) => handleInputChange(e, "client1Mobile")}
-        />
+        <div className="flex items-center gap-2 mt-3 border rounded-xl px-2">
+          <IconWrapper icon="ki-geolocation" />
+          <Textarea
+            placeholder="Enter Order Address"
+            className="border-0 focus:ring-0 resize-none"
+            rows={2}
+            value={formData.client1Address}
+            onChange={(e) => handleInputChange(e, "client1Address")}
+          />
+        </div>
+        <div className="flex items-center gap-2 mt-3 border rounded-xl px-2 w-1/2">
+          <IconWrapper icon="ki-phone" />
+          <Input
+            type="text"
+            placeholder="Enter Mobile Number"
+            className="border-0 focus:ring-0"
+            value={formData.client1Mobile}
+            onChange={(e) => handleInputChange(e, "client1Mobile")}
+          />
+        </div>
       </div>
 
       {/* Client 2 */}
@@ -95,19 +108,22 @@ function BrideAndGroom({ formData, setFormData, handleInputChange }) {
               <option key={prefix}>{prefix}</option>
             ))}
           </select>
-          <Input
-            type="text"
-            placeholder="Veronica Mathew"
-            className="border px-2 py-1 rounded-x w-5/12"
-            value={formData.client2Name}
-            onChange={(e) => handleInputChange(e, "client2Name")}
-          />
-          <div className="ml-4 flex items-center gap-2 w-2/5">
+          <div className="flex items-center gap-2 border rounded-xl px-2 w-5/12">
+            <IconWrapper icon="ki-user" />
+            <Input
+              type="text"
+              placeholder="Veronica Mathew"
+              className="border-0 focus:ring-0"
+              value={formData.client2Name}
+              onChange={(e) => handleInputChange(e, "client2Name")}
+            />
+          </div>
+          <div className="ml-4 flex items-center gap-2 w-2/5 min-w-[160px]">
             <Button
               onClick={() => setFormData({ ...formData, client2Type: "groom" })}
-              className={`flex items-center justify-start gap-2 px-4 py-1 rounded-xl w-1/3 ${
+              className={`flex items-center gap-2 px-4 py-1 rounded-xl w-1/3 ${
                 formData.client2Type === "groom"
-                  ? "bg-[#99694F] text-white"
+                  ? "bg-[#96644D] text-white"
                   : "bg-white text-black border"
               }`}
             >
@@ -120,9 +136,9 @@ function BrideAndGroom({ formData, setFormData, handleInputChange }) {
             </Button>
             <Button
               onClick={() => setFormData({ ...formData, client2Type: "bride" })}
-              className={`flex items-center justify-start gap-2 px-4 py-1 rounded-xl w-1/3 ${
+              className={`flex items-center gap-2 px-4 py-1 rounded-xl w-1/3 ${
                 formData.client2Type === "bride"
-                  ? "bg-[#99694F] text-white"
+                  ? "bg-[#96644D] text-white"
                   : "bg-white text-black border"
               }`}
             >
@@ -135,39 +151,45 @@ function BrideAndGroom({ formData, setFormData, handleInputChange }) {
             </Button>
           </div>
         </div>
-        <Textarea
-          placeholder="Enter Order Address"
-          className="mt-3 w-full border px-2 py-1 rounded-xl resize-none"
-          rows={2}
-          value={formData.client2Address}
-          onChange={(e) => handleInputChange(e, "client2Address")}
-        />
-        <Input
-          type="text"
-          placeholder="Enter Mobile Number"
-          className="mt-3 w-1/2 border px-2 py-1 rounded-xl"
-          value={formData.client2Mobile}
-          onChange={(e) => handleInputChange(e, "client2Mobile")}
-        />
+        <div className="flex items-center gap-2 mt-3 border rounded-xl px-2">
+          <IconWrapper icon="ki-geolocation" />
+          <Textarea
+            placeholder="Enter Order Address"
+            className="border-0 focus:ring-0 resize-none"
+            rows={2}
+            value={formData.client2Address}
+            onChange={(e) => handleInputChange(e, "client2Address")}
+          />
+        </div>
+        <div className="flex items-center gap-2 mt-3 border rounded-xl px-2 w-1/2">
+          <IconWrapper icon="ki-phone" />
+          <Input
+            type="text"
+            placeholder="Enter Mobile Number"
+            className="border-0 focus:ring-0"
+            value={formData.client2Mobile}
+            onChange={(e) => handleInputChange(e, "client2Mobile")}
+          />
+        </div>
       </div>
 
       {/* Lead Source + Priority */}
-      <div className="flex flex-row gap-4 items-center ">
-        <div className="w-8/12">
-          <label className="block mb-1 font-normal text-black">
-            Lead Source :
-          </label>
+      <div className="flex flex-row gap-4 items-center">
+        <div className="w-8/12 flex items-center gap-2 border rounded-xl px-2">
+          <IconWrapper icon="ki-instagram" />
           <Input
             type="text"
-            placeholder=""
-            className="border px-2 py-1 rounded-xl w-full"
+            placeholder="Lead Source"
+            className="border-0 focus:ring-0 w-full"
             value={formData.leadSource}
             onChange={(e) => handleInputChange(e, "leadSource")}
           />
         </div>
 
         <div className="flex items-center gap-4">
-          <span className="font-normal text-black">High Priority :</span>
+          <span className="font-normal text-black flex items-center gap-1">
+            <IconWrapper icon="ki-flag" /> High Priority :
+          </span>
           <label className="flex items-center gap-1">
             <Input
               type="radio"
