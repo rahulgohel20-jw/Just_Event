@@ -95,7 +95,7 @@ const EventListPage = () => {
               <i className="ki-filled ki-plus"></i> Add Event
             </button>
         
-            <Link to="/add-event">
+            {/* <Link to="/add-event">
               <button
                 className="btn btn-primary"
                 onClick={handleModalOpen}
@@ -103,7 +103,7 @@ const EventListPage = () => {
               >
                 <i className="ki-filled ki-plus"></i> Add Event
               </button>
-            </Link>
+            </Link> */}
 
           </div>
         </div>

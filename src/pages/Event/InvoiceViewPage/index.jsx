@@ -38,38 +38,38 @@ export default function InvoiceViewPage() {
           </Upload>
         </div>
 
-        <div className="flex items-center  w-full justify-between">
+        <div className="flex items-center  w-full gap-2  ps-4">
           <Button
             icon={<EditOutlined className="text-[#006B0B]" />}
-            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)] text-[#006B0B] w-[110px]"
+            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.15)] text-[#006B0B] w-[110px]"
           >
             Edit
           </Button>
 
           <Button
             icon={<ShareAltOutlined className="text-[#00447A]" />}
-            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)] text-[#00447A] w-[110px]"
+            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.15)] text-[#00447A] w-[110px]"
           >
             Share
           </Button>
 
           <Button
             icon={<SendOutlined className="text-[#8B5300]" />}
-            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)] text-[#8B5300] w-[110px]"
+            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.15)] text-[#8B5300] w-[110px]"
           >
             Send
           </Button>
 
           <Button
             icon={<PrinterOutlined className="text-[#5D006D]" />}
-            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)] text-[#5D006D] w-[110px]"
+            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.15)] text-[#5D006D] w-[110px]"
           >
             Print
           </Button>
 
           <Button
             icon={<DollarCircleOutlined className="text-[#00534B]" />}
-            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.25)] text-[#00534B]"
+            className="rounded-lg border font-bold  shadow-[4px_4px_17px_2px_rgba(0,0,0,0.15)] text-[#00534B]  w-[170px]"
           >
             Record Payment
           </Button>

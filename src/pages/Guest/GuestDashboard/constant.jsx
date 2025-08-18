@@ -54,31 +54,31 @@ export const columns = [
   {
     accessorKey: "name",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Name" column={column} />
+      <DataGridColumnHeader title="Name" column={column}  />
     ),
   },
   {
     accessorKey: "mobile",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Phone Number" column={column} />
+      <DataGridColumnHeader title="Phone Number" column={column}   />
     ),
   },
   {
     accessorKey: "emailid",
     header: ({ column }) => (
-      <DataGridColumnHeader title="E-mail ID" column={column} />
+      <DataGridColumnHeader title="E-mail ID" column={column}  />
     ),
   },
   {
     accessorKey: "eventAttending",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Event Attending" column={column} />
+      <DataGridColumnHeader title="Event Attending" column={column}  />
     ),
   },
   {
     accessorKey: "hotelStatus",
     header: ({ column }) => (
-      <DataGridColumnHeader title="Hotel Status" column={column} />
+      <DataGridColumnHeader title="Hotel Status" column={column}  />
     ),
   },
   {
