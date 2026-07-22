@@ -4,209 +4,246 @@ export const MENU_SIDEBAR = [
     icon: "element-11 text-primary",
     path: "/",
   },
+  // {
+  //   title: "Guest",
+  //   icon: "ki-filled ki-users text-primary",
+  //   children: [
+  //     {
+  //       title: "Dashboard",
+  //       path: "/guest-dashboard",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Event Management",
+  //   icon: "ki-filled ki-calendar-tick text-primary",
+  //   children: [
+  //     {
+  //       title: "Calendar",
+  //       path: "/calendar",
+  //     },
+  //     {
+  //       title: "Event",
+  //       path: "/event",
+  //     },
+  //     {
+  //       title: "Event Overview",
+  //       path: "/event-overview",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Leads",
+  //   icon: "ki-filled ki-abstract-18 text-primary",
+  //   children: [
+  //     {
+  //       title: "Overview",
+  //       path: "/overview",
+  //     },
+  //     {
+  //       title: "Leads",
+  //       path: "/lead",
+  //     },
+  //     {
+  //       title: "Contacts",
+  //       path: "/contacts",
+  //     },
+  //     {
+  //       title: "Companies",
+  //       path: "/company",
+  //     },
+  //     {
+  //       title: "Follow Up",
+  //       path: "/followup",
+  //     },
+  //     {
+  //       title: "Products",
+  //       path: "/product",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Tasks",
+  //   icon: "ki-filled ki-abstract-16 text-primary",
+  //   children: [
+  //     {
+  //       title: "All Tasks",
+  //       path: "/tasks",
+  //     },
+  //     {
+  //       title: "Tasks Templates",
+  //       path: "/tasks-template",
+  //     },
+  //     {
+  //       title: "Tasks Directory",
+  //       path: "/tasks-directory",
+  //     },
+  //   ],
+  // },
+
+  // {
+  //   title: "leaves",
+  //   icon: "ki-filled ki-abstract-17 text-primary",
+  //   children: [
+  //     {
+  //       title: "Dashboard",
+  //       path: "/leave-dashboard",
+  //     },
+  //     {
+  //       title: "Dashboard",
+  //       path: "/dashboard",
+  //     },
+  //     {
+  //       title: "My Attendance",
+  //       path: "/myattendance",
+  //     },
+  //     {
+  //       title: "Approval",
+  //       path: "/approval",
+  //     },
+  //     {
+  //       title: "Holidays",
+  //       path: "/holiday",
+  //     },
+  //     {
+  //       title: "My Leaves",
+  //       path: "/myleaves",
+  //     },
+  //     {
+  //       title: "All Leaves",
+  //       path: "/allleave",
+  //     },
+  //     {
+  //       title: "All Attendance",
+  //       path: "/allattendance",
+  //     },
+  //     {
+  //       title: "Settings",
+  //       icon: "ki-filled ki-setting-2 text-primary",
+  //       children: [
+  //         {
+  //           title: "Leave Type",
+  //           path: "/leavetype",
+  //         },
+  //         {
+  //           title: "Attendance Settings",
+  //           path: "/attendance-setting",
+  //         },
+  //         {
+  //           title: "Office Settings",
+  //           path: "/officesettings",
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Links",
+  //   icon: "ki-filled ki-disconnect text-primary",
+  //   path: "/links",
+  // },
+  // {
+  //   title: "Team",
+  //   icon: "ki-filled ki-users text-primary",
+  //   children: [
+  //     {
+  //       title: "Sales Team",
+  //       path: "/team/seals-team",
+  //     },
+  //     {
+  //       title: "User Roles",
+  //       path: "team/user-role",
+  //     },
+  //     {
+  //       title: "All Members",
+  //       path: "team/all-members",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Settings",
+  //   icon: "ki-filled ki-setting-2 text-primary",
+  //   children: [
+  //     {
+  //       title: "General",
+  //       path: "settings/general",
+  //     },
+  //     {
+  //       title: "Customize",
+  //       path: "settings/customize",
+  //     },
+  //     {
+  //       title: "Channels",
+  //       path: "settings/channel",
+  //     },
+  //     {
+  //       title: "Notifications",
+  //       path: "settings/notifications",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Support",
+  //   icon: "ki-filled ki-support text-primary",
+  //   children: [
+  //     { title: "Events", path: "/support/events" },
+  //     { title: "Tutorials", path: "/support/tutorials" },
+  //     { title: "Tickets", path: "/support/tickets" },
+  //     { title: "Application", path: "/support/application" },
+  //     { title: "Progress Checklist", path: "/support/progress-checklist" },
+  //     { title: "Raise Ticket", path: "/support/raise-ticket" },
+  //   ],
+  // },
+  // {
+  //   title: "Billing",
+  //   icon: "ki-filled ki-cheque text-primary",
+  //   children: [
+  //     {
+  //       title: "Overview",
+  //       path: "billing/overview",
+  //     },
+  //     {
+  //       title: "Wallet Logs",
+  //       path: "billing/wallet-logs",
+  //     },
+  //   ],
+  // },
+
   {
-    title: "Guest",
-    icon: "ki-filled ki-users text-primary",
+    title: "Masters",
+     icon: "  text-lg ki-filled ki-abstract-26 text-primary",
     children: [
       {
-        title: "Dashboard",
-        path: "/guest-dashboard",
-      },
-    ],
-  },
-  {
-    title: "Event Management",
-    icon: "ki-filled ki-calendar-tick text-primary",
-    children: [
-      {
-        title: "Calendar",
-        path: "/calendar",
+        title: "Category Master",
+        path: "/categorymaster",
       },
       {
-        title: "Event",
-        path: "/event",
+        title: "Client Master",
+        path: "/clientmaster",
       },
       {
-        title: "Event Overview",
-        path: "/event-overview",
-      },
-    ],
-  },
-  {
-    title: "Leads",
-    icon: "ki-filled ki-abstract-18 text-primary",
-    children: [
-      {
-        title: "Overview",
-        path: "/overview",
+        title: "Vendor Master",
+        path: "/vendormaster",
       },
       {
-        title: "Leads",
-        path: "/lead",
+        title: "Function Master",
+        path: "/functionmaster",
       },
       {
-        title: "Contacts",
-        path: "/contacts",
+        title: "Venue Master",
+        path: "/venueMaster",
       },
-      {
-        title: "Companies",
-        path: "/company",
-      },
-      {
-        title: "Follow Up",
-        path: "/followup",
-      },
-      {
-        title: "Products",
-        path: "/product",
-      },
-    ],
-  },
-  {
-    title: "Tasks",
-    icon: "ki-filled ki-abstract-16 text-primary",
-    children: [
-      {
-        title: "All Tasks",
-        path: "/tasks",
-      },
-      {
-        title: "Tasks Templates",
-        path: "/tasks-template",
-      },
-      {
-        title: "Tasks Directory",
-        path: "/tasks-directory",
+       {
+        title: "Tax Master",
+        path: "/taxmaster",
       },
     ],
   },
 
   {
-    title: "leaves",
-    icon: "ki-filled ki-abstract-17 text-primary",
-    children: [
-      {
-        title: "Dashboard",
-        path: "/leave-dashboard",
-      },
-      {
-        title: "Dashboard",
-        path: "/dashboard",
-      },
-      {
-        title: "My Attendance",
-        path: "/myattendance",
-      },
-      {
-        title: "Approval",
-        path: "/approval",
-      },
-      {
-        title: "Holidays",
-        path: "/holiday",
-      },
-      {
-        title: "My Leaves",
-        path: "/myleaves",
-      },
-      {
-        title: "All Leaves",
-        path: "/allleave",
-      },
-      {
-        title: "All Attendance",
-        path: "/allattendance",
-      },
-      {
-        title: "Settings",
-        icon: "ki-filled ki-setting-2 text-primary",
-        children: [
-          {
-            title: "Leave Type",
-            path: "/leavetype",
-          },
-          {
-            title: "Attendance Settings",
-            path: "/attendance-setting",
-          },
-          {
-            title: "Office Settings",
-            path: "/officesettings",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    title: "Links",
-    icon: "ki-filled ki-disconnect text-primary",
-    path: "/links",
-  },
-  {
-    title: "Team",
-    icon: "ki-filled ki-users text-primary",
-    children: [
-      {
-        title: "Sales Team",
-        path: "/team/seals-team",
-      },
-      {
-        title: "User Roles",
-        path: "team/user-role",
-      },
-      {
-        title: "All Members",
-        path: "team/all-members",
-      },
-    ],
-  },
-  {
-    title: "Settings",
-    icon: "ki-filled ki-setting-2 text-primary",
-    children: [
-      {
-        title: "General",
-        path: "settings/general",
-      },
-      {
-        title: "Customize",
-        path: "settings/customize",
-      },
-      {
-        title: "Channels",
-        path: "settings/channel",
-      },
-      {
-        title: "Notifications",
-        path: "settings/notifications",
-      },
-    ],
-  },
-  {
-    title: "Support",
-    icon: "ki-filled ki-support text-primary",
-    children: [
-      { title: "Events", path: "/support/events" },
-      { title: "Tutorials", path: "/support/tutorials" },
-      { title: "Tickets", path: "/support/tickets" },
-      { title: "Application", path: "/support/application" },
-      { title: "Progress Checklist", path: "/support/progress-checklist" },
-      { title: "Raise Ticket", path: "/support/raise-ticket" },
-    ],
-  },
-  {
-    title: "Billing",
-    icon: "ki-filled ki-cheque text-primary",
-    children: [
-      {
-        title: "Overview",
-        path: "billing/overview",
-      },
-      {
-        title: "Wallet Logs",
-        path: "billing/wallet-logs",
-      },
-    ],
+    title: "Inventory",
+  icon: "ki-filled ki-archive text-primary",
+    path: "/inventory-dashboard",
   },
   {
     title: "Event Invoice",
@@ -227,6 +264,44 @@ export const MENU_SIDEBAR = [
     ],
   },
 ];
+
+export const MENU_INVENTORY_SIDEBAR = [
+  {
+    title: "Dashboard",
+   
+    path: "/inventory-dashboard",
+  },
+
+  {
+    title: "Masters",
+     icon: "  text-lg ki-filled ki-abstract-26 text-primary",
+    children: [
+      {
+    title: "Raw Category Type",
+    path: "/inventory/item-master",
+  },
+  {
+    title: "Raw Category",
+    path: "/inventory/stock-in",
+  },
+  {
+    title: "Raw Sub Category",
+    path: "/inventory/stock-out",
+  },
+  {
+    title: "Unit",
+    path: "/inventory/stock-report",
+  },
+  {
+    title: "Vendor/Supllier",
+    path: "/inventory/stock-report",
+  },
+    ],
+  },
+  
+];
+
+
 export const MENU_MEGA = [
   {
     title: "Home",
