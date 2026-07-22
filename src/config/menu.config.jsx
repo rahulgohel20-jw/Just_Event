@@ -215,7 +215,7 @@ export const MENU_SIDEBAR = [
     children: [
       {
         title: "Category Master",
-        path: "/categorymaster",
+        path: "/master/categorymaster",
       },
       {
         title: "Client Master",

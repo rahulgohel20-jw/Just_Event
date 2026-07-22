@@ -140,6 +140,7 @@ import GuestForm from "@/pages/Guest/GuestForm/GuestForm";
 import { EventOverviewPage } from "@/pages/Event/EventOverViewPage";
 import InventoryDashboard from "../pages/inventory/InventoryDashboard/InventoryDashboard";
 import RawCategoryType from "../pages/inventory/RawCategoryType/RawCategoryType";
+import CategoryMaster from "../pages/Master/Category Master";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -148,6 +149,7 @@ const AppRoutingSetup = () => {
 
         <Route element={<Demo1Layout />}>
           {/* project routs */}
+          <Route path="/master/categorymaster" element={<CategoryMaster/>}/>
           <Route path="/" element={<Dashboard />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />

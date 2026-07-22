@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Modal } from "antd";
 import useStyle from "./style";
-const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
+const CustomModal = ({ open, onClose, children, footer,centered, title, ...rest }) => {
   const classes = useStyle();
   const [shake, setShake] = useState(false);
   const modalRef = useRef(null);
@@ -43,7 +43,8 @@ const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
     <Modal
       maskClosable={false} //  disables closing on backdrop click
       keyboard={false} //disables closing on Esc
-      closable={false} // Disable default close button
+      closable={false} 
+       centered={centered}
       title={
         title ? (
           <div>
@@ -63,6 +64,7 @@ const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
       }
       open={open}
       onCancel={handleClose}
+      
       modalRender={(modal) => (
         // for shake animation
         <div ref={modalRef} className={shake ? classes.shake : ""}>
