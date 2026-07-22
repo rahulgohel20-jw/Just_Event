@@ -55,12 +55,12 @@ module.exports = {
                 inverse: "#FFFFFF",
               },
               primary: {
-                default: "#A57353", // #005BA8
-                active: "#A57353", // #004986
-                light: "rgba(51, 124, 185, 1)", // #e6eff6
-                lighter: "rgba(230, 239, 246, 1)", // #e6eff6
-                inverse: "rgba(255, 255, 255, 1)", // #ffffff
-                clarity: "rgba(0, 91, 168, 0.20)",
+                default: "#A94064", 
+                active: "#81334C", 
+                light: "#D98DAF", 
+                lighter: "#E8B9D0", 
+                inverse: "#FFF8F8", 
+                clarity: "rgba(129, 51, 76, 0.20)",
               },
               success: {
                 default: "rgba(40, 167, 69, 1)", // #28A745
@@ -143,7 +143,7 @@ module.exports = {
                 inverse: "#ffffff",
               },
               primary: {
-                default: "#A57353", // #005BA8
+                default: "#005BA8", // #005BA8
                 active: "rgba(0, 73, 134, 1)", // #004986
                 light: "rgba(51, 124, 185, 1)", // #e6eff6
                 lighter: "rgba(230, 239, 246, 1)", // #e6eff6

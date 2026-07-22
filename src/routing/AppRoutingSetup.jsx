@@ -141,7 +141,9 @@ import { EventOverviewPage } from "@/pages/Event/EventOverViewPage";
 const AppRoutingSetup = () => {
   return (
     <Routes>
-      <Route element={<RequireAuth />}>
+      {/* <Route element={<RequireAuth />}> */}
+            <Route>
+
         <Route element={<Demo1Layout />}>
           {/* project routs */}
           <Route path="/" element={<Dashboard />} />

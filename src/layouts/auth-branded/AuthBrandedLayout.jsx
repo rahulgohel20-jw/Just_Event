@@ -1,53 +1,61 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { Fragment } from "react";
 import { toAbsoluteUrl } from "@/utils";
 import useBodyClasses from "@/hooks/useBodyClasses";
 import { AuthBrandedLayoutProvider } from "./AuthBrandedLayoutProvider";
+
+// Map each auth route to its own illustration + copy
+const PAGE_CONTENT = {
+  login: {
+    image: "/images/login_img.jpg",
+    alt: "Illustration of an event planner coordinating venues, vendors, and logistics",
+    title: "Just Event",
+    description:
+      "The trusted command center for global event professionals. From high-stakes corporate summits to intimate luxury celebrations, manage every detail with absolute precision and ease.",
+  },
+  signup: {
+    image: "/images/signup.jpg",
+    alt: "Illustration of an event planner setting up a venue with decor and lighting",
+    title: "Just Event",
+    description:
+      "The premier enterprise-grade platform for professional event planners. From luxury weddings to high-scale corporate conferences, manage every detail with precision, elegance, and ease.",
+  },
+};
+
+const getPageKey = (pathname) => {
+  if (pathname.includes("signup")) return "signup";
+  return "login"; // default/fallback (login, reset-password, 2fa, etc.)
+};
+
 const Layout = () => {
-  // Applying body classes to manage the background color in dark mode
   useBodyClasses("dark:bg-coal-500");
+  const location = useLocation();
+  const content = PAGE_CONTENT[getPageKey(location.pathname)];
+
   return (
     <Fragment>
-      <style>
-        {`
-          .branded-bg {
-            background-image: url('${toAbsoluteUrl("/images/account_img.jpg")}');
-          }
-          .dark .branded-bg {
-            background-image: url('${toAbsoluteUrl("/images/account_img.jpg")}');
-          }
-        `}
-      </style>
-      <div className="grid lg:grid-cols-2 grow">
-        <div className="lg:rounded-xl lg:border lg:border-gray-200 lg:m-5 order-2 lg:order-1 bg-top xxl:bg-center xl:bg-cover bg-no-repeat branded-bg">
-          <div className="flex flex-col p-8 lg:p-16 gap-4 text-center">
-            <Link to="/" className="m-auto">
-              <img
-                src={toAbsoluteUrl("/images/monogram_white.svg")}
-                className="h-[42px] max-w-none"
-                alt=""
-              />
-            </Link>
+      <div className="grid lg:grid-cols-2 grow min-h-screen bg-white">
+        {/* Illustration side */}
+        <div className="hidden lg:flex flex-col items-center justify-center order-1 p-10 bg-white">
+          <div className="max-w-[400px] w-full flex flex-col items-center text-center gap-6">
+            <img
+              src={toAbsoluteUrl(content.image)}
+              alt={content.alt}
+              className="w-full max-w-[500px] h-auto"
+            />
             <div className="flex flex-col gap-3">
-              <h3 className="text-xl font-semibold text-white">
-                Welcome to Just Catering Software
-              </h3>
-              <div className="text-sm text-white opacity-90">
-                It has survived not only five centuries, but also the leap{" "}
-                <span className="font-bold">into electronic</span>
-                <br className="hidden md:inline" />
-                <span className="font-bold">typesetting</span>, remaining essentially unchanged.
-              </div>
+              <h2 className="text-2xl font-bold text-primary">{content.title}</h2>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                {content.description}
+              </p>
             </div>
           </div>
         </div>
-        <div className="flex justify-center flex-col items-center p-4 md:p-6 lg:p-10 order-1 lg:order-2">
+
+        {/* Form side */}
+        <div className="flex justify-center flex-col items-center p-4 md:p-6 lg:p-10 order-2 bg-primary-inverse">
           <Link to="/" className="ms-auto me-auto mt-auto mb-5 lg:hidden">
-            <img
-              src={toAbsoluteUrl("/images/monogram_white.svg")}
-              className="h-[28px] max-w-none"
-              alt=""
-            />
+            <span className="text-xl font-bold text-primary">Just Event</span>
           </Link>
           <Outlet />
         </div>
@@ -55,10 +63,11 @@ const Layout = () => {
     </Fragment>
   );
 };
-// AuthBrandedLayout component that wraps the Layout component with AuthBrandedLayoutProvider
+
 const AuthBrandedLayout = () => (
   <AuthBrandedLayoutProvider>
     <Layout />
   </AuthBrandedLayoutProvider>
 );
+
 export { AuthBrandedLayout };
