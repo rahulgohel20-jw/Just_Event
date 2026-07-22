@@ -138,6 +138,8 @@ import InvoiceViewPage from "@/pages/Event/InvoiceViewPage";
 import ProformaInvoicePage from "@/pages/Event/ProformaInvoicePage";
 import GuestForm from "@/pages/Guest/GuestForm/GuestForm";
 import { EventOverviewPage } from "@/pages/Event/EventOverViewPage";
+import InventoryDashboard from "../pages/inventory/InventoryDashboard/InventoryDashboard";
+import RawCategoryType from "../pages/inventory/RawCategoryType/RawCategoryType";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -160,6 +162,12 @@ const AppRoutingSetup = () => {
           {/* guest routes */}
           <Route path="/guest-dashboard" element={<GuestDashboard />} />
           <Route path="/guest-form" element={<GuestForm />} />
+
+
+          {/* Inventory routes */}
+<Route path="/inventory-dashboard" element={<InventoryDashboard />} />
+
+<Route path="/inventory-category-type" element={<RawCategoryType />} />
 
           {/* Theme routes */}
           <Route path="/company" element={<CompanyListPage />}></Route>

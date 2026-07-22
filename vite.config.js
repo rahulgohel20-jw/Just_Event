@@ -18,5 +18,16 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 3000
-  }
+  },
+   server: {
+    port:5174,
+    proxy: {
+      "/v1/api": {
+        target: "http://103.1.101.244:9091",
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
+  },
 });

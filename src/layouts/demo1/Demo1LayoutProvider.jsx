@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import { useMenuChildren } from '@/components/menu';
-import { MENU_SIDEBAR } from '@/config/menu.config';
+import { MENU_SIDEBAR, MENU_INVENTORY_SIDEBAR  } from '@/config/menu.config';
 import { useScrollPosition } from '@/hooks/useScrollPosition';
 import { useMenus } from '@/providers';
 import { useLayout } from '@/providers';
@@ -52,18 +52,18 @@ const Demo1LayoutContext = createContext(initalLayoutProps);
 const useDemo1Layout = () => useContext(Demo1LayoutContext);
 
 // Layout provider component that wraps the application
-const Demo1LayoutProvider = ({
-  children
-}) => {
-  const {
-    pathname
-  } = useLocation(); // Gets the current path
-  const {
-    setMenuConfig
-  } = useMenus(); // Accesses menu configuration methods
-  const secondaryMenu = useMenuChildren(pathname, MENU_SIDEBAR, 0); // Retrieves the secondary menu
+const Demo1LayoutProvider = ({ children }) => {
+  const { pathname } = useLocation();
+  const { setMenuConfig } = useMenus();
 
-  // Sets the primary and secondary menu configurations
+  // Always call the hook (rules of hooks), decide which result to use after
+  const derivedSecondaryMenu = useMenuChildren(pathname, MENU_SIDEBAR, 0);
+
+  const isInventoryRoute = pathname.startsWith('/inventory-dashboard');
+  const secondaryMenu = isInventoryRoute
+    ? MENU_INVENTORY_SIDEBAR
+    : derivedSecondaryMenu;
+
   setMenuConfig('primary', MENU_SIDEBAR);
   setMenuConfig('secondary', secondaryMenu);
   const {

@@ -2,6 +2,9 @@ import clsx from 'clsx';
 import { KeenIcon } from '@/components/keenicons';
 import { Menu, MenuArrow, MenuBadge, MenuBullet, MenuHeading, MenuIcon, MenuItem, MenuLabel, MenuLink, MenuSub, MenuTitle } from '@/components/menu';
 import { useMenus } from '@/providers';
+import { usePathname } from '@/providers';
+import { MENU_INVENTORY_SIDEBAR } from '@/config/menu.config';
+
 const SidebarMenu = () => {
   const linkPl = 'ps-[10px]';
   const linkPr = 'pe-[10px]';
@@ -15,6 +18,7 @@ const SidebarMenu = () => {
   const accordionLinkGap = ['gap-[10px]', 'gap-[14px]', 'gap-[5px]', 'gap-[5px]', 'gap-[5px]', 'gap-[5px]'];
   const accordionPl = ['ps-[10px]', 'ps-[22px]', 'ps-[22px]', 'ps-[22px]', 'ps-[22px]', 'ps-[22px]'];
   const accordionBorderLeft = ['before:start-[20px]', 'before:start-[32px]', 'before:start-[32px]', 'before:start-[32px]', 'before:start-[32px]'];
+
   const buildMenu = items => {
     return items.map((item, index) => {
       if (item.heading) {
@@ -26,6 +30,7 @@ const SidebarMenu = () => {
       }
     });
   };
+
   const buildMenuItemRoot = (item, index) => {
     if (item.children) {
       return <MenuItem key={index} {...item.toggle && {
@@ -59,6 +64,7 @@ const SidebarMenu = () => {
         </MenuItem>;
     }
   };
+
   const buildMenuItemRootDisabled = (item, index) => {
     return <MenuItem key={index}>
         <MenuLabel className={clsx('border border-transparent', accordionLinkGap[0], linkPy, linkPl, linkPr)}>
@@ -71,6 +77,7 @@ const SidebarMenu = () => {
         </MenuLabel>
       </MenuItem>;
   };
+
   const buildMenuItemChildren = (items, index, level = 0) => {
     return items.map((item, index) => {
       if (item.disabled) {
@@ -80,6 +87,7 @@ const SidebarMenu = () => {
       }
     });
   };
+
   const buildMenuItemChild = (item, index, level = 0) => {
     if (item.children) {
       return <MenuItem key={index} {...item.toggle && {
@@ -114,6 +122,7 @@ const SidebarMenu = () => {
         </MenuItem>;
     }
   };
+
   const buildMenuItemChildDisabled = (item, index, level = 0) => {
     return <MenuItem key={index}>
         <MenuLabel className={clsx('border border-transparent items-center grow', accordionLinkGap[level], accordionLinkPl, linkPr, subLinkPy)}>
@@ -123,6 +132,7 @@ const SidebarMenu = () => {
         </MenuLabel>
       </MenuItem>;
   };
+
   const buildMenuHeading = (item, index) => {
     return <MenuItem key={index} className="pt-2.25 pb-px">
         <MenuHeading className={clsx('uppercase text-2sm font-medium text-gray-500', linkPl, linkPr)}>
@@ -130,24 +140,41 @@ const SidebarMenu = () => {
         </MenuHeading>
       </MenuItem>;
   };
+
   const buildMenuArrow = () => {
     return <MenuArrow className={clsx('text-gray-400 w-[20px] shrink-0 justify-end ms-1', rightOffset)}>
         <KeenIcon icon="plus" className="text-sm menu-item-show:hidden" />
         <KeenIcon icon="minus" className="text-sm hidden menu-item-show:inline-flex" />
       </MenuArrow>;
   };
+
   const buildMenuBullet = () => {
     return <MenuBullet className="flex w-[6px] -start-[3px] rtl:start-0 relative before:absolute before:top-0 before:size-[6px] before:rounded-full rtl:before:translate-x-1/2 before:-translate-y-1/2 menu-item-active:before:bg-primary menu-item-hover:before:bg-primary"></MenuBullet>;
   };
+
   const buildMenuSoon = () => {
     return <MenuBadge className={rightOffset}>
         <span className="badge badge-xs">Soon</span>
       </MenuBadge>;
   };
-  const {
-    getMenuConfig
-  } = useMenus();
-  const menuConfig = getMenuConfig('primary');
+
+  const { getMenuConfig } = useMenus();
+  const { pathname } = usePathname();
+
+  // Whenever the current route is inside Inventory, swap the whole
+  // rendered sidebar list to MENU_INVENTORY_SIDEBAR instead of MENU_SIDEBAR.
+  const isInventoryRoute = pathname.startsWith('/inventory');
+
+  const backItem = {
+    title: 'Back to Main Menu',
+    icon: 'black-left-line',
+    path: '/',
+  };
+
+  const menuConfig = isInventoryRoute
+    ? [backItem, ...MENU_INVENTORY_SIDEBAR]
+    : getMenuConfig('primary');
+
   return <Menu highlight={true} multipleExpand={false} className={clsx('flex flex-col grow', itemsGap)}>
       {menuConfig && buildMenu(menuConfig)}
     </Menu>;
