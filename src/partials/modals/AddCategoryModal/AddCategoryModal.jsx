@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Select } from "antd";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 
@@ -8,13 +8,33 @@ const mainCategoryOptions = [
   { value: "social", label: "Social Events" },
 ];
 
-const AddCategoryModal = ({ open, onClose, onSave }) => {
+const AddCategoryModal = ({ open, onClose, onSave, initialData }) => {
   const [categoryName, setCategoryName] = useState("");
   const [mainCategory, setMainCategory] = useState(undefined);
+  const isEditMode = Boolean(initialData);
+
+  // Prefill form when opening in edit mode
+  useEffect(() => {
+    if (open && initialData) {
+      setCategoryName(initialData.categoryName || "");
+      setMainCategory(
+        mainCategoryOptions.find(
+          (opt) => opt.label === initialData.mainCategory
+        )?.value ?? initialData.mainCategory
+      );
+    } else if (open && !initialData) {
+      setCategoryName("");
+      setMainCategory(undefined);
+    }
+  }, [open, initialData]);
 
   const handleSave = () => {
     if (!categoryName.trim()) return;
-    onSave?.({ categoryName, mainCategory });
+    const selectedOption = mainCategoryOptions.find((o) => o.value === mainCategory);
+    onSave?.({
+      categoryName,
+      mainCategory: selectedOption?.label || mainCategory,
+    });
     handleReset();
   };
 
@@ -29,7 +49,7 @@ const AddCategoryModal = ({ open, onClose, onSave }) => {
       open={open}
       onClose={handleReset}
       width={480}
-       centered
+      centered
       title={null} // custom header below, since header needs subtitle text
       footer={
         <div className="flex justify-between items-center px-6 pb-6">
@@ -44,7 +64,7 @@ const AddCategoryModal = ({ open, onClose, onSave }) => {
             className="flex items-center gap-2 px-5 py-2 rounded-lg bg-[#7A2E45] text-white font-medium hover:bg-[#66253a] transition-colors"
           >
             <i className="ki-filled ki-note text-base"></i>
-            Save Category
+            {isEditMode ? "Update Category" : "Save Category"}
           </button>
         </div>
       }
@@ -54,10 +74,12 @@ const AddCategoryModal = ({ open, onClose, onSave }) => {
         <div className="flex justify-between items-start mb-5">
           <div>
             <h2 className="text-xl font-semibold text-[#7A2E45]">
-              Add Category
+              {isEditMode ? "Edit Category" : "Add Category"}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              Create a new category for organizing clients and event records.
+              {isEditMode
+                ? "Update this category's name or main category group."
+                : "Create a new category for organizing clients and event records."}
             </p>
           </div>
           <button

@@ -219,23 +219,23 @@ export const MENU_SIDEBAR = [
       },
       {
         title: "Client Master",
-        path: "/clientmaster",
+        path: "/master/clientmaster",
       },
       {
         title: "Vendor Master",
-        path: "/vendormaster",
+        path: "/master/vendormaster",
       },
       {
         title: "Function Master",
-        path: "/functionmaster",
+        path: "/master/functionmaster",
       },
       {
         title: "Venue Master",
-        path: "/venueMaster",
+        path: "/master/venuemaster",
       },
        {
         title: "Tax Master",
-        path: "/taxmaster",
+        path: "/master/taxmaster",
       },
     ],
   },

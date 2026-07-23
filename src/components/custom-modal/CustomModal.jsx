@@ -8,7 +8,7 @@ const CustomModal = ({ open, onClose, children, footer,centered, title, ...rest 
   const handleClose = (event, reason) => {
     if (reason === "backdropClick") {
       setShake(true);
-      setTimeout(() => setShake(false), 300); // Clear after animation
+      setTimeout(() => setShake(false), 300); 
       return;
     }
     onClose();
@@ -17,7 +17,6 @@ const CustomModal = ({ open, onClose, children, footer,centered, title, ...rest 
     const handleClickOutside = (e) => {
       const target = e.target;
 
-      // Check if clicked element is inside any AntD popup (class starts with 'ant-')
       const isAntdPopup = [
         ...document.querySelectorAll("[class^='ant-']"),
       ].some((el) => el.contains(target));
