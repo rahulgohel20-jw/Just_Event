@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Modal } from "antd";
 import useStyle from "./style";
-const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
+const CustomModal = ({ open, onClose, children, footer,centered, title, ...rest }) => {
   const classes = useStyle();
   const [shake, setShake] = useState(false);
   const modalRef = useRef(null);
   const handleClose = (event, reason) => {
     if (reason === "backdropClick") {
       setShake(true);
-      setTimeout(() => setShake(false), 300); // Clear after animation
+      setTimeout(() => setShake(false), 300); 
       return;
     }
     onClose();
@@ -17,7 +17,6 @@ const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
     const handleClickOutside = (e) => {
       const target = e.target;
 
-      // Check if clicked element is inside any AntD popup (class starts with 'ant-')
       const isAntdPopup = [
         ...document.querySelectorAll("[class^='ant-']"),
       ].some((el) => el.contains(target));
@@ -43,7 +42,8 @@ const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
     <Modal
       maskClosable={false} //  disables closing on backdrop click
       keyboard={false} //disables closing on Esc
-      closable={false} // Disable default close button
+      closable={false} 
+       centered={centered}
       title={
         title ? (
           <div>
@@ -63,6 +63,7 @@ const CustomModal = ({ open, onClose, children, footer, title, ...rest }) => {
       }
       open={open}
       onCancel={handleClose}
+      
       modalRender={(modal) => (
         // for shake animation
         <div ref={modalRef} className={shake ? classes.shake : ""}>
