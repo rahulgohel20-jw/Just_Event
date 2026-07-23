@@ -1,25 +1,39 @@
 import { useMemo, useState } from "react";
-import { Plus, Search, RefreshCcw, Share2, Columns3, ChevronDown } from "lucide-react";
+import {
+  Plus,
+  Search,
+  RefreshCcw,
+  Share2,
+  Columns3,
+  ChevronDown,
+  Receipt,
+  CheckCircle2,
+  Clock,
+} from "lucide-react";
 import { TableComponent } from "@/components/table/TableComponent";
-import { AddCategoryModal } from "../../../partials/modals/AddCategoryModal/AddCategoryModal";
+import { AddTaxModal } from "../../../partials/modals/AddTaxModal/AddTaxModal";
 import {
   PAGE_HEADER,
   STATS_CARDS,
-  STATUS_FILTER_OPTIONS,
-  CATEGORY_NAME_FILTER_OPTIONS,
-  CATEGORY_TABLE_DATA,
-  getCategoryColumns,
+  TAX_NAME_FILTER_OPTIONS,
+  TAX_TABLE_DATA,
+  getTaxColumns,
   DEFAULT_PAGINATION_SIZE,
   DEFAULT_SORTING,
 } from "./constant";
 
-const CategoryMaster = () => {
-  const [tableData, setTableData] = useState(CATEGORY_TABLE_DATA);
+const STAT_ICONS = {
+  receipt: Receipt,
+  check: CheckCircle2,
+  clock: Clock,
+};
+
+const TaxMaster = () => {
+  const [tableData, setTableData] = useState(TAX_TABLE_DATA);
   const [searchText, setSearchText] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
+  const [taxNameFilter, setTaxNameFilter] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState(null);
+  const [editingTax, setEditingTax] = useState(null);
 
   const handleToggleStatus = (record) => {
     setTableData((prev) =>
@@ -31,58 +45,45 @@ const CategoryMaster = () => {
     );
   };
 
-  const handleView = (record) => console.log("View category:", record);
+  const handleView = (record) => console.log("View tax:", record);
 
-  // Edit now opens AddCategoryModal, prefilled with the selected row
   const handleEdit = (record) => {
-    setEditingCategory(record);
+    setEditingTax(record);
     setIsAddModalOpen(true);
   };
 
-  const handleDelete = (record) => console.log("Delete category:", record);
+  const handleDelete = (record) => console.log("Delete tax:", record);
 
-  const handleAddCategory = () => {
-    setEditingCategory(null);
+  const handleAddTax = () => {
+    setEditingTax(null);
     setIsAddModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsAddModalOpen(false);
-    setEditingCategory(null);
-  };
-
-  const handleSaveCategory = ({ categoryName, mainCategory }) => {
-    if (editingCategory) {
-      // Update existing row
+  const handleSaveTax = ({ taxName, taxPercentage }) => {
+    if (editingTax) {
       setTableData((prev) =>
         prev.map((row) =>
-          row.id === editingCategory.id
-            ? { ...row, categoryName, mainCategory }
+          row.id === editingTax.id
+            ? { ...row, taxName, percentage: Number(taxPercentage) }
             : row
         )
       );
     } else {
-      // Create new row
       const newRow = {
-        id: Date.now(), // replace with real id from API response
-        srNo: String(tableData.length + 1).padStart(2, "0"),
-        categoryName,
-        mainCategory,
+        id: Date.now(), // replace with id from API response
+        taxName,
+        percentage: Number(taxPercentage),
         status: "active",
-        createdDate: new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "2-digit",
-          year: "numeric",
-        }),
       };
       setTableData((prev) => [newRow, ...prev]);
     }
-    handleCloseModal();
+    setIsAddModalOpen(false);
+    setEditingTax(null);
   };
 
   const columns = useMemo(
     () =>
-      getCategoryColumns({
+      getTaxColumns({
         onView: handleView,
         onEdit: handleEdit,
         onDelete: handleDelete,
@@ -93,16 +94,18 @@ const CategoryMaster = () => {
 
   const filteredData = useMemo(() => {
     return tableData.filter((row) => {
-      const matchesSearch = row.categoryName
+      const matchesSearch = row.taxName
         .toLowerCase()
         .includes(searchText.toLowerCase());
-      const matchesStatus = statusFilter ? row.status === statusFilter : true;
-      return matchesSearch && matchesStatus;
+      const matchesTaxName = taxNameFilter
+        ? row.taxName.toLowerCase().replace(/\s+/g, "-") === taxNameFilter
+        : true;
+      return matchesSearch && matchesTaxName;
     });
-  }, [tableData, searchText, statusFilter]);
+  }, [tableData, searchText, taxNameFilter]);
 
   const toolbar = (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl  p-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl p-3">
       <div className="relative w-full max-w-xs">
         <Search
           size={16}
@@ -112,23 +115,17 @@ const CategoryMaster = () => {
           type="text"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          placeholder="Search Category..."
+          placeholder="Search Tax Name..."
           className="w-full rounded-lg border border-rose-100 bg-white py-2 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-200"
         />
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
         <FilterDropdown
-          label="Status"
-          value={statusFilter}
-          options={STATUS_FILTER_OPTIONS}
-          onChange={setStatusFilter}
-        />
-        <FilterDropdown
-          label="Category Name"
-          value={categoryFilter}
-          options={CATEGORY_NAME_FILTER_OPTIONS}
-          onChange={setCategoryFilter}
+          label="Tax Name"
+          value={taxNameFilter}
+          options={TAX_NAME_FILTER_OPTIONS}
+          onChange={setTaxNameFilter}
         />
 
         <IconButton onClick={() => console.log("Refresh")}>
@@ -154,7 +151,7 @@ const CategoryMaster = () => {
         </div>
         <button
           type="button"
-          onClick={handleAddCategory}
+          onClick={handleAddTax}
           className="flex items-center gap-2 rounded-lg bg-rose-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-rose-950"
         >
           <Plus size={16} />
@@ -163,7 +160,25 @@ const CategoryMaster = () => {
       </div>
 
       {/* Stat cards */}
-
+      {/* <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {STATS_CARDS.map((stat) => {
+          const Icon = STAT_ICONS[stat.icon];
+          return (
+            <div
+              key={stat.key}
+              className="flex items-center gap-3 rounded-xl border border-rose-50 bg-white p-4 shadow-sm"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-800">
+                <Icon size={18} />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">{stat.label}</p>
+                <p className="text-xl font-bold text-gray-800">{stat.value}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div> */}
 
       {/* Table */}
       <TableComponent
@@ -175,12 +190,15 @@ const CategoryMaster = () => {
         toolbar={toolbar}
       />
 
-      {/* Add / Edit Category Modal */}
-      <AddCategoryModal
+      {/* Add / Edit Tax Modal */}
+      <AddTaxModal
         open={isAddModalOpen}
-        onClose={handleCloseModal}
-        onSave={handleSaveCategory}
-        initialData={editingCategory}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setEditingTax(null);
+        }}
+        onSave={handleSaveTax}
+        initialData={editingTax}
       />
     </div>
   );
@@ -222,4 +240,4 @@ const FilterDropdown = ({ label, value, options, onChange }) => (
   </div>
 );
 
-export default CategoryMaster;
+export default TaxMaster;

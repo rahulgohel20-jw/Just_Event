@@ -141,6 +141,12 @@ import { EventOverviewPage } from "@/pages/Event/EventOverViewPage";
 import InventoryDashboard from "../pages/inventory/InventoryDashboard/InventoryDashboard";
 import RawCategoryType from "../pages/inventory/RawCategoryType/RawCategoryType";
 import CategoryMaster from "../pages/Master/Category Master";
+import ClientMaster from "../pages/Master/ClientMaster";
+import VendorMaster from "../pages/Master/VendorMaster";
+import TaxMaster from "../pages/Master/TaxMaster";
+import FunctionMaster from "../pages/Master/FunctionMaster";
+import VenueMaster from "../pages/Master/VenueMaster";
+import AddVenuePage from "../pages/Master/VenueMaster/AddVenuePage";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -149,6 +155,12 @@ const AppRoutingSetup = () => {
 
         <Route element={<Demo1Layout />}>
           {/* project routs */}
+          <Route path="/master/venuemaster/add" element={<AddVenuePage/>}/>
+          <Route path="/master/venuemaster" element={<VenueMaster/>}/>
+          <Route path="/master/functionmaster" element={<FunctionMaster/>}/>
+          <Route path="/master/taxmaster" element={<TaxMaster/>}/>
+          <Route path="/master/vendormaster" element={<VendorMaster/>}/>
+          <Route path="/master/clientmaster" element={<ClientMaster/>}/>
           <Route path="/master/categorymaster" element={<CategoryMaster/>}/>
           <Route path="/" element={<Dashboard />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
