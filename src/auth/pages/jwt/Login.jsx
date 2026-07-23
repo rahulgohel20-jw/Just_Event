@@ -83,13 +83,13 @@ const Login = () => {
 
         <div className="flex flex-col gap-1">
           <div className="relative">
-            <i className="ki-filled ki-sms absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
+            <i className="ki-filled ki-sms absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-600 text-base pointer-events-none" />
             <input
               placeholder="Email Address"
               autoComplete="off"
               {...formik.getFieldProps("email")}
               className={clsx(
-                "form-control !pl-10 !py-3 !rounded-lg !border-gray-200 focus:!border-primary focus:!ring-1 focus:!ring-primary-clarity",
+                "form-control w-full !pl-10 !py-3 !rounded-lg !border !border-gray-200 focus:!border-primary focus:!ring-1 focus:!ring-primary-clarity",
                 { "is-invalid": formik.touched.email && formik.errors.email }
               )}
             />
@@ -103,14 +103,14 @@ const Login = () => {
 
         <div className="flex flex-col gap-1">
           <div className="relative">
-            <i className="ki-filled ki-lock-2 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
+            <i className="ki-filled ki-lock-2 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-600 text-base pointer-events-none" />
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               autoComplete="off"
               {...formik.getFieldProps("password")}
               className={clsx(
-                "form-control !pl-10 !pr-10 !py-3 !rounded-lg !border-gray-200 focus:!border-primary focus:!ring-1 focus:!ring-primary-clarity",
+                "form-control w-full !pl-10 !pr-10 !py-3 !rounded-lg !border !border-gray-200 focus:!border-primary focus:!ring-1 focus:!ring-primary-clarity",
                 {
                   "is-invalid":
                     formik.touched.password && formik.errors.password,
@@ -175,8 +175,6 @@ const Login = () => {
           </span>
           <span className="border-t border-gray-200 w-full"></span>
         </div>
-
-        
 
         <div className="flex items-center justify-center mt-2">
           <span className="text-sm text-gray-500 me-1.5">
