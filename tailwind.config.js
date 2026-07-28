@@ -249,7 +249,7 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["Inter"],
       },
       colors: {
         //begin: Shadcn UI Colors

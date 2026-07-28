@@ -1,4 +1,4 @@
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Edit, Eye, Pencil, Trash2 } from "lucide-react";
 
 export const PAGE_HEADER = {
   title: "Client Master",
@@ -110,7 +110,7 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
     accessorKey: "srNo",
     header: "Sr. No.",
     cell: ({ row }) => (
-      <span className="text-sm text-gray-500">
+      <span >
         {String(row.index + 1).padStart(2, "0")}
       </span>
     ),
@@ -125,9 +125,9 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-rose-100 text-sm font-semibold text-rose-800">
             {initials}
           </div>
-          <div>
-            <p className="">{clientName}</p>
-           
+          <div className="flex item-center mt-2">
+            <p>{clientName}</p>
+            
           </div>
         </div>
       );
@@ -140,7 +140,7 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
       const value = getValue();
       return (
         <span
-          
+        
         >
           {value}
         </span>
@@ -190,23 +190,19 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
   {
     id: "actions",
     header: "Actions",
-    enableSorting: false,
-    cell: ({ row }) => {
-      const record = row.original;
-      return (
-        <div className="flex items-center justify-start gap-2 text-rose-700">
-         <button onClick={() => onView(row.original)} className="btn btn-sm btn-icon btn-clear">
-          <i className="ki-filled ki-eye  text-primary"></i>
-        </button>
-          <button className="btn btn-sm btn-icon btn-clear" type="button" onClick={() => onEdit?.(record)} >
-            <i className="ki-filled ki-notepad-edit text-third"></i>
+    cell: ({ row }) => (
+      <div className="flex items-center justify-start gap-3 text-gray-400">
+          <button type="button" onClick={() => onView?.(record)} className="text-green-700">
+            <Eye size={18} />
           </button>
-          <button  className=" tn btn-sm btn-icon btn-clear text-danger" type="button" onClick={() => onDelete?.(record)} >
-            <Trash2 size={16} />
+          <button type="button" onClick={() => onEdit?.(record)} className="text-blue-700">
+            <Edit size={18} />
+          </button>
+          <button type="button" onClick={() => onDelete?.(record)} className="text-red-700">
+            <Trash2 size={18} />
           </button>
         </div>
-      );
-    },
+    ),
   },
   
 ];

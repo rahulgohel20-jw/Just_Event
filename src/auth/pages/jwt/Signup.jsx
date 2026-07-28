@@ -52,7 +52,7 @@ const signupSchema = Yup.object().shape({
 const FormField = ({ icon: Icon, error, touched, children }) => (
   <div className="flex flex-col gap-1">
     <div className="relative">
-      <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-gray-400 pointer-events-none" />
+      <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-gray-600 pointer-events-none z-10" />
       {children}
     </div>
     {touched && error && (
@@ -65,7 +65,7 @@ const FormField = ({ icon: Icon, error, touched, children }) => (
 
 const inputClass = (hasError) =>
   clsx(
-    "form-control !pl-10 !py-2.5 !rounded-lg !border-gray-200 !text-sm focus:!border-primary focus:!ring-1 focus:!ring-primary-clarity transition-colors",
+    "form-control w-full !pl-10 !py-2.5 !rounded-lg !border !border-gray-200 !text-sm focus:!border-primary focus:!ring-1 focus:!ring-primary-clarity transition-colors",
     { "is-invalid": hasError }
   );
 
@@ -106,6 +106,11 @@ const Signup = () => {
   const toggleConfirmPassword = (e) => {
     e.preventDefault();
     setShowConfirmPassword((v) => !v);
+  };
+
+  const handleSocialLogin = (provider) => {
+    // Wire this up to your actual OAuth flow (e.g. register?.loginWithProvider(provider))
+    console.log(`Continue with ${provider}`);
   };
 
   return (
@@ -158,12 +163,12 @@ const Signup = () => {
           />
         </FormField>
 
-        {/* Mobile */}
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-gray-600 mb-0.5">Phone Number</label>
+        {/* Mobile — same bordered/full-width treatment as every other field, no separate label */}
+        <div className="w-full [&_.form-control]:w-full [&_.form-control]:!pl-10 [&_.form-control]:!py-2.5 [&_.form-control]:!rounded-lg [&_.form-control]:!border [&_.form-control]:!border-gray-200 [&_.form-control]:!text-sm [&_.form-control]:focus:!border-primary [&_.form-control]:focus:!ring-1 [&_.form-control]:focus:!ring-primary-clarity">
           <PhoneNumber
             value={formik.values.mobile}
             onChange={(val) => formik.setFieldValue("mobile", val)}
+            placeholder="Mobile Number"
           />
         </div>
 
@@ -256,9 +261,7 @@ const Signup = () => {
           <span className="border-t border-gray-200 w-full"></span>
         </div>
 
-        {/* Social buttons */}
         
-
         <div className="flex items-center justify-center mt-2">
           <span className="text-sm text-gray-500 me-1.5">Already have an account?</span>
           <Link

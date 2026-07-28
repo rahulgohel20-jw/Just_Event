@@ -139,13 +139,13 @@ const handleView = (record) => {
           size={16}
           className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
         />
-        <input
-          type="text"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          placeholder="Search by Name, Mobile or Email..."
-          className="w-full rounded-lg border  bg-white py-2 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 0"
-        />
+       <input
+  type="text"
+  value={searchText}
+  onChange={(e) => setSearchText(e.target.value)}
+  placeholder="Search by Name, Mobile or Email..."
+  className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
+/>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -162,27 +162,26 @@ const handleView = (record) => {
           onChange={setCategoryFilter}
         />
 
-       
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white px-6">
       {/* Page header */}
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-rose-900">{PAGE_HEADER.title}</h1>
+<h1 className="text-3xl font-bold text-primary">{PAGE_HEADER.title}</h1>
           <p className="mt-1 max-w-xl text-sm text-gray-500">{PAGE_HEADER.description}</p>
         </div>
-        <button
-          type="button"
-          onClick={handleAddClient}
-          className="flex items-center gap-2 rounded-lg bg-rose-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-rose-950"
-        >
-          <Plus size={16} />
-          {PAGE_HEADER.addButtonLabel}
-        </button>
+       <button
+  type="button"
+  onClick={handleAddClient}
+  className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-red=900"
+>
+  <Plus size={16} />
+  {PAGE_HEADER.addButtonLabel}
+</button>
       </div>
 
       {/* Stat cards */}
@@ -251,7 +250,7 @@ const IconButton = ({ children, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className="flex h-9 w-9 items-center justify-center rounded-lg border  bg-white text-gray-500 transition hover:bg-rose-50 hover:text-rose-800"
+    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:bg-gray-50 hover:text-gray-800"
   >
     {children}
   </button>
@@ -262,7 +261,7 @@ const FilterDropdown = ({ label, value, options, onChange }) => (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="appearance-none rounded-lg border  bg-white py-2 pl-3 pr-8 text-sm text-gray-600 focus:outline-none focus:ring-2 "
+      className="appearance-none rounded-lg border border-gray-200 bg-white py-2 pl-3 pr-8 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
     >
       <option value="" disabled hidden>
         {label}
