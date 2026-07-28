@@ -33,7 +33,6 @@ const CategoryMaster = () => {
 
   const handleView = (record) => console.log("View category:", record);
 
-  // Edit now opens AddCategoryModal, prefilled with the selected row
   const handleEdit = (record) => {
     setEditingCategory(record);
     setIsAddModalOpen(true);
@@ -131,15 +130,7 @@ const CategoryMaster = () => {
           onChange={setCategoryFilter}
         />
 
-        <IconButton onClick={() => console.log("Refresh")}>
-          <RefreshCcw size={16} />
-        </IconButton>
-        <IconButton onClick={() => console.log("Export")}>
-          <Share2 size={16} />
-        </IconButton>
-        <IconButton onClick={() => console.log("Toggle columns")}>
-          <Columns3 size={16} />
-        </IconButton>
+       
       </div>
     </div>
   );

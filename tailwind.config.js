@@ -1,3 +1,5 @@
+const { light } = require("@mui/material/styles/createPalette");
+
 module.exports = {
   content: ["index.html", "./src/**/*.{js,jsx}"],
   safelist: [
@@ -17,9 +19,11 @@ module.exports = {
         lightUserAccessBg: "url('/images/bg_01.png')",
         darkUserAccessBg: "url('/images/bg_01_dark.png')",
         venueButton: "linear-gradient(180deg, #96644D 0%, #AB7955 100%)",
+        
       },
       base: {
         colors: {
+    third: "#005ba8",
           gray: {
             light: {
               100: "#F9F9F9",
@@ -124,6 +128,14 @@ module.exports = {
                 //inverse: "rgba(255, 255, 255, 1)", // #ffffff
                 //clarity: "rgba(108, 117, 125, 0.20)",
               },
+              third:{
+                default:"#005ba8",
+                active:"#005ba8",
+                light:"#005ba8",
+                clarity:"rgba(249, 249, 249, 0.20)",
+
+
+              },
               indigo: {
                 default: "rgba(102, 16, 242, 1)", // #6610F2
                 active: "rgba(82, 13, 194, 1)", // #520DC2
@@ -203,6 +215,13 @@ module.exports = {
                 clarity: "rgba(54, 56, 67, 0.20)",
                 inverse: "#9A9CAE",
               },
+              third:{
+                default:"#005ba8",
+                active:"#005ba8",
+                light:"#005ba8",
+                clarity:"#005ba8",
+                inverse:"#005ba8",
+              }
             },
           },
         },
@@ -251,6 +270,10 @@ module.exports = {
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
+        },
+        third:{
+          DEFAULT:"hsl(var(--third))",
+          foreground:"hsl(var(--third-foreground))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -343,6 +366,15 @@ module.exports = {
           clarity: "var(--tw-secondary-clarity)",
           inverse: "var(--tw-secondary-inverse)",
           foreground: "hsl(var(--secondary-foreground))",
+        },
+        third:{
+          DEFAULT:"var(--tw-third)",
+          active:"var(--tw-third-active)",
+          light:"var(--tw-third-light)",
+          lighter: "var(--tw-third-lighter)",
+          clarity:"var(--tw-third-clarity)",
+          inverse:"var(--tw--third-inverse)",
+          foreground:"hsl(var(--third-foreground))",
         },
         light: {
           DEFAULT: "var(--tw-light)",

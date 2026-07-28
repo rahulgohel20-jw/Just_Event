@@ -172,9 +172,7 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
             />
           </button>
           <span
-            className={`text-xs font-medium ${
-              isActive ? "text-rose-800" : "text-gray-400"
-            }`}
+           
           >
             {isActive ? "Active" : "Inactive"}
           </span>
@@ -190,7 +188,7 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
     ),
   },
   {
-    accessorKey: "actions",
+    id: "actions",
     header: "Actions",
     cell: ({ row }) => (
       <div className="flex items-center justify-start gap-3 text-gray-400">
@@ -206,4 +204,5 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
         </div>
     ),
   },
+  
 ];

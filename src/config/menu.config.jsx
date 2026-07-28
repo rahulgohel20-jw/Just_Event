@@ -209,6 +209,28 @@ export const MENU_SIDEBAR = [
   //   ],
   // },
 
+
+  {
+    title: "Events",
+     icon: "  text-lg ki-filled ki-calendar text-primary",
+     path:"/creteevnetname",
+    children: [
+      {
+        title:"event",
+        path:"/creteevnetname",
+      },
+      {
+        title: "Calander",
+        path: "",
+      },
+      
+       {
+        title: "Create Events",
+        path: "/creteEvent",
+      },
+    ],
+  },
+
   {
     title: "Masters",
      icon: "  text-lg ki-filled ki-abstract-26 text-primary",

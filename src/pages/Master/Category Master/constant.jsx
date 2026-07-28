@@ -60,14 +60,14 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
   {
     id: "srNo",
     accessorKey: "srNo",
-    header: "SR. NO.",
+    header: "Sr No. ",
     size: 90,
     cell: ({ getValue }) => <span >{getValue()}</span>,
   },
   {
     id: "categoryName",
     accessorKey: "categoryName",
-    header: "CATEGORY NAME",
+    header: "Category Name",
     cell: ({ row }) => (
       <div>
         <p >{row.original.categoryName}</p>
@@ -77,7 +77,7 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
   {
     id: "mainCategory",
     accessorKey: "mainCategory",
-    header: "MAIN CATEGORY",
+    header: "Main Category",
     cell: ({ getValue }) => (
       <span>
         {getValue()}
@@ -87,7 +87,7 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
   {
     id: "status",
     accessorKey: "status",
-    header: "STATUS",
+    header: "Status",
     cell: ({ row }) => {
       const record = row.original;
       return (
@@ -98,7 +98,7 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
         >
           <span
             className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-              record.status === "active" ? "bg-rose-800" : "bg-gray-200"
+              record.status === "active" ? "bg-rose-800" : "bg-gray-300"
             }`}
           >
             <span
@@ -109,7 +109,7 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
           </span>
           <span
             className={`text-sm font-medium ${
-              record.status === "active" ? "text-gray-800" : "text-gray-400"
+              record.status === "active"
             }`}
           >
             {record.status === "active" ? "Active" : "Inactive"}
@@ -121,12 +121,12 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
   {
     id: "createdDate",
     accessorKey: "createdDate",
-    header: "CREATED DATE",
+    header: "Created Date",
     cell: ({ getValue }) => <span className="text-gray-600">{getValue()}</span>,
   },
   {
     id: "actions",
-    header: "ACTIONS",
+    header: "Actions",
     enableSorting: false,
     cell: ({ row }) => {
       const record = row.original;

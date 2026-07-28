@@ -63,7 +63,7 @@ const AddClientModal = ({ open, onClose, onSave }) => {
     const newOption = { value: newValue, label: categoryName.trim() };
 
     setCategoryOptions((prev) => [...prev, newOption]);
-    updateField("category", newValue); // auto-select the newly created category
+    updateField("category", newValue); 
     setIsAddCategoryOpen(false);
   };
 
@@ -114,89 +114,105 @@ const AddClientModal = ({ open, onClose, onSave }) => {
             {/* Basic Information */}
             <Section title="Basic Information">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  value={form.fullName}
-                  onChange={(e) => updateField("fullName", e.target.value)}
-                  placeholder="Full Name"
-                  className={inputClass}
-                />
+                <Field label="Full Name">
+                  <input
+                    type="text"
+                    value={form.fullName}
+                    onChange={(e) => updateField("fullName", e.target.value)}
+                    placeholder="Full Name"
+                    className={inputClass}
+                  />
+                </Field>
 
-                <div className="flex items-center gap-2">
-                  <div className="relative flex-1">
-                    <Search
-                      size={15}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10"
-                    />
-                    <Select
-                      value={form.category}
-                      onChange={(val) => updateField("category", val)}
-                      placeholder="Search or Select Category"
-                      className="w-full [&_.ant-select-selector]:!pl-9 [&_.ant-select-selector]:!h-[42px] [&_.ant-select-selector]:!rounded-lg"
-                      options={categoryOptions}
-                      showSearch
-                      optionFilterProp="label"
-                    />
+                <Field label="Category">
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <Search
+                        size={15}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10"
+                      />
+                      <Select
+                        value={form.category}
+                        onChange={(val) => updateField("category", val)}
+                        placeholder="Search or Select Category"
+                        className={`w-full ${FIELD_HEIGHT} [&_.ant-select-selector]:!pl-9 [&_.ant-select-selector]:!h-full [&_.ant-select-selector]:!items-center [&_.ant-select-selector]:!rounded-lg`}
+                        options={categoryOptions}
+                        showSearch
+                        optionFilterProp="label"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className={`flex ${FIELD_HEIGHT} w-[42px] shrink-0 items-center justify-center rounded-lg bg-[#7A2E45] text-white hover:bg-[#66253a]`}
+                      onClick={() => setIsAddCategoryOpen(true)}
+                    >
+                      <Plus size={18} />
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-lg bg-[#7A2E45] text-white hover:bg-[#66253a]"
-                    onClick={() => setIsAddCategoryOpen(true)}
-                  >
-                    <Plus size={18} />
-                  </button>
-                </div>
+                </Field>
               </div>
             </Section>
 
             {/* Contact Details */}
             <Section title="Contact Details">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <IconInput
-                  icon={<Phone size={15} />}
-                  value={form.mobile1}
-                  onChange={(v) => updateField("mobile1", v)}
-                  placeholder="Mobile 1"
-                />
-                <IconInput
-                  icon={<Phone size={15} />}
-                  value={form.office1}
-                  onChange={(v) => updateField("office1", v)}
-                  placeholder="Office 1"
-                />
-                <IconInput
-                  icon={<Phone size={15} />}
-                  value={form.mobile2}
-                  onChange={(v) => updateField("mobile2", v)}
-                  placeholder="Mobile 2"
-                />
-                <IconInput
-                  icon={<Mail size={15} />}
-                  value={form.emailAddress}
-                  onChange={(v) => updateField("emailAddress", v)}
-                  placeholder="Email Address"
-                  type="email"
-                />
+                <Field label="Mobile 1">
+                  <IconInput
+                    icon={<Phone size={15} />}
+                    value={form.mobile1}
+                    onChange={(v) => updateField("mobile1", v)}
+                    placeholder="Mobile 1"
+                  />
+                </Field>
+                <Field label="Office 1">
+                  <IconInput
+                    icon={<Phone size={15} />}
+                    value={form.office1}
+                    onChange={(v) => updateField("office1", v)}
+                    placeholder="Office 1"
+                  />
+                </Field>
+                <Field label="Mobile 2">
+                  <IconInput
+                    icon={<Phone size={15} />}
+                    value={form.mobile2}
+                    onChange={(v) => updateField("mobile2", v)}
+                    placeholder="Mobile 2"
+                  />
+                </Field>
+                <Field label="Email Address">
+                  <IconInput
+                    icon={<Mail size={15} />}
+                    value={form.emailAddress}
+                    onChange={(v) => updateField("emailAddress", v)}
+                    placeholder="Email Address"
+                    type="email"
+                  />
+                </Field>
               </div>
             </Section>
 
             {/* Physical Address */}
             <Section title="Physical Address">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <textarea
-                  value={form.orderAddress}
-                  onChange={(e) => updateField("orderAddress", e.target.value)}
-                  placeholder="Order Address"
-                  rows={3}
-                  className={`${inputClass} resize-none`}
-                />
-                <textarea
-                  value={form.homeAddress}
-                  onChange={(e) => updateField("homeAddress", e.target.value)}
-                  placeholder="Home Address"
-                  rows={3}
-                  className={`${inputClass} resize-none`}
-                />
+                <Field label="Order Address">
+                  <textarea
+                    value={form.orderAddress}
+                    onChange={(e) => updateField("orderAddress", e.target.value)}
+                    placeholder="Order Address"
+                    rows={3}
+                    className={textareaClass}
+                  />
+                </Field>
+                <Field label="Home Address">
+                  <textarea
+                    value={form.homeAddress}
+                    onChange={(e) => updateField("homeAddress", e.target.value)}
+                    placeholder="Home Address"
+                    rows={3}
+                    className={textareaClass}
+                  />
+                </Field>
               </div>
             </Section>
 
@@ -208,64 +224,74 @@ const AddClientModal = ({ open, onClose, onSave }) => {
                   value={form.birthDate}
                   onChange={(v) => updateField("birthDate", v)}
                 />
-                <input
-                  type="text"
-                  value={form.vatNumber}
-                  onChange={(e) => updateField("vatNumber", e.target.value)}
-                  placeholder="VAT Number"
-                  className={inputClass}
-                />
+                <Field label="VAT Number">
+                  <input
+                    type="text"
+                    value={form.vatNumber}
+                    onChange={(e) => updateField("vatNumber", e.target.value)}
+                    placeholder="VAT Number"
+                    className={inputClass}
+                  />
+                </Field>
 
                 <DateField
                   label="Anniversary Date"
                   value={form.anniversaryDate}
                   onChange={(v) => updateField("anniversaryDate", v)}
                 />
-                <input
-                  type="text"
-                  value={form.panCardNo}
-                  onChange={(e) => updateField("panCardNo", e.target.value)}
-                  placeholder="PAN Card No."
-                  className={inputClass}
-                />
+                <Field label="PAN Card No.">
+                  <input
+                    type="text"
+                    value={form.panCardNo}
+                    onChange={(e) => updateField("panCardNo", e.target.value)}
+                    placeholder="PAN Card No."
+                    className={inputClass}
+                  />
+                </Field>
 
                 <DateField
                   label="OPB Date"
                   value={form.opbDate}
                   onChange={(v) => updateField("opbDate", v)}
                 />
-                <input
-                  type="text"
-                  value={form.gstNo}
-                  onChange={(e) => updateField("gstNo", e.target.value)}
-                  placeholder="GST No."
-                  className={inputClass}
-                />
-
-                <div className="flex rounded-lg border border-gray-400 overflow-hidden">
-                  <span className="flex items-center px-3 bg-[#F7E5EA] text-xs font-medium text-[#7A2E45] whitespace-nowrap">
-                    OPB
-                  </span>
+                <Field label="GST No.">
                   <input
                     type="text"
-                    value={form.opbAmount}
-                    onChange={(e) => updateField("opbAmount", e.target.value)}
-                    className="flex-1 px-3 py-2 text-sm focus:outline-none"
+                    value={form.gstNo}
+                    onChange={(e) => updateField("gstNo", e.target.value)}
+                    placeholder="GST No."
+                    className={inputClass}
                   />
-                  <Select
-                    value={form.opbType}
-                    onChange={(v) => updateField("opbType", v)}
-                    options={opbTypeOptions}
-                    className="[&_.ant-select-selector]:!border-0 [&_.ant-select-selector]:!rounded-none w-20"
+                </Field>
+
+                <Field label="OPB Amount">
+                  <div className={`flex ${FIELD_HEIGHT} rounded-lg border border-gray-400 overflow-hidden`}>
+                    <span className="flex items-center px-3 bg-[#F7E5EA] text-xs font-medium text-[#7A2E45] whitespace-nowrap">
+                      OPB
+                    </span>
+                    <input
+                      type="text"
+                      value={form.opbAmount}
+                      onChange={(e) => updateField("opbAmount", e.target.value)}
+                      className="flex-1 h-full px-3 text-sm focus:outline-none"
+                    />
+                    <Select
+                      value={form.opbType}
+                      onChange={(v) => updateField("opbType", v)}
+                      options={opbTypeOptions}
+                      className={`h-full w-20 [&_.ant-select-selector]:!border-0 [&_.ant-select-selector]:!h-full [&_.ant-select-selector]:!items-center [&_.ant-select-selector]:!rounded-none`}
+                    />
+                  </div>
+                </Field>
+                <Field label="Aadhar Card No.">
+                  <input
+                    type="text"
+                    value={form.aadharCardNo}
+                    onChange={(e) => updateField("aadharCardNo", e.target.value)}
+                    placeholder="Aadhar Card No."
+                    className={inputClass}
                   />
-                </div>
-                <input
-                  type="text"
-                  value={form.aadharCardNo}
-                  onChange={(e) => updateField("aadharCardNo", e.target.value)}
-                  placeholder="Aadhar Card No."
-                  className={inputClass}
-                />
+                </Field>
               </div>
             </Section>
           </div>
@@ -283,8 +309,13 @@ const AddClientModal = ({ open, onClose, onSave }) => {
 };
 
 
+const FIELD_HEIGHT = "h-[42px]";
+
 const inputClass =
-  "w-full rounded-lg border border-gray-400 px-3 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#7A2E45] focus:border-[#7A2E45]";
+  `w-full ${FIELD_HEIGHT} rounded-lg border border-gray-400 px-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#7A2E45] focus:border-[#7A2E45]`;
+
+const textareaClass =
+  "w-full rounded-lg border border-gray-400 px-3 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#7A2E45] focus:border-[#7A2E45] resize-none";
 
 const Section = ({ title, children }) => (
   <div>
@@ -294,6 +325,16 @@ const Section = ({ title, children }) => (
         {title}
       </h3>
     </div>
+    {children}
+  </div>
+);
+
+// Generic label + field wrapper, matches the style already used by DateField
+const Field = ({ label, children }) => (
+  <div>
+    <label className="text-xs font-medium text-[#7A2E45] mb-1 block">
+      {label}
+    </label>
     {children}
   </div>
 );

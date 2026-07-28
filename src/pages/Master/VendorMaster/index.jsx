@@ -5,7 +5,7 @@ import {
   RefreshCcw,
   Share2,
   Columns3,
-  ChevronDown,
+  ChevronDown,  
   Users,
   CheckCircle2,
   TrendingUp,
@@ -50,7 +50,6 @@ const VendorMaster = () => {
   };
 
   const handleView = (record) => {
-    // In production, fetch full vendor detail from API using record.id
     setViewVendor({
       ...record,
       firmName: "Apex Media Firm",
@@ -134,7 +133,7 @@ const VendorMaster = () => {
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           placeholder="Search by Name, Mobile or Email..."
-          className="w-full rounded-lg border border-rose-100 bg-white py-2 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-200"
+          className="w-full rounded-lg border border-rose-100 bg-white py-2 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 "
         />
       </div>
 
@@ -146,15 +145,7 @@ const VendorMaster = () => {
           onChange={setCategoryFilter}
         />
 
-        <IconButton onClick={() => console.log("Refresh")}>
-          <RefreshCcw size={16} />
-        </IconButton>
-        <IconButton onClick={() => console.log("Export")}>
-          <Share2 size={16} />
-        </IconButton>
-        <IconButton onClick={() => console.log("Toggle columns")}>
-          <Columns3 size={16} />
-        </IconButton>
+      
       </div>
     </div>
   );
@@ -258,7 +249,7 @@ const FilterDropdown = ({ label, value, options, onChange }) => (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="appearance-none rounded-lg border border-rose-100 bg-white py-2 pl-3 pr-8 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-rose-200"
+      className="appearance-none rounded-lg border border-rose-100 bg-white py-2 pl-3 pr-8 text-sm text-gray-600 focus:outline-none focus:ring-2 "
     >
       <option value="" disabled hidden>
         {label}
