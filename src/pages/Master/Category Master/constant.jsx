@@ -60,27 +60,26 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
   {
     id: "srNo",
     accessorKey: "srNo",
-    header: "SR. NO.",
+    header: "Sr No. ",
     size: 90,
-    cell: ({ getValue }) => <span className="text-gray-500">{getValue()}</span>,
+    cell: ({ getValue }) => <span className="">{getValue()}</span>,
   },
   {
     id: "categoryName",
     accessorKey: "categoryName",
-    header: "CATEGORY NAME",
+    header: "Category Name",
     cell: ({ row }) => (
       <div>
-        <p className="font-semibold text-gray-900">{row.original.categoryName}</p>
-        <p className="text-xs text-gray-400">{row.original.categoryDescription}</p>
+        <span className="">{row.original.categoryName}</span>
       </div>
     ),
   },
   {
     id: "mainCategory",
     accessorKey: "mainCategory",
-    header: "MAIN CATEGORY",
+    header: "Main Category",
     cell: ({ getValue }) => (
-      <span className="inline-block rounded-md bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-600">
+      <span className=" ">
         {getValue()}
       </span>
     ),
@@ -88,7 +87,7 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
   {
     id: "status",
     accessorKey: "status",
-    header: "STATUS",
+    header: "Status",
     cell: ({ row }) => {
       const record = row.original;
       return (
@@ -99,7 +98,7 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
         >
           <span
             className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-              record.status === "active" ? "bg-rose-800" : "bg-gray-200"
+              record.status === "active" ? "bg-rose-800" : "bg-gray-300"
             }`}
           >
             <span
@@ -110,7 +109,7 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
           </span>
           <span
             className={`text-sm font-medium ${
-              record.status === "active" ? "text-gray-800" : "text-gray-400"
+              record.status === "active"
             }`}
           >
             {record.status === "active" ? "Active" : "Inactive"}
@@ -122,24 +121,22 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
   {
     id: "createdDate",
     accessorKey: "createdDate",
-    header: "CREATED DATE",
+    header: "Created Date",
     cell: ({ getValue }) => <span className="text-gray-600">{getValue()}</span>,
   },
   {
     id: "actions",
-    header: "ACTIONS",
+    header: "Actions",
     enableSorting: false,
     cell: ({ row }) => {
       const record = row.original;
       return (
-        <div className="flex items-center justify-start gap-3 text-gray-400">
-          <button type="button" onClick={() => onView?.(record)} className="hover:text-rose-700">
-            <Eye size={16} />
+        <div className="flex items-center justify-start gap-3 text-rose-700">
+         
+          <button className="btn btn-sm btn-icon btn-clear" type="button" onClick={() => onEdit?.(record)} >
+            <i className="ki-filled ki-notepad-edit text-third"></i>
           </button>
-          <button type="button" onClick={() => onEdit?.(record)} className="hover:text-rose-700">
-            <Pencil size={16} />
-          </button>
-          <button type="button" onClick={() => onDelete?.(record)} className="hover:text-rose-700">
+          <button  className=" tn btn-sm btn-icon btn-clear text-danger" type="button" onClick={() => onDelete?.(record)} >
             <Trash2 size={16} />
           </button>
         </div>

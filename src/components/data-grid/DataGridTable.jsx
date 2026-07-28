@@ -26,17 +26,17 @@ const DataGridTable = () => {
   return (
     <table
       className={cn(
-        "w-full align-middle text-left rtl:text-right caption-bottom text-sm [&_td]:!border-r-0 [&_th]:!border-r-0",
+        "w-full align-middle text-left rtl:text-right caption-bottom text-sm",
         props.layout?.classes?.table
       )}
       data-table
     >
-      <thead className="[&_tr]:border-b [&_tr]:border-t border-[#DFDFDF] bg-white">
+      <thead className="[&_tr]:border-b">
         {table.getHeaderGroups().map((headerGroup) => (
           <tr
             key={headerGroup.id}
             className={cn(
-              "border-b data-[state=selected]:bg-muted",
+              "border-b bg-muted/30 data-[state=selected]:bg-muted",
               cellBorder && "[&_>:last-child]:border-e-0"
             )}
           >
@@ -70,8 +70,14 @@ const DataGridTable = () => {
               data-state={row.getIsSelected() ? "selected" : undefined}
               className={cn(
                 "border-b hover:bg-muted/30 data-[state=selected]:bg-muted/50",
-                cellBorder && "[&_>:last-child]:border-e-0"
+                cellBorder && "[&_>:last-child]:border-e-0",
+                props.getRowClassName?.(row)
               )}
+              style={
+    props.getRowClassName?.(row)?.includes("green")
+      ? { backgroundColor: "#dcfce7" } 
+      : undefined
+  }
             >
               {row.getVisibleCells().map((cell) => (
                 <td

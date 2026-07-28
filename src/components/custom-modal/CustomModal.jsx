@@ -63,7 +63,11 @@ const CustomModal = ({ open, onClose, children, footer,centered, title, ...rest 
       }
       open={open}
       onCancel={handleClose}
-      
+      styles={{
+        body: { padding: 0 },
+        content: { padding: 0 },
+        header: title ? undefined : { display: "none" },
+      }}
       modalRender={(modal) => (
         // for shake animation
         <div ref={modalRef} className={shake ? classes.shake : ""}>

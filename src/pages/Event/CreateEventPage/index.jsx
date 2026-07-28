@@ -1,168 +1,141 @@
-import React, { Fragment, useState } from "react";
-import dayjs from "dayjs";
-import { Container } from "@/components/container";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import StepsComponent from "@/components/StepsComponents";
-import EventDetailsStep from "@/container/EventStepsContainer/EventDetailsStep";
-import FunctionsStep from "@/container/EventStepsContainer/FunctionsStep";
-import ClientDetailsStep from "@/container/EventStepsContainer/ClientDetailsStep";
-import OtherInfoStep from "@/container/EventStepsContainer/OtherInfoStep";
-import { requiredFields } from "./constant";
-import { useLocation } from "react-router";
-import { toAbsoluteUrl } from "@/utils";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { ArrowLeft, ArrowRight, Circle } from "lucide-react";
 
-const CreateEventPage = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { event_date } = location.state || {};
+import EventDetails from "./component/Eventdetails";
+import ClientDetails from "./component/Clientdetails";
+import FunctionDetails from "./component/Functiondetails";
+import OtherInformation from "./component/Otherinformation";
+import StepIndicator from "./component/StepIndicator";
 
+const STEPS = [
+  {
+    key: "eventDetails",
+    title: "Event Details",
+    subtitle: "Configure the basic information for this event.",
+    Component: EventDetails,
+  },
+  {
+    key: "clientDetails",
+    title: "Client Details",
+    subtitle: "Keep your Event planning seamless from start to finish!",
+    Component: ClientDetails,
+  },
+  {
+    key: "functionDetails",
+    title: "Function Details",
+    subtitle: "Configure individual sessions for this event.",
+    Component: FunctionDetails,
+  },
+  {
+    key: "otherInformation",
+    title: "Other Information",
+    subtitle: "The final phase: Capturing every meticulous detail for a perfect execution.",
+    Component: OtherInformation,
+  },
+];
+
+export default function CreateEvent({ onSubmit }) {
+  const [stepIndex, setStepIndex] = useState(0);
   const [formData, setFormData] = useState({
-    ...requiredFields.basic_info,
-    event_date: event_date ? event_date : "",
-    meeting_date: dayjs().format("YYYY-MM-DD"),
+    eventDetails: {},
+    clientDetails: {},
+    functionDetails: {},
+    otherInformation: {},
   });
-  const [current, setCurrent] = useState(0);
+  const [draftSaved, setDraftSaved] = useState(false);
 
-  const handleNext = () => {
-    const nextStep = current + 1;
-    switch (nextStep) {
-      case 1:
-        setFormData({ ...formData, ...requiredFields.client_info });
-        break;
-      case 2:
-        setFormData({ ...formData, ...requiredFields.functions });
-        break;
-      default:
-        break;
-    }
-    setCurrent(nextStep);
-  };
-  const handlePrev = () => {
-    setCurrent(current - 1);
-  };
-  const handleFinish = () => {
-    // Handle form submission logic here
-    console.log("Form submitted with data:", formData);
-    // Reset form or redirect as needed
-    setFormData(requiredFields.basic_info);
-    setCurrent(0);
-    navigate("/event-overview");
-  };
+  const step = STEPS[stepIndex];
+  const isFirst = stepIndex === 0;
+  const isLast = stepIndex === STEPS.length - 1;
+  const percentComplete = Math.round(((stepIndex + 1) / STEPS.length) * 100);
 
-  const handleInputChange = (e, fieldName) => {
-    const { value } = e.target;
+  const updateStepData = (patch) => {
     setFormData((prev) => ({
       ...prev,
-      [fieldName || e.target.name]: value,
+      [step.key]: { ...prev[step.key], ...patch },
     }));
+    setDraftSaved(false);
   };
 
-  const stepData = [
-    {
-      title: "Event Details",
-      content: (
-        <EventDetailsStep
-          formData={formData}
-          setFormData={setFormData}
-          onInputChange={handleInputChange}
-        />
-      ),
-      icon: (
-        <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#FDE7C5]">
-          <img
-            src={toAbsoluteUrl("/media/steps-image/event.png")}
-            alt="event"
-            className="w-8 h-8 "
-          />
-        </div>
-      ),
-    },
-    {
-      title: "Client Details",
-      content: (
-        <ClientDetailsStep
-          formData={formData}
-          setFormData={setFormData}
-          onInputChange={handleInputChange}
-        />
-      ),
-      icon: (
-        <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#FDE7C5]">
-          <img
-            src={toAbsoluteUrl("/media/steps-image/client.png")}
-            alt="event"
-            className="w-8 h-8"
-          />
-        </div>
-      ),
-    },
-    {
-      title: "Function Details",
-      content: (
-        <FunctionsStep
-          formData={formData}
-          setFormData={setFormData}
-          onInputChange={handleInputChange}
-        />
-      ),
-      icon: (
-        <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#FDE7C5]">
-          <img
-            src={toAbsoluteUrl("/media/steps-image/function.png")}
-            alt="event"
-            className="w-8 h-8"
-          />
-        </div>
-      ),
-    },
-    {
-      title: "Other Informations",
-      content: (
-        <OtherInfoStep
-          formData={formData}
-          setFormData={setFormData}
-          onInputChange={handleInputChange}
-        />
-      ),
-      icon: (
-        <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#FDE7C5]">
-          <img
-            src={toAbsoluteUrl("/media/steps-image/other.png")}
-            alt="event"
-            className="w-8 h-8"
-          />
-        </div>
-      ),
-    },
-  ];
-  const steps = () => stepData;
+  const handleSaveDraft = () => {
+    // integrate with API service layer here
+    console.log("Saving draft", formData);
+    setDraftSaved(true);
+  };
+
+  const handleBack = () => {
+    if (!isFirst) setStepIndex((i) => i - 1);
+  };
+
+  const handleContinue = () => {
+    if (isLast) {
+      // integrate with API service layer here
+      console.log("Submitting event", formData);
+      onSubmit?.(formData);
+    } else {
+      setStepIndex((i) => i + 1);
+    }
+  };
+
+  const StepComponent = step.Component;
+
   return (
-    <Fragment>
-      <Container>
-        {/* Breadcrumbs */}
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs
-            items={[
-              {
-                title: stepData[current]?.title || "Event Details",
-                subTitle:
-                  "Keep your Event planning seamless from start to finish!",
-              },
-            ]}
+    <div className="min-h-screen ">
+      <div className="w-full px-8 space-y-4">
+        {/* Step indicator */}
+        <StepIndicator steps={STEPS} currentIndex={stepIndex} percentComplete={percentComplete} />
+
+        <div className="bg-white rounded-2xl shadow-sm p-6  w-full">
+          {/* Header */}
+          <div className="flex items-start justify-between mb-1">
+            <p className="text-2xl font-bold text-primary">{step.title}</p>
+            <span className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 rounded-full px-3 py-1 shrink-0">
+              <Circle className="w-2 h-2 fill-emerald-500 text-emerald-500" />
+              {draftSaved ? "DRAFT SAVED" : "UNSAVED CHANGES"}
+            </span>
+          </div>
+          <p className="text-sm text-black mb-6">{step.subtitle}</p>
+
+          {/* Step content */}
+          <StepComponent
+            data={formData[step.key]}
+            onChange={updateStepData}
           />
         </div>
-        <StepsComponent
-          direction="vertical"
-          // direction="horizontal"
-          current={current}
-          steps={steps()}
-          onNext={handleNext}
-          onPrev={handlePrev}
-          onFinish={handleFinish}
-        />
-      </Container>
-    </Fragment>
+
+        {/* Footer nav */}
+        <div className="w-full flex items-center justify-between">
+          <button
+            type="button"
+            onClick={handleBack}
+            disabled={isFirst}
+            className={`flex items-center gap-1.5 text-sm font-medium rounded-xl px-4 py-2.5 border transition-colors ${
+              isFirst
+                ? "opacity-0 pointer-events-none"
+                : "border-rose-200 text-rose-700 hover:bg-white"
+            }`}
+          >
+            <ArrowLeft className="w-4 h-4" /> Back
+          </button>
+
+          <div className="flex items-center gap-3 ml-auto">
+            <button
+              type="button"
+              onClick={handleSaveDraft}
+              className="text-sm font-medium rounded-xl px-4 py-2.5 border border-rose-200 text-rose-700 hover:bg-white transition-colors"
+            >
+              Save Draft
+            </button>
+            <button
+              type="button"
+              onClick={handleContinue}
+              className="flex items-center gap-1.5 bg-rose-900 hover:bg-rose-950 text-white text-sm font-semibold rounded-xl px-5 py-2.5 transition-colors"
+            >
+              {isLast ? "Finish" : "Continue"} <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
-};
-export default CreateEventPage;
+}
