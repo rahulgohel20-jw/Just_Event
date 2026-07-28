@@ -133,7 +133,7 @@ const FunctionMaster = () => {
   }, [tableData, searchText, typeFilter, priceRangeFilter]);
 
   const toolbar = (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl p-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl mb-3">
       <div className="relative w-full max-w-xs">
         <Search
           size={16}
@@ -178,9 +178,9 @@ const FunctionMaster = () => {
   return (
     <div className="min-h-screen bg-white p-6">
       {/* Page header */}
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-rose-900">{PAGE_HEADER.title}</h1>
+          <h1 className="text-2xl  text-rose-900">{PAGE_HEADER.title}</h1>
           <p className="mt-1 max-w-xl text-sm text-gray-500">{PAGE_HEADER.description}</p>
         </div>
         <button

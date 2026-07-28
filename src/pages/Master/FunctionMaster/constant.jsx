@@ -131,15 +131,10 @@ export const getFunctionColumns = ({ onView, onEdit, onDelete, onToggleStatus })
     cell: ({ row }) => {
       const { functionName, segment, coverImage } = row.original;
       return (
-        <div className="flex items-center gap-3">
-          <img
-            src={coverImage}
-            alt={functionName}
-            className="h-10 w-10 rounded-lg object-cover"
-          />
+        <div className="flex items-center  gap-3">
+          
           <div>
-            <p className="text-sm font-medium text-gray-800">{functionName}</p>
-            <p className="text-xs text-gray-400">{segment}</p>
+            <p className="text-sm font-medium items-center text-gray-800">{functionName}</p>
           </div>
         </div>
       );
@@ -152,9 +147,7 @@ export const getFunctionColumns = ({ onView, onEdit, onDelete, onToggleStatus })
       const value = getValue();
       return (
         <span
-          className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-            typeBadgeStyles[value] || "bg-gray-100 text-gray-700"
-          }`}
+          
         >
           {value}
         </span>
@@ -182,9 +175,7 @@ export const getFunctionColumns = ({ onView, onEdit, onDelete, onToggleStatus })
             />
           </button>
           <span
-            className={`text-xs font-medium ${
-              isActive ? "text-rose-800" : "text-gray-400"
-            }`}
+           
           >
             {isActive ? "Active" : "Inactive"}
           </span>
@@ -201,21 +192,25 @@ export const getFunctionColumns = ({ onView, onEdit, onDelete, onToggleStatus })
       </span>
     ),
   },
-  {
-    accessorKey: "actions",
+   {
+    id: "actions",
     header: "Actions",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-3 text-gray-400">
-        <button onClick={() => onView(row.original)} className="hover:text-rose-800">
-          <Eye size={16} />
+    enableSorting: false,
+    cell: ({ row }) => {
+      const record = row.original;
+      return (
+        <div className="flex items-center justify-start gap-2 text-rose-700">
+         <button onClick={() => onView(row.original)} className="btn btn-sm btn-icon btn-clear">
+          <i className="ki-filled ki-eye  text-primary"></i>
         </button>
-        <button onClick={() => onEdit(row.original)} className="hover:text-rose-800">
-          <Pencil size={16} />
-        </button>
-        <button onClick={() => onDelete(row.original)} className="hover:text-red-600">
-          <Trash2 size={16} />
-        </button>
-      </div>
-    ),
+          <button className="btn btn-sm btn-icon btn-clear" type="button" onClick={() => onEdit?.(record)} >
+            <i className="ki-filled ki-notepad-edit text-third"></i>
+          </button>
+          <button  className=" tn btn-sm btn-icon btn-clear text-danger" type="button" onClick={() => onDelete?.(record)} >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      );
+    },
   },
 ];

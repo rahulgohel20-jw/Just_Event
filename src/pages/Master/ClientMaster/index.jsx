@@ -144,7 +144,7 @@ const handleView = (record) => {
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           placeholder="Search by Name, Mobile or Email..."
-          className="w-full rounded-lg border border-rose-100 bg-white py-2 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-200"
+          className="w-full rounded-lg border  bg-white py-2 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 0"
         />
       </div>
 
@@ -162,15 +162,7 @@ const handleView = (record) => {
           onChange={setCategoryFilter}
         />
 
-        <IconButton onClick={() => console.log("Refresh")}>
-          <RefreshCcw size={16} />
-        </IconButton>
-        <IconButton onClick={() => console.log("Export")}>
-          <Share2 size={16} />
-        </IconButton>
-        <IconButton onClick={() => console.log("Toggle columns")}>
-          <Columns3 size={16} />
-        </IconButton>
+       
       </div>
     </div>
   );
@@ -259,7 +251,7 @@ const IconButton = ({ children, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className="flex h-9 w-9 items-center justify-center rounded-lg border border-rose-100 bg-white text-gray-500 transition hover:bg-rose-50 hover:text-rose-800"
+    className="flex h-9 w-9 items-center justify-center rounded-lg border  bg-white text-gray-500 transition hover:bg-rose-50 hover:text-rose-800"
   >
     {children}
   </button>
@@ -270,7 +262,7 @@ const FilterDropdown = ({ label, value, options, onChange }) => (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="appearance-none rounded-lg border border-rose-100 bg-white py-2 pl-3 pr-8 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-rose-200"
+      className="appearance-none rounded-lg border  bg-white py-2 pl-3 pr-8 text-sm text-gray-600 focus:outline-none focus:ring-2 "
     >
       <option value="" disabled hidden>
         {label}

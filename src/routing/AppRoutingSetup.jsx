@@ -147,6 +147,8 @@ import TaxMaster from "../pages/Master/TaxMaster";
 import FunctionMaster from "../pages/Master/FunctionMaster";
 import VenueMaster from "../pages/Master/VenueMaster";
 import AddVenuePage from "../pages/Master/VenueMaster/AddVenuePage";
+import CreateEventName from "../pages/Event/CreateEventPage/Createeventname";
+import CreateEvent from "../pages/Event/CreateEventPage";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -155,6 +157,8 @@ const AppRoutingSetup = () => {
 
         <Route element={<Demo1Layout />}>
           {/* project routs */}
+          <Route path="/creteEvent" element={<CreateEvent/>}/>
+          <Route path="/creteevnetname" element={<CreateEventName/>}/>
           <Route path="/master/venuemaster/add" element={<AddVenuePage/>}/>
           <Route path="/master/venuemaster" element={<VenueMaster/>}/>
           <Route path="/master/functionmaster" element={<FunctionMaster/>}/>
