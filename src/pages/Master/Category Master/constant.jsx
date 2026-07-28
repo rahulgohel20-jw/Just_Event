@@ -1,4 +1,4 @@
-import { Layers, CheckCircle2, PauseCircle, BarChart3, Eye, Pencil, Trash2 } from "lucide-react";
+import { Layers, CheckCircle2, PauseCircle, BarChart3, Eye, Pencil, Trash2, Edit } from "lucide-react";
 
 
 export const PAGE_HEADER = {
@@ -62,7 +62,7 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
     accessorKey: "srNo",
     header: "SR. NO.",
     size: 90,
-    cell: ({ getValue }) => <span className="text-gray-500">{getValue()}</span>,
+    cell: ({ getValue }) => <span >{getValue()}</span>,
   },
   {
     id: "categoryName",
@@ -70,8 +70,7 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
     header: "CATEGORY NAME",
     cell: ({ row }) => (
       <div>
-        <p className="font-semibold text-gray-900">{row.original.categoryName}</p>
-        <p className="text-xs text-gray-400">{row.original.categoryDescription}</p>
+        <p >{row.original.categoryName}</p>
       </div>
     ),
   },
@@ -80,7 +79,7 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
     accessorKey: "mainCategory",
     header: "MAIN CATEGORY",
     cell: ({ getValue }) => (
-      <span className="inline-block rounded-md bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-600">
+      <span>
         {getValue()}
       </span>
     ),
@@ -133,14 +132,14 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
       const record = row.original;
       return (
         <div className="flex items-center justify-start gap-3 text-gray-400">
-          <button type="button" onClick={() => onView?.(record)} className="hover:text-rose-700">
-            <Eye size={16} />
+          <button type="button" onClick={() => onView?.(record)} className="text-green-700">
+            <Eye size={18} />
           </button>
-          <button type="button" onClick={() => onEdit?.(record)} className="hover:text-rose-700">
-            <Pencil size={16} />
+          <button type="button" onClick={() => onEdit?.(record)} className="text-blue-700">
+            <Edit size={18} />
           </button>
-          <button type="button" onClick={() => onDelete?.(record)} className="hover:text-rose-700">
-            <Trash2 size={16} />
+          <button type="button" onClick={() => onDelete?.(record)} className="text-red-700">
+            <Trash2 size={18} />
           </button>
         </div>
       );

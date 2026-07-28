@@ -1,4 +1,4 @@
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Edit, Eye, Pencil, Trash2 } from "lucide-react";
 
 export const PAGE_HEADER = {
   title: "Client Master",
@@ -110,7 +110,7 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
     accessorKey: "srNo",
     header: "Sr. No.",
     cell: ({ row }) => (
-      <span className="text-sm text-gray-500">
+      <span >
         {String(row.index + 1).padStart(2, "0")}
       </span>
     ),
@@ -125,9 +125,9 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-rose-100 text-sm font-semibold text-rose-800">
             {initials}
           </div>
-          <div>
-            <p className="text-sm font-medium text-gray-800">{clientName}</p>
-            <p className="text-xs text-gray-400">{email}</p>
+          <div className="flex item-center mt-2">
+            <p>{clientName}</p>
+            
           </div>
         </div>
       );
@@ -140,9 +140,7 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
       const value = getValue();
       return (
         <span
-          className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-            categoryBadgeStyles[value] || "bg-gray-100 text-gray-700"
-          }`}
+        
         >
           {value}
         </span>
@@ -195,17 +193,17 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
     accessorKey: "actions",
     header: "Actions",
     cell: ({ row }) => (
-      <div className="flex items-center gap-3 text-gray-400">
-        <button onClick={() => onView(row.original)} className="hover:text-rose-800">
-          <Eye size={16} />
-        </button>
-        <button onClick={() => onEdit(row.original)} className="hover:text-rose-800">
-          <Pencil size={16} />
-        </button>
-        <button onClick={() => onDelete(row.original)} className="hover:text-red-600">
-          <Trash2 size={16} />
-        </button>
-      </div>
+      <div className="flex items-center justify-start gap-3 text-gray-400">
+          <button type="button" onClick={() => onView?.(record)} className="text-green-700">
+            <Eye size={18} />
+          </button>
+          <button type="button" onClick={() => onEdit?.(record)} className="text-blue-700">
+            <Edit size={18} />
+          </button>
+          <button type="button" onClick={() => onDelete?.(record)} className="text-red-700">
+            <Trash2 size={18} />
+          </button>
+        </div>
     ),
   },
 ];
