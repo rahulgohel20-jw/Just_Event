@@ -59,7 +59,7 @@ module.exports = {
                 inverse: "#FFFFFF",
               },
               primary: {
-                default: "#A94064", 
+                default: "#8A284C", 
                 active: "#81334C", 
                 light: "#D98DAF", 
                 lighter: "#E8B9D0", 

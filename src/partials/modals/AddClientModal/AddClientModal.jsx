@@ -332,7 +332,7 @@ const Section = ({ title, children }) => (
 // Generic label + field wrapper, matches the style already used by DateField
 const Field = ({ label, children }) => (
   <div>
-    <label className="text-xs font-medium text-[#7A2E45] mb-1 block">
+    <label className="text-sm font-medium text-gray-700 mb-1 block">
       {label}
     </label>
     {children}
@@ -356,7 +356,7 @@ const IconInput = ({ icon, value, onChange, placeholder, type = "text" }) => (
 
 const DateField = ({ label, value, onChange }) => (
   <div>
-    <label className="text-xs font-medium text-[#7A2E45] mb-1 block">{label}</label>
+    <label className="text-sm font-medium text-gray-700 mb-1 block">{label}</label>
     <input
       type="date"
       value={value}

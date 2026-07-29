@@ -216,16 +216,16 @@ export const MENU_SIDEBAR = [
      path:"/creteevnetname",
     children: [
       {
-        title:"event",
+        title:"Event",
         path:"/creteevnetname",
       },
       {
         title: "Calander",
-        path: "",
+        path: "/calendar",
       },
       
        {
-        title: "Create Events",
+        title: "Event List",
         path: "/creteEvent",
       },
     ],

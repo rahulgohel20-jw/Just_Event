@@ -69,7 +69,7 @@ const AddCategoryModal = ({ open, onClose, onSave, initialData }) => {
         </div>
       }
     >
-      <div className="px-2 pt-2 pb-4">
+      <div className="p-5">
         {/* Header */}
         <div className="flex justify-between items-start mb-5">
           <div>
