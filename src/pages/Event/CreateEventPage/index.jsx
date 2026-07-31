@@ -83,18 +83,19 @@ export default function CreateEvent({ onSubmit }) {
     <div className="min-h-screen ">
       <div className="w-full px-8 space-y-4">
         {/* Step indicator */}
-        <StepIndicator steps={STEPS} currentIndex={stepIndex} percentComplete={percentComplete} />
+       
 
         <div className="bg-white rounded-2xl shadow-sm p-6  w-full">
           {/* Header */}
-          <div className="flex items-start justify-between mb-1">
+          <div className="flex items-start justify-between">
             <p className="text-2xl font-bold text-primary">{step.title}</p>
-            <span className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 rounded-full px-3 py-1 shrink-0">
+            {/* <span className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 rounded-full px-3 py-1 shrink-0">
               <Circle className="w-2 h-2 fill-emerald-500 text-emerald-500" />
               {draftSaved ? "DRAFT SAVED" : "UNSAVED CHANGES"}
-            </span>
+            </span> */}
           </div>
-          <p className="text-sm text-black mb-6">{step.subtitle}</p>
+          <p className="text-sm text-black mb-4">{step.subtitle}</p>
+           <StepIndicator steps={STEPS} currentIndex={stepIndex} percentComplete={percentComplete} />
 
           {/* Step content */}
           <StepComponent
@@ -112,7 +113,7 @@ export default function CreateEvent({ onSubmit }) {
             className={`flex items-center gap-1.5 text-sm font-medium rounded-xl px-4 py-2.5 border transition-colors ${
               isFirst
                 ? "opacity-0 pointer-events-none"
-                : "border-rose-200 text-rose-700 hover:bg-white"
+                : "border-primary-clarity text-primary"
             }`}
           >
             <ArrowLeft className="w-4 h-4" /> Back
