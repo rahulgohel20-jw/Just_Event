@@ -63,7 +63,8 @@ module.exports = {
                 active: "#81334C", 
                 light: "#D98DAF", 
                 lighter: "#E8B9D0", 
-                inverse: "#FFF8F8", 
+                inverse: "#FFF0F2", 
+                lighest:"#FFF0F266",
                 clarity: "rgba(129, 51, 76, 0.20)",
               },
               success: {
@@ -314,6 +315,7 @@ module.exports = {
           active: "var(--tw-primary-active)",
           light: "var(--tw-primary-light)",
           lighter: "var(--tw-primary-lighter)",
+           lighest: "var(--tw-primary-lighest)",
           clarity: "var(--tw-primary-clarity)",
           inverse: "var(--tw-primary-inverse)",
           foreground: "hsl(var(--primary-foreground))",

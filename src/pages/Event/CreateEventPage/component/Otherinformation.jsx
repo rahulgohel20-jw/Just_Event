@@ -12,6 +12,31 @@ const SUB_PHASES = [
   { key: "entertainment", label: "DJ / Entertainment Details" },
   { key: "misc", label: "Miscellaneous Vendors" },
 ];
+function FloatField({
+  label,
+  placeholder,
+  className = "",
+  ...props
+}) {
+  const title = label || placeholder;
+
+  return (
+    <div className="relative mt-6">
+      {title && (
+        <label className="absolute -top-3 left-3 bg-light px-1 text-[13px] font-medium text-dark z-5">
+          {title}
+        </label>
+      )}
+
+      <input
+        {...props}
+        placeholder={props.type === "date" ? undefined : placeholder}
+        className={`w-full h-12 bg-light border placeholder:text-dark-clarity border-primary-lighter rounded-xl px-4 text-sm text-dark outline-none focus:border-primary-lighter focus:ring-0 ${className}`}
+      />
+    </div>
+  );
+}
+
 
 export default function OtherInformation({ data, onChange }) {
   const [subStep, setSubStep] = useState(0);
@@ -23,21 +48,6 @@ export default function OtherInformation({ data, onChange }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-1">
-        <p className="text-xs font-bold text-rose-800">
-          Phase {String(subStep + 1).padStart(2, "0")} of{" "}
-          {String(SUB_PHASES.length).padStart(2, "0")}
-        </p>
-        <p className="text-xs text-rose-400">
-          {Math.round(((subStep + 1) / SUB_PHASES.length) * 100)}% Completed
-        </p>
-      </div>
-      <div className="h-1.5 rounded-full bg-rose-100 mb-6 overflow-hidden">
-        <div
-          className="h-full bg-rose-900 rounded-full transition-all"
-          style={{ width: `${((subStep + 1) / SUB_PHASES.length) * 100}%` }}
-        />
-      </div>
 
       {current.key === "photographer" ? (
         <PhotographerDetails
@@ -47,36 +57,6 @@ export default function OtherInformation({ data, onChange }) {
       ) : (
         <PlaceholderSection label={current.label} />
       )}
-
-      {/* Sub-phase navigation, separate from the main wizard's Back/Continue */}
-      <div className="flex items-center justify-between mt-6">
-        <button
-          type="button"
-          disabled={subStep === 0}
-          onClick={() => setSubStep((s) => Math.max(0, s - 1))}
-          className={`text-sm font-medium rounded-xl px-4 py-2 border ${
-            subStep === 0
-              ? "border-rose-100 text-rose-200 cursor-not-allowed"
-              : "border-rose-200 text-rose-700 hover:bg-rose-50"
-          }`}
-        >
-          Previous Detail
-        </button>
-        <button
-          type="button"
-          disabled={subStep === SUB_PHASES.length - 1}
-          onClick={() =>
-            setSubStep((s) => Math.min(SUB_PHASES.length - 1, s + 1))
-          }
-          className={`text-sm font-medium rounded-xl px-4 py-2 ${
-            subStep === SUB_PHASES.length - 1
-              ? "bg-rose-100 text-rose-300 cursor-not-allowed"
-              : "bg-rose-900 hover:bg-rose-950 text-white"
-          }`}
-        >
-          Next Detail
-        </button>
-      </div>
     </div>
   );
 }
@@ -89,17 +69,17 @@ function PhotographerDetails({ data, onChange }) {
     [person]: { ...(data[person] || {}), [field]: e.target.value },
   });
   return (
-    <div className="bg-white border border-rose-100 rounded-2xl p-5">
+    <div className="bg-light border border-primary-clarity rounded-2xl p-5">
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h3 className="text-sm font-bold text-rose-950">
+          <h3 className="text-2xl font-medium text-dark m-0">
             Photographer's Details
           </h3>
-          <p className="text-xs text-rose-400 mt-0.5">
+          <p className="text-xs text-dark font-medium mt-0.5">
             Identify the responsible parties for media coverage.
           </p>
         </div>
-        <div className="flex bg-rose-50/60 border border-rose-100 rounded-xl p-1 shrink-0">
+        <div className="flex bg-primary-inverse border border-primary-clarity rounded-full p-1 shrink-0">
           {[
             { id: "groomBride", label: "Groom/Bride" },
             { id: "other", label: "Other/Reference" },
@@ -108,10 +88,10 @@ function PhotographerDetails({ data, onChange }) {
               key={opt.id}
               type="button"
               onClick={() => onChange({ mode: opt.id })}
-              className={`rounded-lg px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
+              className={`rounded-full px-6 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
                 mode === opt.id
-                  ? "bg-rose-900 text-white"
-                  : "text-rose-500 hover:text-rose-700"
+                  ? "bg-primary text-light"
+                  : "text-dark"
               }`}
             >
               {opt.label}
@@ -121,7 +101,7 @@ function PhotographerDetails({ data, onChange }) {
       </div>
 
       {mode === "groomBride" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
           <PersonColumn
             icon={User2}
             title="GROOM'S INFORMATION"
@@ -142,14 +122,14 @@ function PhotographerDetails({ data, onChange }) {
             placeholder="Photographer's Name"
             value={data.photographerName || ""}
             onChange={(e) => onChange({ photographerName: e.target.value })}
-            className="w-full bg-white border border-rose-100 rounded-xl px-4 py-3 text-sm text-rose-900 placeholder:text-rose-300 outline-none focus:ring-2 focus:ring-rose-200"
+            className="w-full bg-light border border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity"
           />
           <input
             type="tel"
             placeholder="Photographer's No."
             value={data.photographerNo || ""}
             onChange={(e) => onChange({ photographerNo: e.target.value })}
-            className="w-full bg-white border border-rose-100 rounded-xl px-4 py-3 text-sm text-rose-900 placeholder:text-rose-300 outline-none focus:ring-2 focus:ring-rose-200"
+            className="w-full bg-light border border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity"
           />
         </div>
       )}
@@ -161,25 +141,25 @@ function PersonColumn({ icon: Icon, title, person, onFieldChange }) {
   return (
     <div>
       <div className="flex items-center gap-1.5 mb-3">
-        <Icon className="w-3.5 h-3.5 text-rose-700" />
-        <p className="text-[11px] font-bold tracking-wide text-rose-800">
+        <Icon className="w-3.5 h-3.5 text-dark" />
+        <p className="text-[11px] font-bold tracking-wide text-dark my-auto">
           {title}
         </p>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-3 mb-3">
         <input
           type="text"
           placeholder="Name"
           value={person.name || ""}
           onChange={onFieldChange("name")}
-          className="w-full bg-white border border-rose-100 rounded-xl px-4 py-3 text-sm text-rose-900 placeholder:text-rose-300 outline-none focus:ring-2 focus:ring-rose-200"
+          className="w-full bg-light border-2 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
         />
         <input
           type="text"
           placeholder="Father's Name"
           value={person.fatherName || ""}
           onChange={onFieldChange("fatherName")}
-          className="w-full bg-white border border-rose-100 rounded-xl px-4 py-3 text-sm text-rose-900 placeholder:text-rose-300 outline-none focus:ring-2 focus:ring-rose-200"
+          className="w-full bg-light border-2 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
         />
         <div className="grid grid-cols-2 gap-3">
           <input
@@ -187,14 +167,14 @@ function PersonColumn({ icon: Icon, title, person, onFieldChange }) {
             placeholder="Contact Number"
             value={person.contactNumber || ""}
             onChange={onFieldChange("contactNumber")}
-            className="w-full bg-white border border-rose-100 rounded-xl px-4 py-3 text-sm text-rose-900 placeholder:text-rose-300 outline-none focus:ring-2 focus:ring-rose-200"
+            className="w-full bg-light border-2 mt-4 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
           />
           <input
             type="text"
             placeholder="Occupation"
             value={person.occupation || ""}
             onChange={onFieldChange("occupation")}
-            className="w-full bg-white border border-rose-100 rounded-xl px-4 py-3 text-sm text-rose-900 placeholder:text-rose-300 outline-none focus:ring-2 focus:ring-rose-200"
+            className="w-full bg-light border-2 mt-4 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
           />
         </div>
         <input
@@ -202,17 +182,14 @@ function PersonColumn({ icon: Icon, title, person, onFieldChange }) {
           placeholder="Insta ID"
           value={person.instaId || ""}
           onChange={onFieldChange("instaId")}
-          className="w-full bg-white border border-rose-100 rounded-xl px-4 py-3 text-sm text-rose-900 placeholder:text-rose-300 outline-none focus:ring-2 focus:ring-rose-200"
+          className="w-full bg-light border-2 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
         />
         <div>
-          <label className="block text-[11px] font-medium text-rose-400 mb-1.5">
-            Birthdate
-          </label>
-          <input
+           <FloatField
+            label="Birthdate"
             type="date"
-            value={person.birthdate || ""}
+             value={person.birthdate || ""}
             onChange={onFieldChange("birthdate")}
-            className="w-full bg-white border border-rose-100 rounded-xl px-4 py-3 text-sm text-rose-900 outline-none focus:ring-2 focus:ring-rose-200"
           />
         </div>
       </div>
@@ -222,9 +199,9 @@ function PersonColumn({ icon: Icon, title, person, onFieldChange }) {
 
 function PlaceholderSection({ label }) {
   return (
-    <div className="bg-white border border-dashed border-rose-200 rounded-2xl p-10 text-center">
-      <p className="text-sm font-semibold text-rose-900 mb-1">{label}</p>
-      <p className="text-xs text-rose-400">
+    <div className="bg-light border border-dashed border-primary-clarity rounded-2xl p-10 text-center">
+      <p className="text-sm font-semibold text-primary mb-1">{label}</p>
+      <p className="text-xs text-primary-dark">
         Not built out yet — follow the PhotographerDetails pattern in this
         file to add its fields.
       </p>

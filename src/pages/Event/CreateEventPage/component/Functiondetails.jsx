@@ -12,6 +12,7 @@ import {
   PartyPopper,
   Cake,
   Sparkles,
+  CirclePlus,
 } from "lucide-react";
 
 const ICONS = {
@@ -84,118 +85,123 @@ export default function FunctionDetails({ data, onChange }) {
   return (
     <div>
       <div className="flex items-center gap-3 mb-5">
-        <div className="relative flex-1 max-w-xs">
-          <Search className="w-4 h-4 text-rose-300 absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="relative flex-1 max-w-xl">
+          <Search className="w-4 h-4 text-dark-light absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search functions..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-white border border-rose-100 rounded-xl pl-9 pr-4 py-2.5 text-sm text-rose-900 placeholder:text-rose-300 outline-none focus:ring-2 focus:ring-rose-200"
+            className="w-full bg-light border border-primary-clarity rounded-xl pl-9 pr-4 py-2.5 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-inverse"
           />
         </div>
         <button
           type="button"
           onClick={addRow}
-          className="ml-auto flex items-center gap-1.5 bg-rose-900 hover:bg-rose-950 text-white text-sm font-medium rounded-xl px-4 py-2.5 transition-colors"
+          className="ml-auto flex items-center gap-1.5 bg-primary  text-light text-sm font-medium rounded-xl px-4 py-2.5 transition-colors"
         >
-          <Plus className="w-4 h-4" /> Add Function
+          <CirclePlus className="w-4 h-4" /> Add Function
         </button>
       </div>
 
-      <div className="border border-rose-100 rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto">
+        <table className="w-full border-separate  border-spacing-y-3">
           <thead>
-            <tr className="bg-rose-50/60 text-[11px] font-semibold tracking-wide text-rose-400 text-left">
-              <th className="px-4 py-3">FUNCTION TYPE</th>
-              <th className="px-4 py-3">DATE</th>
-              <th className="px-4 py-3">TIME</th>
-              <th className="px-4 py-3">VENUE</th>
-              <th className="px-4 py-3">SUB VENUE</th>
-              <th className="px-4 py-3 text-right">ACTIONS</th>
+            <tr className="text-left text-sm font-bold uppercase text-dark">
+              <th className="px-6 py-2">Function Type</th>
+              <th className="px-4 py-2">Date</th>
+              <th className="px-4 py-2">Time</th>
+              <th className="px-4 py-2">Venue</th>
+              <th className="px-4 py-2">Sub Venue</th>
+              <th className="px-6 py-2 text-center">Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {filtered.map((f) => {
               const Icon = ICONS[f.type] || Sparkles;
+
               return (
-                <tr key={f.id} className="border-t border-rose-50">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2 font-medium text-rose-900">
-                      <Icon className="w-4 h-4 text-rose-700" />
-                      {f.type}
+                <tr
+                  key={f.id}
+                  className="text-sm rounded-2xl"
+                >
+                  <td className="border-y-2 border-l-2 border-primary-inverse rounded-l-2xl px-6 py-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-8 h-8 rounded-lg bg-primary-inverse flex items-center justify-center">
+                        <Icon className="w-5 h-5 text-primary" />
+                      </div>
+
+                      <span className="font-bold text-sm text-dark">
+                        {f.type}
+                      </span>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+
+                  <td className="px-4 py-4 border-y-2 border-primary-inverse">
                     <input
                       type="date"
                       value={f.date}
                       onChange={(e) => update(f.id, "date", e.target.value)}
-                      className="bg-transparent text-rose-700 outline-none w-32"
+                      className="w-full bg-primary-lighest rounded p-1 outline-none text-primary"
                     />
                   </td>
-                  <td className="px-4 py-3">
+
+                  <td className="px-4 py-4 border-y-2 border-primary-inverse">
                     <input
                       type="time"
                       value={f.time}
                       onChange={(e) => update(f.id, "time", e.target.value)}
-                      className="bg-transparent text-rose-700 outline-none w-24"
+                      className="w-full bg-primary-lighest rounded p-1  outline-none text-primary"
                     />
                   </td>
-                  <td className="px-4 py-3">
-                    <select
-                      value={f.venue}
-                      onChange={(e) => update(f.id, "venue", e.target.value)}
-                      className="bg-transparent text-rose-900 outline-none"
-                    >
-                      {VENUES.map((v) => (
-                        <option key={v}>{v}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-4 py-3">
-                    <select
-                      value={f.subVenue}
-                      onChange={(e) =>
-                        update(f.id, "subVenue", e.target.value)
-                      }
-                      className="bg-transparent text-rose-900 outline-none"
-                    >
-                      {SUB_VENUES.map((v) => (
-                        <option key={v}>{v}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-3 text-rose-300">
-                      <button type="button" className="hover:text-rose-600">
-                        <MessageSquare className="w-4 h-4" />
-                      </button>
-                      <button type="button" className="hover:text-rose-600">
-                        <MapPin className="w-4 h-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeRow(f.id)}
-                        className="hover:text-red-500"
+
+                  <td className="px-4 py-4 border-y-2 border-primary-inverse">
+                    <p className="w-full bg-primary-lighest rounded  m-auto px-3">
+                      <select
+                        value={f.venue}
+                        onChange={(e) => update(f.id, "venue", e.target.value)}
+                        className="outline-none bg-primary-lighest  text-primary w-full py-1.5"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        {VENUES.map((v) => (
+                          <option key={v}>{v}</option>
+                        ))}
+                      </select>
+                    </p>
+                  </td>
+
+                  <td className="px-4 py-4 border-y-2 border-primary-inverse">
+                    <p className="w-full bg-primary-lighest rounded  m-auto px-3">
+                      <select
+                        value={f.subVenue}
+                        onChange={(e) => update(f.id, "subVenue", e.target.value)}
+                        className="outline-none bg-primary-lighest  text-primary w-full py-1.5"
+                      >
+                        {SUB_VENUES.map((v) => (
+                          <option key={v}>{v}</option>
+                        ))}
+                      </select>
+                    </p>
+                  </td>
+
+                  <td className="px-6 py-4 rounded-r-2xl border-y-2 border-r-2 border-primary-inverse">
+                    <div className="flex justify-center items-center gap-4 text-dark">
+                      <button>
+                        <MessageSquare className="w-5 h-5 hover:text-primary" />
+                      </button>
+
+                      <button>
+                        <MapPin className="w-5 h-5 hover:text-primary" />
+                      </button>
+
+                      <button onClick={() => removeRow(f.id)}>
+                        <Trash2 className="w-5 h-5 hover:text-danger" />
                       </button>
                     </div>
                   </td>
                 </tr>
               );
             })}
-            {filtered.length === 0 && (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="px-4 py-8 text-center text-sm text-rose-300"
-                >
-                  No functions match "{query}"
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>

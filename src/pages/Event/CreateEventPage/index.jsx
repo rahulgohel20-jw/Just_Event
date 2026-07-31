@@ -85,16 +85,16 @@ export default function CreateEvent({ onSubmit }) {
         {/* Step indicator */}
        
 
-        <div className="bg-white rounded-2xl shadow-sm p-6  w-full">
+        <div className="bg-white rounded-2xl shadow-sm px-4 py-0 w-full">
           {/* Header */}
           <div className="flex items-start justify-between">
-            <p className="text-2xl font-bold text-primary">{step.title}</p>
+            <p className="text-3xl font-bold text-primary my-2">{step.title}</p>
             {/* <span className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 rounded-full px-3 py-1 shrink-0">
               <Circle className="w-2 h-2 fill-emerald-500 text-emerald-500" />
               {draftSaved ? "DRAFT SAVED" : "UNSAVED CHANGES"}
             </span> */}
           </div>
-          <p className="text-sm text-black mb-4">{step.subtitle}</p>
+          <p className="text-sm text-black mb-10">{step.subtitle}</p>
            <StepIndicator steps={STEPS} currentIndex={stepIndex} percentComplete={percentComplete} />
 
           {/* Step content */}
