@@ -28,42 +28,12 @@ export const STATS_CARDS = [
   },
 ];
 
-export const TAX_NAME_FILTER_OPTIONS = [
-  { value: "cgst", label: "CGST" },
-  { value: "sgst", label: "SGST" },
-  { value: "igst", label: "IGST" },
-  { value: "service-tax", label: "Service Tax" },
-];
-
-export const TAX_TABLE_DATA = [
-  {
-    id: 1,
-    taxName: "CGST",
-    percentage: 9,
-    status: "active",
-  },
-  {
-    id: 2,
-    taxName: "SGST",
-    percentage: 9,
-    status: "active",
-  },
-  {
-    id: 3,
-    taxName: "IGST",
-    percentage: 18,
-    status: "active",
-  },
-  {
-    id: 4,
-    taxName: "Service Tax",
-    percentage: 5,
-    status: "inactive",
-  },
-];
-
+export const DEFAULT_PAGE = 0;
 export const DEFAULT_PAGINATION_SIZE = 10;
-export const DEFAULT_SORTING = [{ id: "taxName", desc: false }];
+export const DEFAULT_SORT_BY = "id";
+export const DEFAULT_SORT_DIRECTION = "ASC";
+export const DEFAULT_SORTING = [{ id: "taxNameEnglish", desc: false }];
+
 
 export const getTaxColumns = ({ onView, onEdit, onDelete, onToggleStatus }) => [
   {
@@ -71,54 +41,44 @@ export const getTaxColumns = ({ onView, onEdit, onDelete, onToggleStatus }) => [
     header: "Sr. No.",
     cell: ({ row }) => (
       <span className="text-sm text-gray-500">
-        {String(row.index + 1).padStart(2, "0")}
+        {String(row.index + 1).padStart(2,)}
       </span>
     ),
   },
   {
-    accessorKey: "taxName",
+    accessorKey: "taxNameEnglish",
     header: "Tax Name",
     cell: ({ getValue }) => (
-      <span className="text-sm font-semibold text-gray-800">{getValue()}</span>
+      <span className="">{getValue()}</span>
     ),
   },
   {
     accessorKey: "percentage",
     header: "Percentage",
     cell: ({ getValue }) => (
-      <span className="rounded-full bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700">
+      <span className="">
         {getValue()}%
       </span>
     ),
   },
   {
-    accessorKey: "status",
+    accessorKey: "createdAt",
+    header: "Created At",
+    cell: ({ getValue }) => (
+      <span className="text-sm text-gray-500">{getValue() || "-"}</span>
+    ),
+  },
+  {
+    accessorKey: "isActive",
     header: "Status",
     cell: ({ row }) => {
-      const isActive = row.original.status === "active";
+      const isActive = Boolean(row.original.isActive);
       return (
-        <div className="inline-flex items-center gap-2">
-          <button
-            type="button"
-            role="switch"
-            aria-checked={isActive}
-            onClick={() => onToggleStatus(row.original)}
-            style={{ backgroundColor: isActive ? "#881337" : "#e5e7eb" }}
-            className="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none"
-          >
-            <span
-              style={{ transform: isActive ? "translateX(18px)" : "translateX(2px)" }}
-              className="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
-            />
-          </button>
-          <span
-            className={`text-xs font-medium ${
-              isActive ? "text-rose-800" : "text-gray-400"
-            }`}
-          >
-            {isActive ? "Active" : "Inactive"}
-          </span>
-        </div>
+        <span
+         
+        >
+          {isActive ? "Active" : "Inactive"}
+        </span>
       );
     },
   },
@@ -127,13 +87,18 @@ export const getTaxColumns = ({ onView, onEdit, onDelete, onToggleStatus }) => [
     header: "Actions",
     cell: ({ row }) => (
       <div className="flex items-center gap-3 text-gray-400">
-        <button onClick={() => onView(row.original)} className="hover:text-rose-800">
-          <Eye size={16} />
+        <button
+          className="btn btn-sm btn-icon btn-clear"
+          type="button"
+          onClick={() => onEdit(row.original)}
+        >
+          <i className="ki-filled ki-notepad-edit text-third"></i>
         </button>
-        <button onClick={() => onEdit(row.original)} className="hover:text-rose-800">
-          <Pencil size={16} />
-        </button>
-        <button onClick={() => onDelete(row.original)} className="hover:text-red-600">
+        <button
+          className="btn btn-sm btn-icon btn-clear text-danger"
+          type="button"
+          onClick={() => onDelete(row.original)}
+        >
           <Trash2 size={16} />
         </button>
       </div>

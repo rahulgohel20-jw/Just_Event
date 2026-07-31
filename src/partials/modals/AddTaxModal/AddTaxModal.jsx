@@ -1,22 +1,32 @@
 import { useEffect, useState } from "react";
-import { Percent, Save } from "lucide-react";
-import { CustomModal } from "@/components/custom-modal/CustomModal"; // adjust path as needed
+import { Percent, Save, Loader2 } from "lucide-react";
+import Swal from "sweetalert2";
+import { CustomModal } from "@/components/custom-modal/CustomModal";
+import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox";
+import { addupadtetaxmaster, Translateapi } from "@/services/apiServices"; // <-- Translateapi imported here now
 
 const initialFormState = {
-  taxName: "",
+  taxName: { english: "", hindi: "", gujarati: "" },
   taxPercentage: "",
+  isActive: true,
 };
 
 const AddTaxModal = ({ open, onClose, onSave, initialData }) => {
   const [form, setForm] = useState(initialFormState);
+  const [saving, setSaving] = useState(false);
   const isEditMode = Boolean(initialData);
+  const STATIC_USER_ID = 1;
 
-  // Prefill form when opening in edit mode
   useEffect(() => {
     if (open && initialData) {
       setForm({
-        taxName: initialData.taxName || "",
+        taxName: {
+          english: initialData.taxName || initialData.taxNameEnglish || "",
+          hindi: initialData.taxNameHindi || "",
+          gujarati: initialData.taxNameGujarati || "",
+        },
         taxPercentage: String(initialData.percentage ?? ""),
+        isActive: initialData.isActive ?? true,
       });
     } else if (open && !initialData) {
       setForm(initialFormState);
@@ -26,47 +36,124 @@ const AddTaxModal = ({ open, onClose, onSave, initialData }) => {
   const updateField = (field, value) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
+  const handleTaxNameChange = (name, updatedValue) => {
+    setForm((prev) => ({ ...prev, [name]: updatedValue }));
+  };
+
+  // Owns the translation API call; MultiLangInputBox just calls this and applies the result
+  const handleTranslate = async (englishText) => {
+    try {
+      const res = await Translateapi(englishText);
+      const data = res?.data ?? res;
+      return {
+        hindi: data?.hindi,
+        gujarati: data?.gujarati,
+      };
+    } catch (err) {
+      console.error("Failed to translate tax name:", err);
+      return null;
+    }
+  };
+
   const handleReset = () => {
     setForm(initialFormState);
     onClose();
   };
 
-  const handleSave = () => {
-    if (!form.taxName.trim() || form.taxPercentage === "") return;
-    onSave?.(form);
-    setForm(initialFormState);
+ const handleSave = async () => {
+  const payload = {
+    id: initialData?.id ?? null,
+    isActive: form.isActive,
+    status: form.isActive,
+    percentage: Number(form.taxPercentage),
+    taxNameEnglish: form.taxName.english,
+    taxNameGujarati: form.taxName.gujarati,
+    taxNameHindi: form.taxName.hindi,
+    userId: STATIC_USER_ID,
   };
 
+  setSaving(true);
+  try {
+    const res = await addupadtetaxmaster(payload);
+
+    // Normalize: handle both "already unwrapped" and axios-wrapped responses
+    const body = res?.data && typeof res.data === "object" && "success" in res.data
+      ? res.data
+      : res;
+
+    const isSuccess = body?.success === true;
+
+    if (isSuccess) {
+      onSave?.(body?.data ?? body);
+      setForm(initialFormState);
+
+      Swal.fire({
+        icon: "success",
+        title: isEditMode ? "Tax Updated" : "Tax Saved",
+        text: body?.msg || "Operation completed successfully.",
+        timer: 1800,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+
+      onClose?.();
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: body?.errorMessage || body?.msg || "Something went wrong. Please try again.",
+      });
+    }
+  } catch (err) {
+    console.error("Failed to save tax:", err);
+    Swal.fire({
+      icon: "error",
+      title: "Failed",
+      text:
+        err?.response?.data?.errorMessage ||
+        err?.response?.data?.msg ||
+        err?.message ||
+        "Something went wrong. Please try again.",
+    });
+  } finally {
+    setSaving(false);
+  }
+};
   return (
     <CustomModal
       open={open}
       onClose={handleReset}
-      width={480}
+      width={720}
       centered
       title={null}
       footer={
         <div className="flex justify-between items-center px-6 pb-6">
           <button
             onClick={handleReset}
-            className="px-5 py-2 rounded-lg bg-[#F7E5EA] text-[#7A2E45] font-medium hover:bg-[#f0d3dc] transition-colors"
+            disabled={saving}
+            className="px-5 py-2 rounded-lg bg-[#F7E5EA] text-primary font-medium  transition-colors disabled:opacity-60"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-[#7A2E45] text-white font-medium hover:bg-[#66253a] transition-colors"
+            disabled={saving}
+            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-primary text-white font-medium  transition-colors disabled:opacity-60"
           >
-            <Save size={16} />
+            {saving ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Save size={16} />
+            )}
             {isEditMode ? "Update Tax" : "Save Tax"}
           </button>
         </div>
       }
     >
-      <div className="px-2 pt-2 pb-4">
-        {/* Header */}
+      <div className="px-6 pt-5 pb-4">
         <div className="flex justify-between items-start mb-5">
           <div>
-            <h2 className="text-xl font-semibold text-[#7A2E45]">
+            <h2 className="text-xl font-bold text-primary">
               {isEditMode ? "Edit Tax" : "Add Tax"}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
@@ -82,45 +169,62 @@ const AddTaxModal = ({ open, onClose, onSave, initialData }) => {
           </button>
         </div>
 
-        <hr className="border-t border-gray-200 mb-5" />
-
-        {/* Tax Name */}
-        <div className="mb-4">
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-              #
-            </span>
-            <input
-              type="text"
-              value={form.taxName}
-              onChange={(e) => updateField("taxName", e.target.value)}
-              placeholder="Tax Name"
-              className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-400 focus:outline-none focus:ring-1 focus:ring-[#7A2E45] focus:border-[#7A2E45] text-sm"
-            />
-          </div>
-          <p className="text-xs text-gray-400 mt-1">e.g., CGST, SGST, VAT</p>
+        <div className="mb-6">
+          <MultiLangInputBox
+            label="Tax Name"
+            name="taxName"
+            value={form.taxName}
+            onChange={handleTaxNameChange}
+            onTranslate={handleTranslate}
+            required
+          />
+          <p className="text-xs text-gray-400 mt-2">e.g., CGST, SGST, VAT</p>
         </div>
 
-        {/* Tax Percentage */}
-        <div>
-          <div className="relative">
-            <Percent
-              size={15}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-            <input
-              type="number"
-              value={form.taxPercentage}
-              onChange={(e) => updateField("taxPercentage", e.target.value)}
-              placeholder="Tax Percentage"
-              min="0"
-              max="100"
-              step="0.01"
-              className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-gray-400 focus:outline-none focus:ring-1 focus:ring-[#7A2E45] focus:border-[#7A2E45] text-sm"
-            />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-              %
+       <div className="flex items-end gap-4">
+  <div className="relative flex-1">
+    <label className="flex items-center gap-1 text-sm font-medium text-gray-800 mb-2">
+      Tax Percentage
+     
+    </label>
+    <div className="relative">
+      <Percent
+        size={15}
+        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+      />
+      <input
+        type="tell"
+        value={form.taxPercentage}
+        onChange={(e) => updateField("taxPercentage", e.target.value)}
+        placeholder="Tax Percentage"
+        min="0"
+        max="100"
+        step="0.01"
+        className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-gray-300 text-black focus:outline-none focus:ring-1 focus:ring-[#7A2E45] focus:border-[#7A2E45] text-sm"
+      />
+      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+        %
+      </span>
+    </div>
+  </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-sm text-gray-600">
+              {form.isActive ? "Active" : "Inactive"}
             </span>
+            <button
+              type="button"
+              onClick={() => updateField("isActive", !form.isActive)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                form.isActive ? "bg-primary" : "bg-gray-300"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  form.isActive ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
           </div>
         </div>
       </div>

@@ -149,6 +149,7 @@ import VenueMaster from "../pages/Master/VenueMaster";
 import AddVenuePage from "../pages/Master/VenueMaster/AddVenuePage";
 import CreateEventName from "../pages/Event/CreateEventPage/Createeventname";
 import CreateEvent from "../pages/Event/CreateEventPage";
+import CategoryTypeMaster from "../pages/Master/CategoryTypeMaster";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -157,6 +158,7 @@ const AppRoutingSetup = () => {
 
         <Route element={<Demo1Layout />}>
           {/* project routs */}
+          <Route path="/master/categorytypemaster" element={<CategoryTypeMaster/>}/>
           <Route path="/creteEvent" element={<CreateEvent/>}/>
           <Route path="/creteevnetname" element={<CreateEventName/>}/>
           <Route path="/master/venuemaster/add" element={<AddVenuePage/>}/>

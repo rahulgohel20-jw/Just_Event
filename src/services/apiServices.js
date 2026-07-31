@@ -19,3 +19,36 @@ export const updateRole = (roleId, data) => {
 export const deleteRole = (roleId) => {
   return DELETE(`/role_master/${roleId}/role_id`);
 };
+
+export const Translateapi = (data) => {
+  return GET(`/transliterate?text=${data}`);
+};
+
+
+export const addupadtetaxmaster = ( data) => {
+  return POST(`/tax-master/add-update`,data) ;
+} ;
+
+export const deletetaxmaster = (id)  => {
+  return DELETE(`/tax-master/delete?id=${id}`);
+};
+
+export const getbyidtaxmaster = (id) => {
+  return GET(`/tax-master/get?id=${id}`);
+};
+
+export const getalltaxmaster = (data) =>{
+  return POST(`/tax-master/list`,data) ;
+};  
+
+export const addupadtecategorytypemaster = (data) =>{
+  return POST(`/category-type/add-update`, data) ;
+};
+
+export const deletecategorytypemaster = (id) =>{
+  return DELETE (`/category-type/delete?id=${id}`);
+};
+
+export const getAllCategoryTypemaster = (data) => {
+  return GET (`/category-type/list`,data) ;
+};

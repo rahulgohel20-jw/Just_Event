@@ -78,6 +78,7 @@
     "styled-components": "^6.1.13",
     "stylis": "^4.3.4",
     "stylis-plugin-rtl": "^2.1.1",
+    "sweetalert2": "^11.26.25",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "tippy.js": "^6.3.7",
