@@ -32,7 +32,7 @@ export default function EventDetails({ data, onChange }) {
             onChange={set("inquiryDate")}
           />
           <div>
-            <p className="text-xs font-medium text-rose-900 mb-2">
+            <p className="text-[13px] font-medium text-dark mb-2 pl-2">
               Event Status
             </p>
             <SegmentedControl
@@ -105,7 +105,7 @@ export default function EventDetails({ data, onChange }) {
           <select
             value={data.venue || ""}
             onChange={set("venue")}
-            className="w-full appearance-none bg-white border border-rose-100 rounded-xl px-4 py-3 text-sm text-rose-900 outline-none focus:ring-2 focus:ring-rose-200"
+            className="w-full appearance-none bg-light border border-primary-lighter rounded-xl px-4 py-3 text-sm text-dark outline-none focus:ring-2 focus:ring-primary-clarity"
           >
             <option value="">Search or select a venue...</option>
             <option value="grand-ballroom">Grand Ballroom, Ahmedabad</option>
@@ -116,28 +116,31 @@ export default function EventDetails({ data, onChange }) {
         <div className="flex items-center gap-4 text-xs font-medium mb-6">
           <button
             type="button"
-            className="text-rose-700 hover:text-rose-900"
+            className="text-primary"
           >
             + Add New Venue
           </button>
           <button
             type="button"
-            className="text-rose-400 hover:text-rose-600"
+            className="text-primary"
           >
             − Remove New Venue
           </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <textarea
+          <div>
+            <p className="text-[13px] font-medium text-dark mb-2">Special Instructions / Remarks</p>
+            <textarea
             placeholder="Special Instructions / Remarks"
             value={data.remarks || ""}
             onChange={set("remarks")}
-            rows={4}
-            className="w-full bg-white border border-rose-100 rounded-xl px-4 py-3 text-sm text-rose-900 placeholder:text-rose-300 outline-none focus:ring-2 focus:ring-rose-200 resize-none"
+            rows={1}
+            className="w-full bg-light border border-primary-lighter rounded-xl px-4 py-3 text-sm text-dark-active placeholder:text-dark-light outline-none focus:ring-2 focus:ring-primary-lighter resize-none"
           />
+          </div>
           <div>
-            <p className="text-xs font-medium text-rose-900 mb-2">
+            <p className="text-[13px] font-medium text-dark mb-2">
               Tentative Booking
             </p>
             <SegmentedControl
@@ -154,9 +157,9 @@ export default function EventDetails({ data, onChange }) {
 
 function SectionHeading({ icon: Icon, label }) {
   return (
-    <div className="flex items-center gap-2 mb-4 pb-2 border-b border-rose-100">
-      <Icon className="w-4 h-4 text-rose-800" />
-      <h3 className="text-xs font-bold tracking-wide text-rose-900">
+    <div className="flex gap-2 mb-4 pb-2 border-b border-x-primary-clarity" >
+      <Icon className="w-4 h-4 text-primary mt-0.3" />
+      <h3 className="text-sm font-bold tracking-wide text-primary">
         {label}
       </h3>
     </div>
@@ -167,11 +170,11 @@ function Field({ icon: Icon, ...props }) {
   return (
     <div className="relative">
       {Icon && (
-        <Icon className="w-4 h-4 text-rose-300 absolute left-3 top-1/2 -translate-y-1/2" />
+        <Icon className="w-4 h-4 text-primary absolute left-3 top-1/2 -translate-y-1/2" />
       )}
       <input
         {...props}
-        className={`w-full bg-white border border-rose-100 rounded-xl py-3 text-sm text-rose-900 placeholder:text-rose-300 outline-none focus:ring-2 focus:ring-rose-200 ${
+        className={`w-full bg-light border border-primary-lighter rounded-xl py-3 text-sm text-dark placeholder:text-dark-clarity outline-none focus:ring-2 focus:ring-primary-clarity ${
           Icon ? "pl-9 pr-4" : "px-4"
         }`}
       />
@@ -190,7 +193,7 @@ function FloatField({
   return (
     <div className="relative">
       {title && (
-        <label className="absolute -top-2 left-3 bg-white px-1 text-[11px] font-medium text-rose-400 z-10">
+        <label className="absolute -top-3 left-3 bg-light px-1 text-[13px] font-medium text-dark z-5">
           {title}
         </label>
       )}
@@ -198,7 +201,7 @@ function FloatField({
       <input
         {...props}
         placeholder={props.type === "date" ? undefined : placeholder}
-        className={`w-full h-14 bg-white border border-rose-200 rounded-xl px-4 text-sm text-rose-900 outline-none focus:border-rose-400 focus:ring-0 ${className}`}
+        className={`w-full h-14 bg-light border placeholder:text-dark-clarity border-primary-lighter rounded-xl px-4 text-sm text-dark outline-none focus:border-primary-lighter focus:ring-0 ${className}`}
       />
     </div>
   );
@@ -206,7 +209,7 @@ function FloatField({
 
 function SegmentedControl({ options, value, onChange }) {
   return (
-    <div className="flex bg-rose-50/60 border border-rose-100 rounded-xl p-1">
+    <div className="flex bg-primary-inverse border border-primary-clarity rounded-xl p-1">
       {options.map((opt) => (
         <button
           key={opt}
@@ -214,8 +217,8 @@ function SegmentedControl({ options, value, onChange }) {
           onClick={() => onChange(opt)}
           className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
             value === opt
-              ? "bg-white text-rose-900 shadow-sm"
-              : "text-rose-400 hover:text-rose-600"
+              ? "bg-light text-primary shadow-sm"
+              : "text-primary-light"
           }`}
         >
           {opt}
