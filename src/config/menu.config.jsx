@@ -236,6 +236,10 @@ export const MENU_SIDEBAR = [
      icon: "  text-lg ki-filled ki-abstract-26 text-primary",
     children: [
       {
+        title:"Category Type Master" , 
+        path:"/master/categorytypemaster",
+      },
+      {
         title: "Category Master",
         path: "/master/categorymaster",
       },
