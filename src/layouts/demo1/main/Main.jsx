@@ -49,7 +49,7 @@ const Main = () => {
       <Sidebar />
       <div className="wrapper flex grow flex-col">
         <Header />    
-        <main className="grow content pt-5" role="content"><Outlet /></main>
+        <main className="grow content" role="content"><Outlet /></main>
         <Footer />
       </div>
     </Fragment>;

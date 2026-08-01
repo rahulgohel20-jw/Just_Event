@@ -150,6 +150,11 @@ import AddVenuePage from "../pages/Master/VenueMaster/AddVenuePage";
 import CreateEventName from "../pages/Event/CreateEventPage/Createeventname";
 import CreateEvent from "../pages/Event/CreateEventPage";
 import CategoryTypeMaster from "../pages/Master/CategoryTypeMaster";
+import RowCategoryTypeMaster from "../pages/Master/RowCategoryTypeMaster";
+import RowCategoryMaster from "../pages/Master/RowCategoryMaster";
+import UnitMaster from "../pages/Master/UnitMaster";
+import RowItemMaster from "../pages/Master/RowItemMaster";
+import RawSubCategoryMaster from "../pages/Master/RowSubCategoryMaster";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -168,6 +173,11 @@ const AppRoutingSetup = () => {
           <Route path="/master/vendormaster" element={<VendorMaster/>}/>
           <Route path="/master/clientmaster" element={<ClientMaster/>}/>
           <Route path="/master/categorymaster" element={<CategoryMaster/>}/>
+          <Route path="/master/rowcategorytypemaster" element={<RowCategoryTypeMaster/>}/>
+          <Route path="/master/rowcategorymaster" element={<RowCategoryMaster/>}/>
+          <Route path="/master/unitmaster" element={<UnitMaster/>}/>
+          <Route path="/master/rowitemmaster" element={<RowItemMaster/>}/>
+          <Route path="/master/rowsubcategorymaster" element={<RawSubCategoryMaster/>}/>
           <Route path="/" element={<Dashboard />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />
