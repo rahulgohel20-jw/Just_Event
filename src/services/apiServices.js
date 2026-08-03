@@ -144,3 +144,20 @@ export const getbyidunitmaster = (id) => {
 export const getAllUnitMaster = (data) => {
   return POST(`/unit-master/list`, data);
 };
+
+//role master api
+export const getallrolemaster = (payload) => {
+  return POST("/role/list", payload);
+};
+export const addupdaterolemaster = (payload) => {
+  return POST("/role/add-update", payload);
+};
+
+export const getbyidrolemaster = (id) => {
+  return GET(`/role/get/?id=${id}`);
+};
+
+
+export const deleterolemaster = (id) => {
+  return DELETE(`/role/delete/?id=${id}`);
+};

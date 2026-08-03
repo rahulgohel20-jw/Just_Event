@@ -282,6 +282,10 @@ export const MENU_SIDEBAR = [
       {
         title:"Row Sub Category Master",
         path: '/master/rowsubcategorymaster'
+      },
+      {
+        title:"Role Master",
+        path: '/rolemaster'
       }
     ],
   },
