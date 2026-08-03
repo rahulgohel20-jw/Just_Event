@@ -10,8 +10,8 @@ import {
   DEFAULT_SORTING,
 } from "./constant";
 import { AddCategorytypeModal } from "./AddCategorytypeModal";
-import { getAllCategoryTypemaster } from "@/services/apiServices"; // TODO: replace with actual export name
-
+import { getAllCategoryTypemaster  , deletecategorytypemaster } from "@/services/apiServices"; 
+import Swal from "sweetalert2";
 const CategoryTypeMaster = () => {
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -51,7 +51,7 @@ const CategoryTypeMaster = () => {
         page,
         size,
         sortBy: DEFAULT_SORTING?.sortBy || "id",
-        sortDirection: DEFAULT_SORTING?.sortDirection || "desc",
+        sortDirection: DEFAULT_SORTING?.sortDirection || "ASC",
         userId: 1, // static for now
       };
       const res = await getAllCategoryTypemaster(payload);
@@ -87,7 +87,37 @@ const CategoryTypeMaster = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleDelete = (record) => console.log("Delete category:", record);
+ const handleDelete = async (record) => {
+    const confirm = await Swal.fire({
+      icon: "warning",
+      title: "Delete this category?",
+      text: `This will permanently delete "${record.categoryName?.english || ""}".`,
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      confirmButtonColor: "#7A2E45",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      await deletecategorytypemaster(record.id);
+      Swal.fire({
+        icon: "success",
+        title: "Category Deleted",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      fetchCategoryList();
+    } catch (err) {
+      console.error("Delete category failed:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Something went wrong",
+        text: err?.response?.data?.message || "Failed to delete category.",
+      });
+    }
+  };
 
   const handleAddCategory = () => {
     setEditingCategory(null);

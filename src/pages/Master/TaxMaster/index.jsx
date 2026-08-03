@@ -16,7 +16,7 @@ import {
   getalltaxmaster,
   deletetaxmaster,
   getbyidtaxmaster,
-} from "../../../services/apiServices"; // adjust path to your actual service
+} from "../../../services/apiServices"; 
 import {
   PAGE_HEADER,
   STATS_CARDS,
@@ -164,6 +164,10 @@ const getPrimaryColor = () =>
     .trim() || "#881337"; 
 
 const handleDelete = async (record) => {
+  const primaryColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--primary")
+    .trim();
+
   const result = await Swal.fire({
     icon: "warning",
     title: "Are you sure?",
@@ -171,25 +175,29 @@ const handleDelete = async (record) => {
     showCancelButton: true,
     confirmButtonText: "Yes, delete it",
     cancelButtonText: "No",
-    confirmButtonColor: "#881337",
-    cancelButtonColor: "#6b7280",
+    confirmButtonColor: primaryColor,
+    cancelButtonColor: primaryColor,
   });
 
   if (!result.isConfirmed) return;
 
   try {
     await deletetaxmaster(record.id);
+
     Swal.fire({
       icon: "success",
       title: "Deleted",
       text: "Tax has been deleted successfully.",
+      confirmButtonColor: primaryColor,
       timer: 1500,
       timerProgressBar: true,
       showConfirmButton: false,
     });
+
     fetchTaxList();
   } catch (err) {
     console.error("Failed to delete tax:", err);
+
     Swal.fire({
       icon: "error",
       title: "Failed",
@@ -197,6 +205,7 @@ const handleDelete = async (record) => {
         err?.response?.data?.errorMessage ||
         err?.message ||
         "Something went wrong. Please try again.",
+      confirmButtonColor: primaryColor,
     });
   }
 };

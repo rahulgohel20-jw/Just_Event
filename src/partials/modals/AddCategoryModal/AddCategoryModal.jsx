@@ -1,46 +1,133 @@
 import { useEffect, useState } from "react";
 import { Select } from "antd";
+import Swal from "sweetalert2";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox";
+import {
+  Translateapi,
+  getAllCategoryTypemaster,
+  addupdatecategorymaster,
+} from "@/services/apiServices";
 
-const mainCategoryOptions = [
-  { value: "corporate", label: "Corporate" },
-  { value: "weddings", label: "Weddings" },
-  { value: "social", label: "Social Events" },
-];
+const emptyCategoryName = { english: "", hindi: "", gujarati: "" };
 
 const AddCategoryModal = ({ open, onClose, onSave, initialData }) => {
-  const [categoryName, setCategoryName] = useState("");
-  const [mainCategory, setMainCategory] = useState(undefined);
+  const [categoryName, setCategoryName] = useState(emptyCategoryName);
+  const [categoryTypeId, setCategoryTypeId] = useState(undefined);
+  const [categoryTypeOptions, setCategoryTypeOptions] = useState([]);
+  const [loadingTypes, setLoadingTypes] = useState(false);
+  const [saving, setSaving] = useState(false);
   const isEditMode = Boolean(initialData);
+
+  // Fetch Main Category Group options (category types) whenever modal opens
+  useEffect(() => {
+    if (!open) return;
+    const fetchCategoryTypes = async () => {
+      setLoadingTypes(true);
+      try {
+        const payload = {
+          nameEnglish: "",
+          page: 0,
+          size: 1000,
+          sortBy: "id",
+          sortDirection: "ASC",
+          userId: 1,
+        };
+        const res = await getAllCategoryTypemaster(payload);
+        const list = res?.data?.data?.content || res?.data?.data || res?.data || [];
+        setCategoryTypeOptions(
+          (Array.isArray(list) ? list : []).map((item) => ({
+            value: item.id,
+            label: item.nameEnglish,
+          }))
+        );
+      } catch (err) {
+        console.error("Failed to fetch category types:", err);
+        setCategoryTypeOptions([]);
+      } finally {
+        setLoadingTypes(false);
+      }
+    };
+    fetchCategoryTypes();
+  }, [open]);
 
   // Prefill form when opening in edit mode
   useEffect(() => {
     if (open && initialData) {
-      setCategoryName(initialData.categoryName || "");
-      setMainCategory(
-        mainCategoryOptions.find(
-          (opt) => opt.label === initialData.mainCategory
-        )?.value ?? initialData.mainCategory
-      );
+      setCategoryName({
+        english: initialData.categoryName?.english || initialData.nameEnglish || "",
+        hindi: initialData.categoryName?.hindi || initialData.nameHindi || "",
+        gujarati: initialData.categoryName?.gujarati || initialData.nameGujarati || "",
+      });
+      setCategoryTypeId(initialData.categoryTypeId ?? undefined);
     } else if (open && !initialData) {
-      setCategoryName("");
-      setMainCategory(undefined);
+      setCategoryName(emptyCategoryName);
+      setCategoryTypeId(undefined);
     }
   }, [open, initialData]);
 
-  const handleSave = () => {
-    if (!categoryName.trim()) return;
-    const selectedOption = mainCategoryOptions.find((o) => o.value === mainCategory);
-    onSave?.({
-      categoryName,
-      mainCategory: selectedOption?.label || mainCategory,
-    });
-    handleReset();
+  const handleTranslate = async (englishText) => {
+    try {
+      const res = await Translateapi(englishText);
+      const data = res?.data?.data || res?.data || {};
+      return {
+        hindi: data.hindi || data.hi || "",
+        gujarati: data.gujarati || data.gu || "",
+      };
+    } catch (err) {
+      console.error("Translate API failed:", err);
+      return null;
+    }
+  };
+
+  const handleSave = async () => {
+    if (!categoryName.english?.trim()) return;
+    if (!categoryTypeId) {
+      Swal.fire({
+        icon: "warning",
+        title: "Main Category Group is required",
+      });
+      return;
+    }
+
+    const payload = {
+      id: isEditMode && initialData?.id ? initialData.id : null,
+      categoryTypeId,
+      nameEnglish: categoryName.english,
+      nameGujarati: categoryName.gujarati,
+      nameHindi: categoryName.hindi,
+      userId: 1, // static for now
+    };
+
+    setSaving(true);
+    try {
+      const res = await addupdatecategorymaster(payload);
+      const result = res?.data?.data || res?.data;
+
+      Swal.fire({
+        icon: "success",
+        title: isEditMode ? "Category Updated" : "Category Saved",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      onSave?.(result || payload);
+      handleReset();
+    } catch (err) {
+      console.error("Save category failed:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Something went wrong",
+        text: err?.response?.data?.message || "Failed to save category.",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleReset = () => {
-    setCategoryName("");
-    setMainCategory(undefined);
+    setCategoryName(emptyCategoryName);
+    setCategoryTypeId(undefined);
     onClose();
   };
 
@@ -48,30 +135,32 @@ const AddCategoryModal = ({ open, onClose, onSave, initialData }) => {
     <CustomModal
       open={open}
       onClose={handleReset}
-      width={480}
+      width={720}
       centered
-      title={null} // custom header below, since header needs subtitle text
+      title={null}
       footer={
         <div className="flex justify-between items-center px-6 pb-6">
           <button
             onClick={handleReset}
-            className="px-5 py-2 rounded-lg bg-[#F7E5EA] text-[#7A2E45] font-medium hover:bg-[#f0d3dc] transition-colors"
+            disabled={saving}
+            className="px-5 py-2 rounded-lg bg-[#F7E5EA] text-[#7A2E45] font-medium hover:bg-[#f0d3dc] transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-[#7A2E45] text-white font-medium hover:bg-[#66253a] transition-colors"
+            disabled={saving}
+            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-[#7A2E45] text-white font-medium hover:bg-[#66253a] transition-colors disabled:opacity-60"
           >
             <i className="ki-filled ki-note text-base"></i>
-            {isEditMode ? "Update Category" : "Save Category"}
+            {saving ? "Saving..." : isEditMode ? "Update Category" : "Save Category"}
           </button>
         </div>
       }
     >
       <div className="p-5">
         {/* Header */}
-        <div className="flex justify-between items-start mb-5">
+        <div className="flex justify-between items-start mb-2">
           <div>
             <h2 className="text-xl font-semibold text-[#7A2E45]">
               {isEditMode ? "Edit Category" : "Add Category"}
@@ -92,38 +181,34 @@ const AddCategoryModal = ({ open, onClose, onSave, initialData }) => {
 
         <hr className="border-t border-gray-200 mb-5" />
 
-        {/* Category Name */}
+        {/* Category Name (English / Hindi / Gujarati) */}
         <div className="mb-4">
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-              #
-            </span>
-            <input
-              type="text"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-              placeholder="Category Name"
-              className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#7A2E45] focus:border-[#7A2E45] text-sm"
-            />
-          </div>
-          <p className="text-xs text-gray-400 mt-1">
-            E.g. "Platinum Corporate", "Luxury Weddings"
-          </p>
+          <MultiLangInputBox
+            label="Category Name"
+            name="categoryName"
+            value={categoryName}
+            onChange={(_, updated) => setCategoryName(updated)}
+            onTranslate={handleTranslate}
+            required
+            disabled={saving}
+          />
         </div>
 
         {/* Main Category Group */}
         <div>
           <label className="flex items-center gap-1 text-sm font-medium text-gray-800 mb-2">
             <i className="ki-filled ki-folder text-sm"></i>
-            Main Category Group
+             Category Type
           </label>
           <Select
-            value={mainCategory}
-            onChange={setMainCategory}
+            value={categoryTypeId}
+            onChange={setCategoryTypeId}
             placeholder="Select a main category..."
             className="w-full custom-category-select"
             size="large"
-            options={mainCategoryOptions}
+            loading={loadingTypes}
+            options={categoryTypeOptions}
+            disabled={saving}
           />
         </div>
       </div>
