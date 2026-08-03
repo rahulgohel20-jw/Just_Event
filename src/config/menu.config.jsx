@@ -285,6 +285,11 @@ export const MENU_SIDEBAR = [
       }
     ],
   },
+  {
+    title: "Quotation",
+    icon: "ki-filled ki-file-sheet text-primary",
+    path: "/quotation"
+  },
 
   {
     title: "Inventory",
