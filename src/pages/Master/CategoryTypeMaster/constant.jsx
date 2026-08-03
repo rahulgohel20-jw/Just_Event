@@ -70,7 +70,7 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
     header: "Name (English)",
     cell: ({ row }) => (
       <div>
-        <p >{row.original.categoryName}</p>
+            <p>{row.original.categoryName?.english || "-"}</p>
       </div>
     ),
   },
@@ -87,12 +87,7 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
   cell: ({ row }) => row.original.categoryName?.hindi || "-",
 },
  
-  {
-    id: "createdDate",
-    accessorKey: "createdDate",
-    header: "Created Date",
-    cell: ({ getValue }) => <span className="text-gray-600">{getValue()}</span>,
-  },
+  
   {
     id: "actions",
     header: "Actions",
@@ -101,9 +96,7 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
       const record = row.original;
       return (
         <div className="flex items-center justify-start gap-3 text-gray-400">
-          <button type="button" onClick={() => onView?.(record)} className="text-green-700">
-            <Eye size={18} />
-          </button>
+            
           <button type="button" onClick={() => onEdit?.(record)} className="text-blue-700">
             <Edit size={18} />
           </button>

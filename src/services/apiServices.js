@@ -50,5 +50,17 @@ export const deletecategorytypemaster = (id) =>{
 };
 
 export const getAllCategoryTypemaster = (data) => {
-  return GET (`/category-type/list`,data) ;
+  return POST (`/category-type/list`,data) ;
+};
+
+export const addupdatecategorymaster = (data) => {
+  return POST(`/category-master/add-update` , data);
+};
+
+export const deletecategorymaster = (id) => {
+  return DELETE(`/category-master/delete?id=${id}`);
+};
+
+export const getAllCategoryMaster = (data) =>{
+  return POST(`/category-master/list`,data);
 };

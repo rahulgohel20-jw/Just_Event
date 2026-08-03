@@ -23,9 +23,9 @@ const AddCategorytypeModal = ({ open, onClose, onSave, initialData }) => {
 useEffect(() => {
     if (open && initialData) {
       setCategoryName({
-        english: initialData.nameEnglish || "",
-        hindi: initialData.nameHindi || "",
-        gujarati: initialData.nameGujarati || "",
+        english: initialData.categoryName?.english || initialData.nameEnglish || "",
+        hindi: initialData.categoryName?.hindi || initialData.nameHindi || "",
+        gujarati: initialData.categoryName?.gujarati || initialData.nameGujarati || "",
       });
       setMainCategory(
         mainCategoryOptions.find(
@@ -38,8 +38,7 @@ useEffect(() => {
     }
   }, [open, initialData]);
 
-  // Passed into MultiLangInputBox as onTranslate — calls the transliteration API
-  // and normalizes the response into { hindi, gujarati }
+
   const handleTranslate = async (englishText) => {
     try {
       const res = await Translateapi(englishText);
