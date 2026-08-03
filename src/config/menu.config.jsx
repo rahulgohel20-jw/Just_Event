@@ -263,6 +263,26 @@ export const MENU_SIDEBAR = [
         title: "Tax Master",
         path: "/master/taxmaster",
       },
+      {
+        title:"Row Category Type Master",
+        path: '/master/rowcategorytypemaster'
+      },
+      {
+        title:"Row Category Master",
+        path: '/master/rowcategorymaster'
+      },
+      {
+        title:"Unit Master",
+        path: '/master/unitmaster'
+      },
+      {
+        title:"Row Item Master",
+        path: '/master/rowitemmaster'
+      },
+      {
+        title:"Row Sub Category Master",
+        path: '/master/rowsubcategorymaster'
+      }
     ],
   },
 
