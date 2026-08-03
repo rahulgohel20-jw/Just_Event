@@ -1,57 +1,121 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useRef, useMemo, useState } from "react";
 import { ChevronDown, Plus, Search } from "lucide-react";
 
 import { TableComponent } from "@/components/table/TableComponent";
 
 import {
     PAGE_HEADER,
-    UNIT_TABLE_DATA,
     DEFAULT_PAGINATION_SIZE,
     DEFAULT_SORTING,
     getUnitColumns,
     STATUS_OPTIONS,
 } from "./constant";
 import AddUnit from "../../../partials/modals/add-unit/AddUnit";
+import {
+    getAllUnitMaster,
+    addupdateunitmaster,
+    deleteunitmaster,
+} from "@/services/apiServices";
 
 const UnitMaster = () => {
-    const [tableData, setTableData] = useState(UNIT_TABLE_DATA);
+    const [tableData, setTableData] = useState([]);
+    const [totalCount, setTotalCount] = useState(0);
+    const [loading, setLoading] = useState(false);
+
+    const [pageIndex, setPageIndex] = useState(0); // 0-indexed, matches Spring Pageable
+    const [pageSize, setPageSize] = useState(DEFAULT_PAGINATION_SIZE);
+    const [sorting, setSorting] = useState(DEFAULT_SORTING);
 
     const [searchText, setSearchText] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingUnit, setEditingUnit] = useState(null);
 
-    const filteredData = useMemo(() => {
-        return tableData.filter((row) => {
-            const matchesSearch = row.unitName
-                .toLowerCase()
-                .includes(searchText.toLowerCase());
+    const searchDebounceRef = useRef(null);
 
-            const matchesStatus = statusFilter
-                ? row.status === statusFilter
-                : true;
+    useEffect(() => {
+        if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+        searchDebounceRef.current = setTimeout(() => {
+            setDebouncedSearch(searchText);
+            setPageIndex(0);
+        }, 400);
+        return () => clearTimeout(searchDebounceRef.current);
+    }, [searchText]);
 
-            return matchesSearch && matchesStatus;
-        });
-    }, [tableData, searchText, statusFilter]);
+    const fetchData = useCallback(async () => {
+        setLoading(true);
+        try {
+            const payload = {
+                page: pageIndex,
+                pageSize,
+                sortBy: sorting?.[0]?.id,
+                sortOrder: sorting?.[0]?.desc ? "desc" : "asc",
+                ...(statusFilter ? { isActive: statusFilter === "active" } : {}),
+                ...(debouncedSearch ? { search: debouncedSearch } : {}),
+            };
+
+            const res = await getAllUnitMaster(payload);
+            const records = res?.data?.data?.content ?? [];
+            const total = res?.data?.data?.totalElements ?? 0;
+
+            setTableData(records);
+            setTotalCount(total);
+        } catch (err) {
+            console.error("Failed to fetch units:", err);
+            setTableData([]);
+            setTotalCount(0);
+        } finally {
+            setLoading(false);
+        }
+    }, [pageIndex, pageSize, sorting, statusFilter, debouncedSearch]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     const handleEdit = (row) => {
         setEditingUnit(row);
         setIsModalOpen(true);
     };
 
-    const handleDelete = (row) => {
-        console.log(row);
+    const handleDelete = async (row) => {
+        try {
+            await deleteunitmaster(row.id);
+            if (tableData.length === 1 && pageIndex > 0) {
+                setPageIndex((p) => p - 1);
+            } else {
+                fetchData();
+            }
+        } catch (err) {
+            console.error("Failed to delete unit:", err);
+        }
+    };
+
+    const handleSaveUnit = async (formData) => {
+        try {
+            const payload = {
+                unitNameEnglish: formData.unitName?.english || "",
+                unitNameHindi: formData.unitName?.hindi || "",
+                unitNameGujarati: formData.unitName?.gujarati || "",
+                symbolEnglish: formData.symbol,
+                isActive: formData.isActive,
+                ...(editingUnit ? { id: editingUnit.id } : {}),
+            };
+
+            await addupdateunitmaster(payload);
+            setIsModalOpen(false);
+            setEditingUnit(null);
+            fetchData();
+        } catch (err) {
+            console.error("Failed to save unit:", err);
+        }
     };
 
     const columns = useMemo(
-        () =>
-            getUnitColumns({
-                onEdit: handleEdit,
-                onDelete: handleDelete,
-            }),
-        []
+        () => getUnitColumns({ onEdit: handleEdit, onDelete: handleDelete }),
+        [tableData, pageIndex]
     );
 
     return (
@@ -68,7 +132,7 @@ const UnitMaster = () => {
                         setIsModalOpen(true);
                     }}
                     type="button"
-                    className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-red=900"
+                    className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-primary-dark"
                 >
                     <Plus size={16} />
                     {PAGE_HEADER.addButtonLabel}
@@ -76,10 +140,7 @@ const UnitMaster = () => {
             </div>
 
             {/* Toolbar */}
-
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl py-3">
-                {/* Search */}
-
                 <div className="relative w-full max-w-sm">
                     <Search
                         size={16}
@@ -88,31 +149,41 @@ const UnitMaster = () => {
 
                     <input
                         value={searchText}
-                        onChange={(e) =>
-                            setSearchText(e.target.value)
-                        }
+                        onChange={(e) => setSearchText(e.target.value)}
                         placeholder="Search by name..."
                         className="w-full rounded-lg border border-primary-clarity bg-white py-2 pl-9 pr-3 text-sm text-gray-700 outline-none"
                     />
                 </div>
-
 
                 <div>
                     <FilterDropdown
                         label="Status"
                         value={statusFilter}
                         options={STATUS_OPTIONS}
-                        onChange={setStatusFilter}
+                        onChange={(val) => {
+                            setStatusFilter(val);
+                            setPageIndex(0);
+                        }}
                     />
                 </div>
             </div>
 
             <TableComponent
                 columns={columns}
-                data={filteredData}
-                tableData={filteredData}
-                paginationSize={DEFAULT_PAGINATION_SIZE}
-                defaultSorting={DEFAULT_SORTING}
+                data={tableData}
+                tableData={tableData}
+                loading={loading}
+                manualPagination
+                manualSorting
+                pageCount={Math.max(1, Math.ceil(totalCount / pageSize))}
+                pagination={{ pageIndex, pageSize }}
+                onPaginationChange={(updater) => {
+                    const next = typeof updater === "function" ? updater({ pageIndex, pageSize }) : updater;
+                    setPageIndex(next.pageIndex);
+                    setPageSize(next.pageSize);
+                }}
+                sorting={sorting}
+                onSortingChange={setSorting}
             />
 
             <AddUnit
@@ -122,10 +193,12 @@ const UnitMaster = () => {
                     setIsModalOpen(false);
                 }}
                 initialData={editingUnit}
+                onSave={handleSaveUnit}
             />
         </div>
     );
 };
+
 const FilterDropdown = ({ label, value, options, onChange }) => (
     <div className="relative">
         <select
@@ -148,4 +221,5 @@ const FilterDropdown = ({ label, value, options, onChange }) => (
         />
     </div>
 );
+
 export default UnitMaster;

@@ -1,17 +1,9 @@
-import React, { useMemo, useState } from "react";
-import {
-  Plus,
-  Search,
-  Filter,
-  ArrowUpDown,
-  Download,
-  ChevronDown,
-} from "lucide-react";
+import React, { useCallback, useEffect, useRef, useMemo, useState } from "react";
+import { Plus, Search, ChevronDown } from "lucide-react";
 
 import { TableComponent } from "@/components/table/TableComponent";
 import {
   PAGE_HEADER,
-  RAW_CATEGORY_TABLE_DATA,
   DEFAULT_PAGINATION_SIZE,
   DEFAULT_SORTING,
   getRawCategoryColumns,
@@ -19,46 +11,115 @@ import {
   STATUS_FILTER_OPTIONS,
 } from "./constant";
 import AddRowCategory from "../../../partials/modals/add-row-category/AddRowCategory";
+import {
+  getAllRawCategoryMaster,
+  addupdaterawcategory,
+  deleterawcategory,
+} from "@/services/apiServices";
 
 const RowCategoryMaster = () => {
-  const [tableData, setTableData] = useState(RAW_CATEGORY_TABLE_DATA);
+  const [tableData, setTableData] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const [pageIndex, setPageIndex] = useState(0); // 0-indexed, matches Spring Pageable
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGINATION_SIZE);
+  const [sorting, setSorting] = useState(DEFAULT_SORTING);
+
   const [searchText, setSearchText] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
 
-  const filteredData = useMemo(() => {
-    return tableData.filter((row) => {
-      const matchesSearch = row.categoryName
-        .toLowerCase()
-        .includes(searchText.toLowerCase());
+  const searchDebounceRef = useRef(null);
 
-      const matchesType = typeFilter
-        ? row.itemType === typeFilter
-        : true;
+  useEffect(() => {
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      setDebouncedSearch(searchText);
+      setPageIndex(0);
+    }, 400);
+    return () => clearTimeout(searchDebounceRef.current);
+  }, [searchText]);
 
-      const matchesStatus = statusFilter
-        ? row.status === statusFilter
-        : true;
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const payload = {
+        page: pageIndex,
+        pageSize,
+        sortBy: sorting?.[0]?.id,
+        sortOrder: sorting?.[0]?.desc ? "desc" : "asc",
+        ...(typeFilter ? { itemType: typeFilter } : {}),
+        ...(statusFilter ? { status: statusFilter } : {}),
+        ...(debouncedSearch ? { search: debouncedSearch } : {}),
+      };
 
-      return matchesSearch && matchesType && matchesStatus;
-    });
-  }, [tableData, searchText, typeFilter, statusFilter]);
+      const res = await getAllRawCategoryMaster(payload);
+      // Spring Page envelope — same shape confirmed on raw-category-type/list
+      const records = res?.data?.data?.content ?? [];
+      const total = res?.data?.data?.totalElements ?? 0;
+
+      console.log("Fetched raw categories:", records, "Total:", total);
+      setTableData(records);
+      setTotalCount(total);
+    } catch (err) {
+      console.error("Failed to fetch raw categories:", err);
+      setTableData([]);
+      setTotalCount(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [pageIndex, pageSize, sorting, typeFilter, statusFilter, debouncedSearch]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleEdit = (row) => {
     setEditingCategory(row);
     setIsModalOpen(true);
   };
-  const handleDelete = (row) => console.log("Delete", row);
+
+  const handleDelete = async (row) => {
+    try {
+      await deleterawcategory(row.id);
+      if (tableData.length === 1 && pageIndex > 0) {
+        setPageIndex((p) => p - 1);
+      } else {
+        fetchData();
+      }
+    } catch (err) {
+      console.error("Failed to delete category:", err);
+    }
+  };
+
+const handleSaveCategory = async (formData) => {
+    try {
+        const payload = {
+            nameEnglish: formData.categoryName?.english || "",
+            nameHindi: formData.categoryName?.hindi || "",
+            nameGujarati: formData.categoryName?.gujarati || "",
+            rawCategoryTypeId: formData.rawCategoryTypeId,
+            status: formData.isActive ? "active" : "inactive",
+            ...(editingCategory ? { id: editingCategory.id } : {}),
+        };
+
+        await addupdaterawcategory(payload);
+        setIsModalOpen(false);
+        setEditingCategory(null);
+        fetchData();
+    } catch (err) {
+        console.error("Failed to save category:", err);
+    }
+};
 
   const columns = useMemo(
-    () =>
-      getRawCategoryColumns({
-        onEdit: handleEdit,
-        onDelete: handleDelete,
-      }),
-    []
+    () => getRawCategoryColumns({ onEdit: handleEdit, onDelete: handleDelete }),
+    [tableData, pageIndex]
   );
 
   const toolbar = (
@@ -76,21 +137,24 @@ const RowCategoryMaster = () => {
           className="w-full rounded-lg border border-primary-clarity bg-white py-2 pl-9 pr-3 text-sm text-dark placeholder:text-dark-clarity focus:outline-none focus:ring-2 focus:ring-primary-inverse"
         />
       </div>
-      {/* Item Type */}
       <div className="flex flex-wrap items-center gap-2">
         <FilterDropdown
           label="Select Type"
           value={typeFilter}
           options={ITEM_TYPE_OPTIONS}
-          onChange={setTypeFilter}
+          onChange={(val) => {
+            setTypeFilter(val);
+            setPageIndex(0);
+          }}
         />
-
-
         <FilterDropdown
           label="Status"
           value={statusFilter}
           options={STATUS_FILTER_OPTIONS}
-          onChange={setStatusFilter}
+          onChange={(val) => {
+            setStatusFilter(val);
+            setPageIndex(0);
+          }}
         />
       </div>
     </div>
@@ -98,8 +162,6 @@ const RowCategoryMaster = () => {
 
   return (
     <div className="min-h-screen p-6">
-
-      {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-primary">{PAGE_HEADER.title}</h1>
@@ -111,23 +173,31 @@ const RowCategoryMaster = () => {
             setIsModalOpen(true);
           }}
           type="button"
-          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-red=900"
+          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-red-900"
         >
           <Plus size={16} />
           {PAGE_HEADER.addButtonLabel}
         </button>
       </div>
 
-      {/* Toolbar */}
       {toolbar}
 
-      {/* Table */}
       <TableComponent
         columns={columns}
-        data={filteredData}
-        tableData={filteredData}
-        paginationSize={DEFAULT_PAGINATION_SIZE}
-        defaultSorting={DEFAULT_SORTING}
+        data={tableData}
+        tableData={tableData}
+        loading={loading}
+        manualPagination
+        manualSorting
+        pageCount={Math.max(1, Math.ceil(totalCount / pageSize))}
+        pagination={{ pageIndex, pageSize }}
+        onPaginationChange={(updater) => {
+          const next = typeof updater === "function" ? updater({ pageIndex, pageSize }) : updater;
+          setPageIndex(next.pageIndex);
+          setPageSize(next.pageSize);
+        }}
+        sorting={sorting}
+        onSortingChange={setSorting}
       />
 
       <AddRowCategory
@@ -137,10 +207,12 @@ const RowCategoryMaster = () => {
           setEditingCategory(null);
         }}
         initialData={editingCategory}
+        onSave={handleSaveCategory}
       />
     </div>
   );
 };
+
 const FilterDropdown = ({ label, value, options, onChange }) => (
   <div className="relative">
     <select

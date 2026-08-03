@@ -64,3 +64,83 @@ export const deletecategorymaster = (id) => {
 export const getAllCategoryMaster = (data) =>{
   return POST(`/category-master/list`,data);
 };
+
+export const addupdaterawcategorytype = (data) => {
+  return POST(`/raw-category-type/add-update`, data);
+};
+
+export const deleterawcategorytype = (id) => {
+  return DELETE(`/raw-category-type/delete?id=${id}`);
+};
+
+export const getbyidrawcategorytype = (id) => {
+  return GET(`/raw-category-type/get?id=${id}`);
+};
+
+export const getAllRawCategoryTypeMaster = (data) => {
+  return POST(`/raw-category-type/list`, data);
+};
+
+export const addupdaterawcategory = (data) => {
+  return POST(`/raw-category/add-update`, data);
+};
+
+export const deleterawcategory = (id) => {
+  return DELETE(`/raw-category/delete?id=${id}`);
+};
+
+export const getbyidrawcategory = (id) => {
+  return GET(`/raw-category/get?id=${id}`);
+};
+
+export const getAllRawCategoryMaster = (data) => {
+  return POST(`/raw-category/list`, data);
+};
+
+export const addupdaterawsubcategory = (data) => {
+  return POST(`/raw-sub-category/add-update`, data);
+};
+
+export const deleterawsubcategory = (id) => {
+  return DELETE(`/raw-sub-category/delete?id=${id}`);
+};
+
+export const getbyidrawsubcategory = (id) => {
+  return GET(`/raw-sub-category/get?id=${id}`);
+};
+
+export const getAllRawSubCategoryMaster = (data) => {
+  return POST(`/raw-sub-category/list`, data);
+};
+
+export const addupdaterawitem = (data) => {
+  return POST(`/raw-item/add-update`, data);
+};
+
+export const deleterawitem = (id) => {
+  return DELETE(`/raw-item/delete?id=${id}`);
+};
+
+export const getbyidrawitem = (id) => {
+  return GET(`/raw-item/get?id=${id}`);
+};
+
+export const getAllRawItemMaster = (data) => {
+  return POST(`/raw-item/list`, data);
+};
+
+export const addupdateunitmaster = (data) => {
+  return POST(`/unit-master/add-update`, data);
+};
+
+export const deleteunitmaster = (id) => {
+  return DELETE(`/unit-master/delete?id=${id}`);
+};
+
+export const getbyidunitmaster = (id) => {
+  return GET(`/unit-master/get?id=${id}`);
+};
+
+export const getAllUnitMaster = (data) => {
+  return POST(`/unit-master/list`, data);
+};

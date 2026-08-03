@@ -2,125 +2,68 @@ import React, { useEffect, useState } from "react";
 import { Save, Loader2, Upload, Search, Pencil, Trash2, UserPlus } from "lucide-react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox";
-import { Translateapi } from "@/services/apiServices";
 import { Select } from "antd";
 import { supplierColumns } from "../../../pages/Master/RowItemMaster/constant";
 import { TableComponent } from "@/components/table/TableComponent";
 import AddSupplier from "./AddSupplier";
+import {
+    Translateapi,
+    getAllRawCategoryMaster,
+    getAllRawSubCategoryMaster,
+    getAllUnitMaster,
+} from "@/services/apiServices";
 
-const mainCategoryOptions = [
-    { value: "Beverages", label: "Beverages" },
-    { value: "Decor", label: "Decor" },
-    { value: "Furniture", label: "Furniture" },
-    { value: "Audio/Visual", label: "Audio/Visual" },
-];
-
-const subCategoryOptions = [
-    { value: "Premium", label: "Premium" },
-    { value: "Standard", label: "Standard" },
-    { value: "Economy", label: "Economy" },
-];
-
-const unitOptions = [
-    { value: "Kg", label: "Kg" },
-    { value: "Nos", label: "Nos" },
-    { value: "Box", label: "Box" },
-    { value: "Piece", label: "Piece" },
-    { value: "Case", label: "Case" },
-];
-
-const initialFormState = {
-    itemName: {
-        english: "",
-        hindi: "",
-        gujarati: "",
-    },
-
-    mainCategory: undefined,
-    subCategory: undefined,
-
-    openingQty: "",
-    closingQty: "",
-
-    unitType: undefined,
-
-    expiryDate: "",
-
-    images: [],
-
-    supplierSearch: "",
-
-    suppliers: [
-        {
-            id: 1,
-            supplierName: "DINESH FRUIT",
-            isDefault: true,
-            price: "45.00",
-        },
-    ],
-
-    isActive: true,
-};
-
-
-const AddRowItem = ({
-    open,
-    onClose,
-    onSave,
-    initialData,
-}) => {
+const AddRowItem = ({ open, onClose, onSave, initialData }) => {
     const [form, setForm] = useState(initialFormState);
     const [saving, setSaving] = useState(false);
     const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
-    const [supplierOptions, setSupplierOptions] = useState([
-        { value: 1, label: "DINESH FRUIT" },
-        { value: 2, label: "Fresh Foods" },
-    ]);
-    const [selectedSupplier, setSelectedSupplier] = useState();
+
+    const [categoryOptions, setCategoryOptions] = useState([]);
+    const [subCategoryOptions, setSubCategoryOptions] = useState([]);
+    const [unitOptions, setUnitOptions] = useState([]);
+    const [loadingCategories, setLoadingCategories] = useState(false);
+    const [loadingSubCategories, setLoadingSubCategories] = useState(false);
+    const [loadingUnits, setLoadingUnits] = useState(false);
 
     const isEditMode = Boolean(initialData);
 
+    // Load Main Category options when modal opens
     useEffect(() => {
-        if (open && initialData) {
-            setForm({
-                ...initialFormState,
+        if (!open) return;
+        const fetchCategories = async () => {
+            setLoadingCategories(true);
+            try {
+                const res = await getAllRawCategoryMaster({ page: 0, pageSize: 100, isActive: true });
+                const records = res?.data?.data?.content ?? [];
+                setCategoryOptions(records.map((r) => ({ value: r.id, label: r.nameEnglish })));
+            } catch (err) {
+                console.error("Failed to fetch raw categories:", err);
+                setCategoryOptions([]);
+            } finally {
+                setLoadingCategories(false);
+            }
+        };
+        fetchCategories();
+    }, [open]);
 
-                itemName: {
-                    english:
-                        initialData.itemNameEnglish ||
-                        initialData.itemName ||
-                        "",
-
-                    hindi:
-                        initialData.itemNameHindi || "",
-
-                    gujarati:
-                        initialData.itemNameGujarati || "",
-                },
-
-                mainCategory: initialData.mainCategory,
-                subCategory: initialData.subCategory,
-
-                openingQty: initialData.openingQty,
-                closingQty: initialData.closingQty,
-
-                unitType: initialData.unitType,
-
-                expiryDate: initialData.expiryDate,
-
-                images: initialData.images || [],
-
-                suppliers:
-                    initialData.suppliers ||
-                    initialFormState.suppliers,
-
-                isActive:
-                    initialData.status === "active",
-            });
-        } else if (open) {
-            setForm(initialFormState);
-        }
-    }, [open, initialData]);
+    // Load Unit options when modal opens
+    useEffect(() => {
+        if (!open) return;
+        const fetchUnits = async () => {
+            setLoadingUnits(true);
+            try {
+                const res = await getAllUnitMaster({ page: 0, pageSize: 100, isActive: true });
+                const records = res?.data?.data?.content ?? [];
+                setUnitOptions(records.map((r) => ({ value: r.id, label: r.nameEnglish })));
+            } catch (err) {
+                console.error("Failed to fetch units:", err);
+                setUnitOptions([]);
+            } finally {
+                setLoadingUnits(false);
+            }
+        };
+        fetchUnits();
+    }, [open]);
 
     const updateField = (field, value) => {
         setForm((prev) => ({

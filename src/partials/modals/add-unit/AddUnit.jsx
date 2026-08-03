@@ -29,12 +29,9 @@ const AddUnit = ({
     if (open && initialData) {
       setForm({
         unitName: {
-          english:
-            initialData.unitNameEnglish ||
-            initialData.unitName ||
-            "",
-          hindi: initialData.unitNameHindi || "",
-          gujarati: initialData.unitNameGujarati || "",
+          english: initialData.nameEnglish || "",
+          hindi: initialData.nameHindi || "",
+          gujarati: initialData.nameGujarati || "",
         },
         symbol: initialData.symbol || "",
         isActive: initialData.status === "active",
@@ -82,21 +79,12 @@ const AddUnit = ({
     if (!form.unitName.english.trim()) return;
 
     setSaving(true);
-
-    const payload = {
-      ...initialData,
-      unitNameEnglish: form.unitName.english,
-      unitNameHindi: form.unitName.hindi,
-      unitNameGujarati: form.unitName.gujarati,
-      unitName: form.unitName.english,
-      symbol: form.symbol,
-      status: form.isActive ? "active" : "inactive",
-    };
-
-    onSave?.(payload);
-
-    setSaving(false);
-    handleReset();
+    try {
+      await onSave?.(form);
+      handleReset();
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -111,7 +99,7 @@ const AddUnit = ({
           <button
             onClick={handleReset}
             disabled={saving}
-            className="px-5 py-2 rounded-lg bg-primary-inverse text-primary font-medium"
+            className="px-5 py-2 rounded-lg bg-primary-inverse text-primary font-medium disabled:opacity-60"
           >
             Cancel
           </button>
@@ -119,7 +107,7 @@ const AddUnit = ({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-primary text-light font-medium"
+            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-primary text-light font-medium disabled:opacity-60"
           >
             {saving ? (
               <Loader2 size={16} className="animate-spin" />
@@ -185,32 +173,23 @@ const AddUnit = ({
         {/* Status */}
         <div className="rounded-xl bg-primary-inverse p-4 flex justify-between items-center">
           <div>
-            <h4 className="font-medium text-dark">
-             Status
-            </h4>
-
+            <h4 className="font-medium text-dark">Status</h4>
             <p className="text-xs text-gray-500 mt-1">
-             Set whether this unit is currently available.
+              Set whether this unit is currently available.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() =>
-                updateField("isActive", !form.isActive)
-              }
+              onClick={() => updateField("isActive", !form.isActive)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                form.isActive
-                  ? "bg-primary"
-                  : "bg-gray-300"
+                form.isActive ? "bg-primary" : "bg-gray-300"
               }`}
             >
               <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                  form.isActive
-                    ? "translate-x-6"
-                    : "translate-x-1"
+                  form.isActive ? "translate-x-6" : "translate-x-1"
                 }`}
               />
             </button>

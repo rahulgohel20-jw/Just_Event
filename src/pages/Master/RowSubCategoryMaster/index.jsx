@@ -1,69 +1,119 @@
-import React, { useMemo, useState } from "react";
-import {
-  Plus,
-  Search,
-  ChevronDown,
-} from "lucide-react";
+import React, { useCallback, useEffect, useRef, useMemo, useState } from "react";
+import { Plus, Search, ChevronDown } from "lucide-react";
 
 import { TableComponent } from "@/components/table/TableComponent";
-
 import {
   PAGE_HEADER,
-  RAW_SUBCATEGORY_TABLE_DATA,
   DEFAULT_PAGINATION_SIZE,
   DEFAULT_SORTING,
-  CATEGORY_OPTIONS,
   STATUS_OPTIONS,
   getRawSubCategoryColumns,
 } from "./constant";
 import AddRawSubCategory from "../../../partials/modals/add-rowsubcategory/AddRowSubCategory";
-
-
+import {
+  getAllRawSubCategoryMaster,
+  addupdaterawsubcategory,
+  deleterawsubcategory,
+  getAllRawCategoryMaster,
+} from "@/services/apiServices";
 
 const RawSubCategoryMaster = () => {
-  const [tableData, setTableData] = useState(RAW_SUBCATEGORY_TABLE_DATA);
+  const [tableData, setTableData] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGINATION_SIZE);
+  const [sorting, setSorting] = useState(DEFAULT_SORTING);
 
   const [searchText, setSearchText] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+
+  const [categoryOptions, setCategoryOptions] = useState([
+    { label: "All Category", value: "" },
+  ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSubCategory, setEditingSubCategory] = useState(null);
 
-  const filteredData = useMemo(() => {
-    return tableData.filter((row) => {
-      const matchesSearch = row.subCategoryName
-        .toLowerCase()
-        .includes(searchText.toLowerCase());
+  const searchDebounceRef = useRef(null);
 
-      const matchesCategory = categoryFilter
-        ? row.mainCategory === categoryFilter
-        : true;
+  useEffect(() => {
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      setDebouncedSearch(searchText);
+      setPageIndex(0);
+    }, 400);
+    return () => clearTimeout(searchDebounceRef.current);
+  }, [searchText]);
 
-      const matchesStatus = statusFilter
-        ? row.status === statusFilter
-        : true;
+  // Load Main Category filter options once
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getAllRawCategoryMaster({ page: 0, pageSize: 100, isActive: true });
+        const records = res?.data?.data?.content ?? [];
+        setCategoryOptions([
+          { label: "All Category", value: "" },
+          ...records.map((r) => ({ label: r.nameEnglish, value: r.id })),
+        ]);
+      } catch (err) {
+        console.error("Failed to fetch raw categories for filter:", err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
-      return (
-        matchesSearch &&
-        matchesCategory &&
-        matchesStatus
-      );
-    });
-  }, [
-    tableData,
-    searchText,
-    categoryFilter,
-    statusFilter,
-  ]);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const payload = {
+        page: pageIndex,
+        pageSize,
+        sortBy: sorting?.[0]?.id,
+        sortOrder: sorting?.[0]?.desc ? "desc" : "asc",
+        ...(categoryFilter ? { rawCategoryId: categoryFilter } : {}),
+        ...(statusFilter ? { isActive: statusFilter === "active" } : {}),
+        ...(debouncedSearch ? { search: debouncedSearch } : {}),
+      };
+
+      const res = await getAllRawSubCategoryMaster(payload);
+      const records = res?.data?.data?.content ?? [];
+      const total = res?.data?.data?.totalElements ?? 0;
+
+      setTableData(records);
+      setTotalCount(total);
+    } catch (err) {
+      console.error("Failed to fetch raw sub-categories:", err);
+      setTableData([]);
+      setTotalCount(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [pageIndex, pageSize, sorting, categoryFilter, statusFilter, debouncedSearch]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleEdit = (row) => {
     setEditingSubCategory(row);
     setIsModalOpen(true);
   };
 
-  const handleDelete = (row) => {
-    console.log(row);
+  const handleDelete = async (row) => {
+    try {
+      await deleterawsubcategory(row.id);
+      if (tableData.length === 1 && pageIndex > 0) {
+        setPageIndex((p) => p - 1);
+      } else {
+        fetchData();
+      }
+    } catch (err) {
+      console.error("Failed to delete sub-category:", err);
+    }
   };
 
   const handleAddSubCategory = () => {
@@ -71,24 +121,38 @@ const RawSubCategoryMaster = () => {
     setIsModalOpen(true);
   };
 
+  const handleSaveSubCategory = async (formData) => {
+    try {
+      const payload = {
+        nameEnglish: formData.subCategoryName?.english || "",
+        nameHindi: formData.subCategoryName?.hindi || "",
+        nameGujarati: formData.subCategoryName?.gujarati || "",
+        mainCategoryId: formData.mainCategoryId,
+        isActive: formData.isActive,
+        ...(editingSubCategory ? { id: editingSubCategory.id } : {}),
+      };
+
+      await addupdaterawsubcategory(payload);
+      setIsModalOpen(false);
+      setEditingSubCategory(null);
+      fetchData();
+    } catch (err) {
+      console.error("Failed to save sub-category:", err);
+    }
+  };
+
   const columns = useMemo(
-    () =>
-      getRawSubCategoryColumns({
-        onEdit: handleEdit,
-        onDelete: handleDelete,
-      }),
-    []
+    () => getRawSubCategoryColumns({ onEdit: handleEdit, onDelete: handleDelete }),
+    [tableData, pageIndex]
   );
 
   const toolbar = (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl py-3">
-      {/* Search */}
       <div className="relative w-full max-w-sm">
         <Search
           size={16}
           className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
         />
-
         <input
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
@@ -101,15 +165,21 @@ const RawSubCategoryMaster = () => {
         <FilterDropdown
           label="Main Category"
           value={categoryFilter}
-          options={CATEGORY_OPTIONS}
-          onChange={setCategoryFilter}
+          options={categoryOptions}
+          onChange={(val) => {
+            setCategoryFilter(val);
+            setPageIndex(0);
+          }}
         />
 
         <FilterDropdown
           label="Status"
           value={statusFilter}
           options={STATUS_OPTIONS}
-          onChange={setStatusFilter}
+          onChange={(val) => {
+            setStatusFilter(val);
+            setPageIndex(0);
+          }}
         />
       </div>
     </div>
@@ -117,17 +187,10 @@ const RawSubCategoryMaster = () => {
 
   return (
     <div className="min-h-screen p-6 mt-0">
-      {/* Header */}
-
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-primary">
-            {PAGE_HEADER.title}
-          </h1>
-
-          <p className="mt-1 max-w-xl text-sm text-gray-500">
-            {PAGE_HEADER.description}
-          </p>
+          <h1 className="text-2xl font-bold text-primary">{PAGE_HEADER.title}</h1>
+          <p className="mt-1 max-w-xl text-sm text-gray-500">{PAGE_HEADER.description}</p>
         </div>
 
         <button
@@ -140,21 +203,25 @@ const RawSubCategoryMaster = () => {
         </button>
       </div>
 
-      {/* Toolbar */}
-
       {toolbar}
-
-      {/* Table */}
 
       <TableComponent
         columns={columns}
-        data={filteredData}
-        tableData={filteredData}
-        paginationSize={DEFAULT_PAGINATION_SIZE}
-        defaultSorting={DEFAULT_SORTING}
+        data={tableData}
+        tableData={tableData}
+        loading={loading}
+        manualPagination
+        manualSorting
+        pageCount={Math.max(1, Math.ceil(totalCount / pageSize))}
+        pagination={{ pageIndex, pageSize }}
+        onPaginationChange={(updater) => {
+          const next = typeof updater === "function" ? updater({ pageIndex, pageSize }) : updater;
+          setPageIndex(next.pageIndex);
+          setPageSize(next.pageSize);
+        }}
+        sorting={sorting}
+        onSortingChange={setSorting}
       />
-
-      {/* Modal */}
 
       <AddRawSubCategory
         open={isModalOpen}
@@ -163,6 +230,7 @@ const RawSubCategoryMaster = () => {
           setEditingSubCategory(null);
         }}
         initialData={editingSubCategory}
+        onSave={handleSaveSubCategory}
       />
     </div>
   );
@@ -178,14 +246,12 @@ const FilterDropdown = ({ label, value, options, onChange }) => (
       <option value="" disabled hidden>
         {label}
       </option>
-
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>
           {opt.label}
         </option>
       ))}
     </select>
-
     <ChevronDown
       size={14}
       className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"

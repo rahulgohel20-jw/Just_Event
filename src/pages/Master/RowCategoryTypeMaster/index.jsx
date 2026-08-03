@@ -1,15 +1,70 @@
-import React, { useMemo, useState } from 'react'
-import { DEFAULT_PAGINATION_SIZE, DEFAULT_SORTING, getRowMaterialTypeColumns, PAGE_HEADER, RAW_CATEGORY_TABLE_DATA, STATUS_FILTER_OPTIONS } from './constant'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { DEFAULT_PAGINATION_SIZE, DEFAULT_SORTING, getRowMaterialTypeColumns, PAGE_HEADER, STATUS_FILTER_OPTIONS } from './constant'
 import { ChevronDown, Plus, Search } from 'lucide-react'
 import { TableComponent } from "@/components/table/TableComponent";
 import AddRowCategoryType from '../../../partials/modals/add-rowcategory-type/AddRowCategoryType';
+import {
+    getAllRawCategoryTypeMaster,
+    addupdaterawcategorytype,
+    deleterawcategorytype,
+} from '@/services/apiServices'; 
 
 const RowMaterialTypeMaster = () => {
-    const [tableData, setTableData] = useState(RAW_CATEGORY_TABLE_DATA)
+    const [tableData, setTableData] = useState([]);
+    const [totalCount, setTotalCount] = useState(0);
+    const [loading, setLoading] = useState(false);
+
+    const [pageIndex, setPageIndex] = useState(0);
+    const [pageSize, setPageSize] = useState(DEFAULT_PAGINATION_SIZE);
+    const [sorting, setSorting] = useState(DEFAULT_SORTING);
+
     const [statusFilter, setStatusFilter] = useState("");
     const [searchText, setSearchText] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState(null);
+
+    const searchDebounceRef = useRef(null);
+
+    // Debounce search input so we don't hit the API on every keystroke
+    useEffect(() => {
+        if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+        searchDebounceRef.current = setTimeout(() => {
+            setDebouncedSearch(searchText);
+            setPageIndex(0); // reset to first page on new search
+        }, 400);
+        return () => clearTimeout(searchDebounceRef.current);
+    }, [searchText]);
+const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+        const payload = {
+            page: pageIndex,
+            pageSize,
+            sortBy: sorting?.[0]?.id,
+            sortOrder: sorting?.[0]?.desc ? "desc" : "asc",
+            ...(statusFilter ? { isActive: statusFilter === "active" } : {}),
+            ...(debouncedSearch ? { search: debouncedSearch } : {}),
+        };
+
+        const res = await getAllRawCategoryTypeMaster(payload);
+        const records = res?.data?.data?.content ?? [];
+        const total = res?.data?.data?.totalElements ?? 0;
+        setTableData(records);
+        setTotalCount(total);
+    } catch (err) {
+        console.error("Failed to fetch raw category types:", err);
+        setTableData([]);
+        setTotalCount(0);
+    } finally {
+        setLoading(false);
+    }
+}, [pageIndex, pageSize, sorting, statusFilter, debouncedSearch]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     const handleAddCategory = () => {
         setEditingCategory(null);
@@ -21,7 +76,38 @@ const RowMaterialTypeMaster = () => {
         setIsAddModalOpen(true);
     };
 
-    const handleDelete = (record) => console.log("Delete category:", record);
+    const handleDelete = async (record) => {
+        try {
+            await deleterawcategorytype(record.id);
+            // Refetch; if we deleted the last row on a page, step back a page
+            if (tableData.length === 1 && pageIndex > 0) {
+                setPageIndex((p) => p - 1);
+            } else {
+                fetchData();
+            }
+        } catch (err) {
+            console.error("Failed to delete category:", err);
+        }
+    };
+
+    const handleSaveCategory = async (formData) => {
+        try {
+            const payload = {
+                nameEnglish: formData.categoryName?.english || "",
+                nameHindi: formData.categoryName?.hindi || "",
+                nameGujarati: formData.categoryName?.gujarati || "",
+                status: formData.status,
+                ...(editingCategory ? { id: editingCategory.id } : {}),
+            };
+
+            await addupdaterawcategorytype(payload);
+            setIsAddModalOpen(false);
+            setEditingCategory(null);
+            fetchData();
+        } catch (err) {
+            console.error("Failed to save category:", err);
+        }
+    };
 
     const columns = useMemo(
         () =>
@@ -29,20 +115,8 @@ const RowMaterialTypeMaster = () => {
                 onEdit: handleEdit,
                 onDelete: handleDelete,
             }),
-        []
+        [tableData, pageIndex]
     );
-
-
-    
-    const filteredData = useMemo(() => {
-        return tableData.filter((row) => {
-            const matchesSearch = row.categoryName
-                .toLowerCase()
-                .includes(searchText.toLowerCase());
-            const matchesStatus = statusFilter ? row.status === statusFilter : true;
-            return matchesSearch && matchesStatus;
-        });
-    }, [tableData, searchText, statusFilter]);
 
     const toolbar = (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl py-3">
@@ -65,15 +139,17 @@ const RowMaterialTypeMaster = () => {
                     label="Status"
                     value={statusFilter}
                     options={STATUS_FILTER_OPTIONS}
-                    onChange={setStatusFilter}
+                    onChange={(val) => {
+                        setStatusFilter(val);
+                        setPageIndex(0);
+                    }}
                 />
             </div>
         </div>
     );
+
     return (
         <div className='min-h-screen p-6 mt-0'>
-
-            {/* Page header */}
             <div className="mb-3 flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-primary">{PAGE_HEADER.title}</h1>
@@ -89,26 +165,34 @@ const RowMaterialTypeMaster = () => {
                 </button>
             </div>
 
-            {/* Table */}
             <TableComponent
                 columns={columns}
-                data={filteredData}
-                tableData={filteredData}
-                paginationSize={DEFAULT_PAGINATION_SIZE}
-                defaultSorting={DEFAULT_SORTING}
+                data={tableData}
+                tableData={tableData}
+                loading={loading}
                 toolbar={toolbar}
+                // server-side pagination/sorting — swap prop names to match TableComponent's actual API
+                manualPagination
+                manualSorting
+                pageCount={Math.max(1, Math.ceil(totalCount / pageSize))}
+                pagination={{ pageIndex, pageSize }}
+                onPaginationChange={(updater) => {
+                    const next = typeof updater === "function" ? updater({ pageIndex, pageSize }) : updater;
+                    setPageIndex(next.pageIndex);
+                    setPageSize(next.pageSize);
+                }}
+                sorting={sorting}
+                onSortingChange={setSorting}
             />
-
-            {/* Add / Edit Row Category Modal */}
             <AddRowCategoryType
                 open={isAddModalOpen}
                 onClose={() => {
-                    setIsAddModalOpen(false);
-                    setEditingCategory(null);
+                setIsAddModalOpen(false);
+                setEditingCategory(null);
                 }}
                 initialData={editingCategory}
+                onSave={handleSaveCategory}
             />
-
         </div>
     )
 }

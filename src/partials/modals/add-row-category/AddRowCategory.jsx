@@ -2,14 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Save, Loader2 } from "lucide-react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox";
-import { Translateapi } from "@/services/apiServices";
+import { Translateapi, getAllRawCategoryTypeMaster } from "@/services/apiServices";
 import { Select } from "antd";
-
-const RowCategoryOptions = [
-    { value: "Perishable", label: "Perishable" },
-    { value: "Reusable", label: "Reusable" },
-    { value: "Assets", label: "Assets" },
-];
 
 const initialFormState = {
     categoryName: {
@@ -17,8 +11,7 @@ const initialFormState = {
         hindi: "",
         gujarati: "",
     },
-    itemType: undefined,
-    editNo: "",
+    rawCategoryTypeId: undefined,
     isActive: true,
 };
 
@@ -30,27 +23,54 @@ const AddRowCategory = ({
 }) => {
     const [form, setForm] = useState(initialFormState);
     const [saving, setSaving] = useState(false);
+    const [itemTypeOptions, setItemTypeOptions] = useState([]);
+    const [loadingItemTypes, setLoadingItemTypes] = useState(false);
 
     const isEditMode = Boolean(initialData);
+
+    // Fetch raw category types for the Item Type dropdown whenever the modal opens
+    useEffect(() => {
+        if (!open) return;
+
+        const fetchItemTypes = async () => {
+            setLoadingItemTypes(true);
+            try {
+                const res = await getAllRawCategoryTypeMaster({
+                    page: 0,
+                    pageSize: 100, // pull enough for a dropdown; paginate/search here if the list grows large
+                    status: "active",
+                });
+                const records = res?.data?.data?.content ?? [];
+                setItemTypeOptions(
+                    records.map((r) => ({
+                        value: r.id,
+                        label: r.nameEnglish,
+                    }))
+                );
+            } catch (err) {
+                console.error("Failed to fetch raw category types:", err);
+                setItemTypeOptions([]);
+            } finally {
+                setLoadingItemTypes(false);
+            }
+        };
+
+        fetchItemTypes();
+    }, [open]);
 
     useEffect(() => {
         if (open && initialData) {
             setForm({
                 categoryName: {
                     english:
-                        initialData.categoryNameEnglish ||
+                        initialData.nameEnglish ||
                         initialData.categoryName ||
                         "",
-                    hindi: initialData.categoryNameHindi || "",
-                    gujarati: initialData.categoryNameGujarati || "",
+                    hindi: initialData.nameHindi || "",
+                    gujarati: initialData.nameGujarati || "",
                 },
-                itemType:
-                    RowCategoryOptions.find(
-                        (opt) =>
-                            opt.label === initialData.itemType ||
-                            opt.value === initialData.itemType?.toLowerCase()
-                    )?.value,
-                editNo: initialData.editNo || "",
+                // rawCategoryTypeId now stores the raw-category-type id
+                rawCategoryTypeId: initialData.itemTypeId ?? initialData.rawCategoryTypeId,
                 isActive: initialData.status === "active",
             });
         } else if (open) {
@@ -58,9 +78,14 @@ const AddRowCategory = ({
         }
     }, [open, initialData]);
 
-    const handleSave = () => {
-        onSave(form);
-        onClose();
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            await onSave(form);
+            handleReset();
+        } finally {
+            setSaving(false);
+        }
     };
 
     const updateField = (field, value) => {
@@ -77,7 +102,6 @@ const AddRowCategory = ({
         }));
     };
 
-    // Translation API
     const handleTranslate = async (englishText) => {
         try {
             const res = await Translateapi(englishText);
@@ -116,6 +140,7 @@ const AddRowCategory = ({
                     </button>
 
                     <button
+                        onClick={handleSave}
                         disabled={saving}
                         className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-light font-medium hover:opacity-95 transition disabled:opacity-60"
                     >
@@ -131,7 +156,6 @@ const AddRowCategory = ({
             }
         >
             <div className="px-6 pt-6 pb-5">
-                {/* Header */}
                 <div className="flex justify-between items-start mb-5">
                     <div>
                         <h2 className="text-2xl font-semibold text-dark">
@@ -151,7 +175,6 @@ const AddRowCategory = ({
                     </button>
                 </div>
 
-                {/* Raw Category Name - English / Hindi / Gujarati */}
                 <div className="mb-5">
                     <MultiLangInputBox
                         label="Raw Category Name"
@@ -163,37 +186,22 @@ const AddRowCategory = ({
                     />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-5">
-                    <div>
-                        <label className="flex items-center gap-1 text-sm font-medium text-gray-800 mb-2">
-                            Item Type
-                        </label>
+                <div className="mb-5">
+                    <label className="flex items-center gap-1 text-sm font-medium text-gray-800 mb-2">
+                        Item Type
+                    </label>
 
-                        <Select
-                            value={form.itemType}
-                            onChange={(value) => updateField("itemType", value)}
-                            placeholder="Select Item Type"
-                            className="w-full custom-category-select"
-                            size="large"
-                            options={RowCategoryOptions}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="flex items-center gap-1 text-sm font-medium text-gray-800 mb-2">
-                            Edit No.
-                        </label>
-
-                        <input
-                            type="text"
-                            value={form.editNo}
-                            onChange={(e) => updateField("editNo", e.target.value)}
-                            placeholder="Edit No."
-                            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                        />
-                    </div>
+                    <Select
+                        value={form.rawCategoryTypeId}
+                        onChange={(value) => updateField("rawCategoryTypeId", value)}
+                        placeholder="Select Item Type"
+                        className="w-full custom-category-select"
+                        size="large"
+                        loading={loadingItemTypes}
+                        options={itemTypeOptions}
+                    />
                 </div>
-                {/* Status Card */}
+
                 <div className="rounded-xl bg-primary-inverse p-4 flex items-center justify-between">
                     <div>
                         <h4 className="text-sm font-semibold text-dark">
