@@ -173,10 +173,9 @@ const handleDelete = async (record) => {
     title: "Are you sure?",
     text: `Do you want to delete "${record.taxNameEnglish}"? This action cannot be undone.`,
     showCancelButton: true,
-    confirmButtonText: "Yes, delete it",
-    cancelButtonText: "No",
-    confirmButtonColor: primaryColor,
-    cancelButtonColor: primaryColor,
+      confirmButtonText: "Yes, Delete",
+      confirmButtonColor: "#7A2E45",
+      cancelButtonText: "Cancel",
   });
 
   if (!result.isConfirmed) return;

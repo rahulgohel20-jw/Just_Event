@@ -1,4 +1,4 @@
-import { POST, GET, PUT, DELETE } from "./axiosInstance";
+import axiosInstance, { POST, GET, PUT, DELETE } from "./axiosInstance";
 
 // Create Role
 export const createRole = (data) => {
@@ -160,4 +160,23 @@ export const getbyidrolemaster = (id) => {
 
 export const deleterolemaster = (id) => {
   return DELETE(`/role/delete/?id=${id}`);
+};
+
+// Client API
+export const addupdateclientmaster = (formData) => {
+  return axiosInstance.post("/party-master/add-update", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const getAllClientMaster = (data) => {
+  return POST("/party-master/list", data);
+};
+export const getClientById = (id) => {
+  return GET(`/party-master/get?id=${id}`);
+};
+export const deleteClientMaster = (id) => {
+  return DELETE(`/party-master/delete?id=${id}`);
 };
