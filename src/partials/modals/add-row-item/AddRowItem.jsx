@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import { Save, Loader2, Upload, Search, Pencil, Trash2, UserPlus } from "lucide-react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox";
@@ -12,7 +13,23 @@ import {
     getAllRawSubCategoryMaster,
     getAllUnitMaster,
 } from "@/services/apiServices";
-
+const initialFormState = {
+  itemName: {
+    english: "",
+    hindi: "",
+    gujarati: "",
+  },
+  mainCategory: null,
+  subCategory: null,
+  openingQty: "",
+  closingQty: "",
+  unitType: null,
+  expiryDate: "",
+  images: [],
+  isActive: true,
+  supplierSearch: "",
+  suppliers: [],
+};
 const AddRowItem = ({ open, onClose, onSave, initialData }) => {
     const [form, setForm] = useState(initialFormState);
     const [saving, setSaving] = useState(false);
@@ -64,7 +81,23 @@ const AddRowItem = ({ open, onClose, onSave, initialData }) => {
         };
         fetchUnits();
     }, [open]);
-
+useEffect(() => {
+    if (!open) return;
+    const fetchSubCategories = async () => {
+        setLoadingSubCategories(true);
+        try {
+            const res = await getAllRawSubCategoryMaster({ page: 0, pageSize: 100, isActive: true });
+            const records = res?.data?.data?.content ?? [];
+            setSubCategoryOptions(records.map((r) => ({ value: r.id, label: r.nameEnglish })));
+        } catch (err) {
+            console.error("Failed to fetch raw sub categories:", err);
+            setSubCategoryOptions([]);
+        } finally {
+            setLoadingSubCategories(false);
+        }
+    };
+    fetchSubCategories();
+}, [open]);
     const updateField = (field, value) => {
         setForm((prev) => ({
             ...prev,
@@ -198,7 +231,7 @@ const AddRowItem = ({ open, onClose, onSave, initialData }) => {
                 </div>
 
                 {/* Row 1 */}
-                <div className="grid grid-cols-1 gap-5 mb-5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-5 mb-5 sm:grid-cols-2">
                     <div>
                         <label className="text-sm font-medium mb-2 block">
                             Item Main Category
@@ -208,10 +241,11 @@ const AddRowItem = ({ open, onClose, onSave, initialData }) => {
                             onChange={(value) =>
                                 updateField("mainCategory", value)
                             }
-                            options={mainCategoryOptions}
+                            options={categoryOptions}
                             placeholder="Select Main Category"
                             size="large"
                             className="w-full custom-category-select"
+                            loading={loadingCategories}
                         />
                     </div>
 
@@ -228,6 +262,7 @@ const AddRowItem = ({ open, onClose, onSave, initialData }) => {
                             placeholder="Select Sub Category"
                             size="large"
                             className="w-full custom-category-select"
+                            loading={loadingSubCategories}
                         />
                     </div>
                 </div>
