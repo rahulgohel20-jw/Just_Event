@@ -1,18 +1,18 @@
 import { useState } from "react";
 
-const PhoneNumber = ({ handleMultiInputChange, ...props }) => {
+const PhoneNumber = ({ value, onChange, ...props }) => {
   const countries = [
-    {
-      name: "United States",
-      code: "US",
-      dialCode: "+1",
-      flag: "https://flagcdn.com/w40/us.png",
-    },
     {
       name: "India",
       code: "IN",
       dialCode: "+91",
       flag: "https://flagcdn.com/w40/in.png",
+    },
+    {
+      name: "United States",
+      code: "US",
+      dialCode: "+1",
+      flag: "https://flagcdn.com/w40/us.png",
     },
     {
       name: "United Kingdom",
@@ -26,17 +26,14 @@ const PhoneNumber = ({ handleMultiInputChange, ...props }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleMobileChange = (e) => {
-    const { value, name } = e.target;
-    handleMultiInputChange({ [name]: value });
+    onChange?.(e.target.value);
   };
   const handleSelect = (country) => {
-    handleMultiInputChange({ country_code: country.code });
     setSelectedCountry(country);
     setDropdownOpen(false);
   };
   return (
     <div className="relative w-full">
-      <label className="form-label">Phone Number</label>
       <div className="flex border border-gray-300 rounded-md overflow-hidden focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition">
         {/* Country Selector Button */}
         <button
@@ -67,6 +64,7 @@ const PhoneNumber = ({ handleMultiInputChange, ...props }) => {
         {/* Phone Number Input */}
         <input
           type="tel"
+          value={value}
           className="flex-1 px-3 py-2 input text-sm rounded-none border-none"
           placeholder="Phone number"
           {...props}
