@@ -63,7 +63,7 @@ const Login = () => {
   };
 
   return (
-    <div className="card max-w-[440px] w-full border-0 shadow-none">
+    <div className="card max-w-[440px] w-full border-0 shadow-none bg-primary-lighest">
       <form
         className="card-body flex flex-col gap-3.5 p-6 md:p-9 bg-white rounded-2xl shadow-[0_2px_20px_rgba(157,30,82,0.08)]"
         onSubmit={formik.handleSubmit}

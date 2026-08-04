@@ -34,18 +34,18 @@ const Layout = () => {
 
   return (
     <Fragment>
-      <div className="grid lg:grid-cols-2 grow min-h-screen bg-white">
+      <div className="grid lg:grid-cols-2 grow min-h-screen">
         {/* Illustration side */}
         <div className="hidden lg:flex flex-col items-center justify-center order-1 p-10 bg-white">
           <div className="max-w-[400px] w-full flex flex-col items-center text-center gap-6">
             <img
               src={toAbsoluteUrl(content.image)}
               alt={content.alt}
-              className="w-full max-w-[500px] h-auto"
+              className="w-full max-w-[600px] h-auto"
             />
             <div className="flex flex-col gap-3">
-              <h2 className="text-2xl font-bold text-primary">{content.title}</h2>
-              <p className="text-sm text-gray-500 leading-relaxed">
+              <h2 className="text-2xl font-bold text-primary m-0">{content.title}</h2>
+              <p className="text-sm text-primary leading-relaxed">
                 {content.description}
               </p>
             </div>
@@ -53,11 +53,13 @@ const Layout = () => {
         </div>
 
         {/* Form side */}
-        <div className="flex justify-center flex-col items-center p-4 md:p-6 lg:p-10 order-2 bg-primary-inverse">
-          <Link to="/" className="ms-auto me-auto mt-auto mb-5 lg:hidden">
-            <span className="text-xl font-bold text-primary">Just Event</span>
+        <div className="flex justify-center flex-col items-center p-4 md:p-6 lg:p-10 order-2 bg-primary-lighest">
+          <div className=" my-auto">
+            <Link to="/" className="ms-auto me-auto mt-auto mb-5 lg:hidden">
+            <p className="text-xl font-bold text-primary text-center">Just Event</p>
           </Link>
           <Outlet />
+          </div>
         </div>
       </div>
     </Fragment>
