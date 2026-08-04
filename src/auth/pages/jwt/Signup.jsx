@@ -3,7 +3,7 @@ import { useFormik } from "formik";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import { ShieldCheck, Zap, Briefcase, User, Mail, Lock, Building2, MapPin, Landmark } from "lucide-react";
+import { ShieldCheck, Zap, Briefcase, User, Mail, Lock, Building2, MapPin, Landmark, LockKeyhole } from "lucide-react";
 import { useAuthContext } from "../../useAuthContext";
 import { toAbsoluteUrl } from "@/utils";
 import { Alert, KeenIcon } from "@/components";
@@ -223,7 +223,7 @@ const Signup = () => {
 
         {/* Confirm Password */}
         <FormField
-          icon={Lock}
+          icon={LockKeyhole}
           error={formik.errors.changepassword}
           touched={formik.touched.changepassword}
         >
