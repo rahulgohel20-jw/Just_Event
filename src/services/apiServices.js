@@ -1,3 +1,4 @@
+import { data } from "autoprefixer";
 import { POST, GET, PUT, DELETE } from "./axiosInstance";
 
 // Create Role
@@ -160,4 +161,20 @@ export const getbyidrolemaster = (id) => {
 
 export const deleterolemaster = (id) => {
   return DELETE(`/role/delete/?id=${id}`);
+};
+
+export const signup = (data) =>{
+  return POST(`/auth/signup` , data);
+};
+
+export const login = (data) => {
+  return POST(`/auth/login`, data);
+};
+
+export const getstatebycountry = (data) => {
+  return POST(`/state/list`, data) ;
+};
+
+export const getbycitiesbystate = (data) =>{
+  return POST(`/city/list` , data) ;
 };

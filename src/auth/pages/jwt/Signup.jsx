@@ -1,14 +1,16 @@
 import clsx from "clsx";
 import { useFormik } from "formik";
-import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import { ShieldCheck, Zap, Briefcase, User, Mail, Lock, Building2, MapPin, Landmark, LockKeyhole } from "lucide-react";
+import { ShieldCheck, Zap, Briefcase, User, Mail, Lock, Building2, LockKeyhole } from "lucide-react";
 import { useAuthContext } from "../../useAuthContext";
-import { toAbsoluteUrl } from "@/utils";
 import { Alert, KeenIcon } from "@/components";
 import { useLayout } from "@/providers";
 import PhoneNumber from "@/components/form-inputs/PhoneNumber/PhoneNumber";
+import { getstatebycountry, getbycitiesbystate, signup } from "@/services/apiServices";
+import SelectField from "@/components/form-inputs/select/SelectField";
+import { showApiResult, showApiError } from "@/utils/swalHelpers";
 
 const initialValues = {
   firstName: "",
@@ -23,6 +25,8 @@ const initialValues = {
   acceptTerms: true,
 };
 
+const INDIA_COUNTRY_ID = 1;
+
 const signupSchema = Yup.object().shape({
   firstName: Yup.string().max(50, "Maximum 50 symbols").required("First name is required"),
   lastName: Yup.string().max(50, "Maximum 50 symbols").required("Last name is required"),
@@ -32,23 +36,20 @@ const signupSchema = Yup.object().shape({
     .max(50, "Maximum 50 symbols")
     .required("Email is required"),
   company: Yup.string().max(100, "Maximum 100 symbols"),
-  state: Yup.string().max(50, "Maximum 50 symbols"),
-  city: Yup.string().max(50, "Maximum 50 symbols"),
+  state: Yup.string().required("State is required"),
+  city: Yup.string().required("City is required"),
   password: Yup.string()
-    .min(3, "Minimum 3 symbols")
+    .min(8, "Minimum 8 symbols")
     .max(50, "Maximum 50 symbols")
     .required("Password is required"),
   changepassword: Yup.string()
-    .min(3, "Minimum 3 symbols")
+    .min(8, "Minimum 8 symbols")
     .max(50, "Maximum 50 symbols")
     .required("Password confirmation is required")
     .oneOf([Yup.ref("password")], "Password and Confirm Password didn't match"),
-  acceptTerms: Yup.bool().required("You must accept the terms and conditions"),
+  acceptTerms: Yup.bool().oneOf([true], "You must accept the terms and conditions"),
 });
 
-// Small reusable field wrapper so every input shares identical spacing,
-// icon alignment, and error placement — this is what was making the form
-// feel inconsistent before.
 const FormField = ({ icon: Icon, error, touched, children }) => (
   <div className="flex flex-col gap-1">
     <div className="relative">
@@ -71,28 +72,64 @@ const inputClass = (hasError) =>
 
 const Signup = () => {
   const [loading, setLoading] = useState(false);
-  const { register } = useAuthContext();
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { currentLayout } = useLayout();
 
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [statesLoading, setStatesLoading] = useState(false);
+  const [citiesLoading, setCitiesLoading] = useState(false);
+  const [locationError, setLocationError] = useState("");
+
   const formik = useFormik({
     initialValues,
     validationSchema: signupSchema,
-    onSubmit: async (values, { setStatus, setSubmitting }) => {
+    onSubmit: async (values, { setSubmitting, setStatus }) => {
       setLoading(true);
       try {
-        if (!register) {
-          throw new Error("JWTProvider is required for this form.");
-        }
-        await register(values.email, values.password, values.changepassword);
-        navigate(from, { replace: true });
+        const payload = {
+          address: "",
+          cityId: Number(values.city),
+          clientId: 0,
+          companyEmail: values.email,
+          companyName: values.company,
+          confirmPassword: values.changepassword,
+          contactNo: values.mobile,
+          countryCode: "+91",
+          countryId: INDIA_COUNTRY_ID,
+          email: values.email,
+          firstName: values.firstName,
+          lastName: values.lastName,
+          officeNo: "",
+          password: values.password,
+          roleId: 1,
+          stateId: Number(values.state),
+        };
+
+        const res = await signup(payload);
+
+        showApiResult(res, {
+          successTitle: "Account created",
+          fallbackSuccess: "Your account has been created successfully.",
+          errorTitle: "Sign up failed",
+          fallbackError: "Something went wrong. Please try again.",
+          onSuccess: () => {
+            navigate(
+              currentLayout?.name === "auth-branded"
+                ? "/auth/login"
+                : "/auth/classic/login",
+              { replace: true }
+            );
+          },
+        });
       } catch (error) {
-        console.error(error);
-        setStatus("The sign up details are incorrect");
+        showApiError(error, { title: "Sign up failed" });
+        setStatus(
+          error?.response?.data?.msg || error?.message || "Something went wrong. Please try again."
+        );
+      } finally {
         setSubmitting(false);
         setLoading(false);
       }
@@ -108,13 +145,80 @@ const Signup = () => {
     setShowConfirmPassword((v) => !v);
   };
 
-  const handleSocialLogin = (provider) => {
-    // Wire this up to your actual OAuth flow (e.g. register?.loginWithProvider(provider))
-    console.log(`Continue with ${provider}`);
-  };
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchStates = async () => {
+      setStatesLoading(true);
+      setLocationError("");
+      try {
+        const res = await getstatebycountry({
+          countryId: INDIA_COUNTRY_ID,
+          nameEnglish: "",
+          page: 0,
+          size: 100,
+          sortBy: "id",
+          sortDirection: "ASC",
+        });
+        if (cancelled) return;
+        const body = res?.data ?? res;
+        setStates(body?.data?.content ?? []);
+      } catch {
+        if (cancelled) return;
+        setStates([]);
+        setLocationError("Couldn't load states. Please refresh and try again.");
+      } finally {
+        if (!cancelled) setStatesLoading(false);
+      }
+    };
+
+    fetchStates();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const stateId = formik.values.state;
+    if (!stateId) {
+      setCities([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchCities = async () => {
+      setCitiesLoading(true);
+      try {
+        const res = await getbycitiesbystate({
+          stateId,
+          nameEnglish: "",
+          page: 0,
+          size: 100,
+          sortBy: "id",
+          sortDirection: "ASC",
+        });
+        if (cancelled) return;
+        const body = res?.data ?? res;
+        setCities(body?.data?.content ?? []);
+      } catch {
+        if (cancelled) return;
+        setCities([]);
+        setLocationError("Couldn't load cities. Please try again.");
+      } finally {
+        if (!cancelled) setCitiesLoading(false);
+      }
+    };
+
+    fetchCities();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formik.values.state]);
 
   return (
-    <div className="max-w-[480px] w-full">
+    <div className="max-w-[520px] w-full">
       <form
         className="flex flex-col gap-3 p-6 md:p-8 bg-white rounded-2xl shadow-[0_2px_24px_rgba(157,30,82,0.09)] border border-gray-100"
         noValidate
@@ -130,14 +234,20 @@ const Signup = () => {
           </span>
         </div>
 
-        {formik.status && <Alert variant="danger">{formik.status}</Alert>}
+        {formik.status && (
+          <Alert variant="danger" className="text-white">
+            {formik.status}
+          </Alert>
+        )}
+        {locationError && (
+          <Alert variant="warning">{locationError}</Alert>
+        )}
 
-        {/* First / Last name */}
         <div className="grid grid-cols-2 gap-3">
           <FormField icon={User} error={formik.errors.firstName} touched={formik.touched.firstName}>
             <input
               placeholder="First Name"
-              autoComplete="off"
+              autoComplete="given-name"
               {...formik.getFieldProps("firstName")}
               className={inputClass(formik.touched.firstName && formik.errors.firstName)}
             />
@@ -145,25 +255,23 @@ const Signup = () => {
           <FormField icon={User} error={formik.errors.lastName} touched={formik.touched.lastName}>
             <input
               placeholder="Last Name"
-              autoComplete="off"
+              autoComplete="family-name"
               {...formik.getFieldProps("lastName")}
               className={inputClass(formik.touched.lastName && formik.errors.lastName)}
             />
           </FormField>
         </div>
 
-        {/* Email */}
         <FormField icon={Mail} error={formik.errors.email} touched={formik.touched.email}>
           <input
             placeholder="Email Address"
             type="email"
-            autoComplete="off"
+            autoComplete="email"
             {...formik.getFieldProps("email")}
             className={inputClass(formik.touched.email && formik.errors.email)}
           />
         </FormField>
 
-        {/* Mobile — same bordered/full-width treatment as every other field, no separate label */}
         <div className="w-full [&_.form-control]:w-full [&_.form-control]:!pl-10 [&_.form-control]:!py-2.5 [&_.form-control]:!rounded-lg [&_.form-control]:!border [&_.form-control]:!border-gray-200 [&_.form-control]:!text-sm [&_.form-control]:focus:!border-primary [&_.form-control]:focus:!ring-1 [&_.form-control]:focus:!ring-primary-clarity">
           <PhoneNumber
             value={formik.values.mobile}
@@ -172,42 +280,55 @@ const Signup = () => {
           />
         </div>
 
-        {/* Company */}
         <FormField icon={Building2} error={formik.errors.company} touched={formik.touched.company}>
           <input
             placeholder="Company Name"
-            autoComplete="off"
+            autoComplete="organization"
             {...formik.getFieldProps("company")}
             className={inputClass(false)}
           />
         </FormField>
 
-        {/* State / City */}
         <div className="grid grid-cols-2 gap-3">
-          <FormField icon={Landmark} error={formik.errors.state} touched={formik.touched.state}>
-            <input
-              placeholder="State"
-              autoComplete="off"
-              {...formik.getFieldProps("state")}
-              className={inputClass(false)}
-            />
-          </FormField>
-          <FormField icon={MapPin} error={formik.errors.city} touched={formik.touched.city}>
-            <input
-              placeholder="City"
-              autoComplete="off"
-              {...formik.getFieldProps("city")}
-              className={inputClass(false)}
-            />
-          </FormField>
+          <SelectField
+            label="State"
+            value={formik.values.state}
+            onChange={(val) => {
+              formik.setFieldValue("state", val);
+              formik.setFieldValue("city", "");
+            }}
+            onBlur={() => formik.setFieldTouched("state", true)}
+            error={formik.errors.state}
+            touched={formik.touched.state}
+            options={states}
+            getOptionLabel={(s) => s.nameEnglish}
+            getOptionValue={(s) => s.id}
+            loading={statesLoading}
+            required
+          />
+
+          <SelectField
+            label="City"
+            disabledText="Select state first"
+            value={formik.values.city}
+            onChange={(val) => formik.setFieldValue("city", val)}
+            onBlur={() => formik.setFieldTouched("city", true)}
+            error={formik.errors.city}
+            touched={formik.touched.city}
+            options={cities}
+            getOptionLabel={(c) => c.nameEnglish}
+            getOptionValue={(c) => c.id}
+            loading={citiesLoading}
+            disabled={!formik.values.state}
+            required
+          />
         </div>
 
-        {/* Password */}
         <FormField icon={Lock} error={formik.errors.password} touched={formik.touched.password}>
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
-            autoComplete="off"
+            autoComplete="new-password"
             {...formik.getFieldProps("password")}
             className={clsx(inputClass(formik.touched.password && formik.errors.password), "!pr-10")}
           />
@@ -221,7 +342,6 @@ const Signup = () => {
           </button>
         </FormField>
 
-        {/* Confirm Password */}
         <FormField
           icon={LockKeyhole}
           error={formik.errors.changepassword}
@@ -230,7 +350,7 @@ const Signup = () => {
           <input
             type={showConfirmPassword ? "text" : "password"}
             placeholder="Confirm Password"
-            autoComplete="off"
+            autoComplete="new-password"
             {...formik.getFieldProps("changepassword")}
             className={clsx(
               inputClass(formik.touched.changepassword && formik.errors.changepassword),
@@ -261,7 +381,6 @@ const Signup = () => {
           <span className="border-t border-gray-200 w-full"></span>
         </div>
 
-        
         <div className="flex items-center justify-center mt-2">
           <span className="text-sm text-gray-500 me-1.5">Already have an account?</span>
           <Link

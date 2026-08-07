@@ -31,7 +31,7 @@ export const STATS_CARDS = [
 export const DEFAULT_PAGE = 0;
 export const DEFAULT_PAGINATION_SIZE = 10;
 export const DEFAULT_SORT_BY = "id";
-export const DEFAULT_SORT_DIRECTION = "ASC";
+export const DEFAULT_SORT_DIRECTION = "DESC";
 export const DEFAULT_SORTING = [{ id: "taxNameEnglish", desc: false }];
 
 
