@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox";
 import { addupadtetaxmaster, Translateapi } from "@/services/apiServices"; // <-- Translateapi imported here now
+import { showApiResult, showApiError } from "@/utils/swalHelpers";
 
 const initialFormState = {
   taxName: { english: "", hindi: "", gujarati: "" },
@@ -40,7 +41,6 @@ const AddTaxModal = ({ open, onClose, onSave, initialData }) => {
     setForm((prev) => ({ ...prev, [name]: updatedValue }));
   };
 
-  // Owns the translation API call; MultiLangInputBox just calls this and applies the result
   const handleTranslate = async (englishText) => {
     try {
       const res = await Translateapi(englishText);
@@ -60,7 +60,7 @@ const AddTaxModal = ({ open, onClose, onSave, initialData }) => {
     onClose();
   };
 
- const handleSave = async () => {
+const handleSave = async () => {
   const payload = {
     id: initialData?.id ?? null,
     isActive: form.isActive,
@@ -76,49 +76,32 @@ const AddTaxModal = ({ open, onClose, onSave, initialData }) => {
   try {
     const res = await addupadtetaxmaster(payload);
 
-    // Normalize: handle both "already unwrapped" and axios-wrapped responses
-    const body = res?.data && typeof res.data === "object" && "success" in res.data
-      ? res.data
-      : res;
+    const success = showApiResult(res, {
+      successTitle: isEditMode ? "Tax Updated" : "Tax Saved",
+      fallbackSuccess: "Operation completed successfully.",
+      errorTitle: "Failed",
+      onSuccess: () => {
+        const body = res?.data ?? res;
+        onSave?.(body?.data ?? body);
+        setForm(initialFormState);
+        onClose?.();
+      },
+    });
 
-    const isSuccess = body?.success === true;
-
-    if (isSuccess) {
-      onSave?.(body?.data ?? body);
-      setForm(initialFormState);
-
-      Swal.fire({
-        icon: "success",
-        title: isEditMode ? "Tax Updated" : "Tax Saved",
-        text: body?.msg || "Operation completed successfully.",
-        timer: 1800,
-        timerProgressBar: true,
-        showConfirmButton: false,
-      });
-
-      onClose?.();
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Failed",
-        text: body?.errorMessage || body?.msg || "Something went wrong. Please try again.",
-      });
+    if (!success) {
+      // stays open so the user can fix the input and retry
+      return;
     }
   } catch (err) {
     console.error("Failed to save tax:", err);
-    Swal.fire({
-      icon: "error",
+    showApiError(err, {
       title: "Failed",
-      text:
-        err?.response?.data?.errorMessage ||
-        err?.response?.data?.msg ||
-        err?.message ||
-        "Something went wrong. Please try again.",
     });
   } finally {
     setSaving(false);
   }
 };
+
   return (
     <CustomModal
       open={open}
@@ -202,9 +185,7 @@ const AddTaxModal = ({ open, onClose, onSave, initialData }) => {
         step="0.01"
         className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-gray-300 text-black focus:outline-none focus:ring-1 focus:ring-[#7A2E45] focus:border-[#7A2E45] text-sm"
       />
-      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-        %
-      </span>
+   
     </div>
   </div>
 
