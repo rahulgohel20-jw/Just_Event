@@ -160,7 +160,7 @@ import RoleMaster from "../pages/Master/RoleMaster";
 const AppRoutingSetup = () => {
   return (
     <Routes>
-      {/* <Route element={<RequireAuth />}> */}
+      <Route element={<RequireAuth />}>
             <Route>
 
         <Route element={<Demo1Layout />}>
@@ -536,6 +536,7 @@ const AppRoutingSetup = () => {
             element={<AuthenticationGetStartedPage />}
           />
         </Route>
+      </Route>
       </Route>
       <Route path="error/*" element={<ErrorsRouting />} />
       <Route path="auth/*" element={<AuthPage />} />
