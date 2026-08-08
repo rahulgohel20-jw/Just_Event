@@ -28,7 +28,7 @@ const handleModalOpen = () => {
       <div style={{ marginBottom: "10px", textAlign: "right" }}>
         
           <button
-              className="btn bg-[#845A12] text-white hover:bg-[#6f4c12]"
+              className="btn bg-primary text-white "
               onClick={handleModalOpen}
               title="Add Contact"
             >

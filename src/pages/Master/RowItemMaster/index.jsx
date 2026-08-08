@@ -12,10 +12,10 @@ import { TableComponent } from "@/components/table/TableComponent";
 
 import {
     PAGE_HEADER,
-    RAW_ITEM_TABLE_DATA,
+    // RAW_ITEM_TABLE_DATA,
     DEFAULT_PAGINATION_SIZE,
     DEFAULT_SORTING,
-    CATEGORY_OPTIONS,
+    // CATEGORY_OPTIONS,
     STATUS_OPTIONS,
     getRawItemColumns,
     UNIT_OPTIONS,

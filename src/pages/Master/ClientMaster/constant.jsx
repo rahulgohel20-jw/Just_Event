@@ -191,15 +191,15 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
     id: "actions",
     header: "Actions",
     cell: ({ row }) => (
-      <div className="flex items-center justify-start gap-3 text-gray-400">
-          <button type="button" onClick={() => onView?.(record)} className="text-green-700">
-            <Eye size={18} />
+      <div className="flex items-center justify-start gap-2 text-rose-700">
+         <button onClick={() => onView(row.original)} className="btn btn-sm btn-icon btn-clear">
+          <i className="ki-filled ki-eye  text-primary"></i>
+        </button>
+          <button className="btn btn-sm btn-icon btn-clear" type="button" onClick={() => onEdit?.(record)} >
+            <i className="ki-filled ki-notepad-edit text-third"></i>
           </button>
-          <button type="button" onClick={() => onEdit?.(record)} className="text-blue-700">
-            <Edit size={18} />
-          </button>
-          <button type="button" onClick={() => onDelete?.(record)} className="text-red-700">
-            <Trash2 size={18} />
+          <button  className=" tn btn-sm btn-icon btn-clear text-danger" type="button" onClick={() => onDelete?.(record)} >
+            <Trash2 size={16} />
           </button>
         </div>
     ),
