@@ -103,7 +103,7 @@ export const getVenueColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =>
     accessorKey: "srNo",
     header: "Sr. No.",
     cell: ({ row }) => (
-      <span className="text-sm text-gray-500">
+      <span >
         {String(row.index + 1).padStart(2, "0")}
       </span>
     ),
@@ -147,7 +147,7 @@ export const getVenueColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =>
     accessorKey: "capacity",
     header: "Capacity",
     cell: ({ getValue }) => (
-      <span className="text-sm text-gray-600">
+      <span >
         {getValue().toLocaleString("en-IN")} Guests
       </span>
     ),
@@ -187,7 +187,7 @@ export const getVenueColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =>
     accessorKey: "mobileNumber",
     header: "Mobile Number",
     cell: ({ getValue }) => (
-      <span className="text-sm text-gray-600">{getValue()}</span>
+      <span >{getValue()}</span>
     ),
   },
   {
@@ -195,8 +195,8 @@ export const getVenueColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =>
     header: "Location",
     cell: ({ row }) => (
       <div>
-        <p className="text-sm text-gray-700">{row.original.city}</p>
-        <p className="text-xs text-gray-400">{row.original.state}</p>
+        <p >{row.original.city}</p>
+        <p className="text-xs text-gray-500">{row.original.state}</p>
       </div>
     ),
   },
@@ -204,17 +204,17 @@ export const getVenueColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =>
     accessorKey: "actions",
     header: "Actions",
     cell: ({ row }) => (
-      <div className="flex items-center gap-3 text-gray-400">
-        <button onClick={() => onView(row.original)} className="hover:text-rose-800">
-          <Eye size={16} />
+       <div className="flex items-center justify-start gap-2 text-rose-700">
+         <button onClick={() => onView(row.original)} className="btn btn-sm btn-icon btn-clear">
+          <i className="ki-filled ki-eye  text-primary"></i>
         </button>
-        <button onClick={() => onEdit(row.original)} className="hover:text-rose-800">
-          <Pencil size={16} />
-        </button>
-        <button onClick={() => onDelete(row.original)} className="hover:text-red-600">
-          <Trash2 size={16} />
-        </button>
-      </div>
+          <button className="btn btn-sm btn-icon btn-clear" type="button" onClick={() => onEdit?.(record)} >
+            <i className="ki-filled ki-notepad-edit text-third"></i>
+          </button>
+          <button  className=" tn btn-sm btn-icon btn-clear text-danger" type="button" onClick={() => onDelete?.(record)} >
+            <Trash2 size={16} />
+          </button>
+        </div>
     ),
   },
 ];

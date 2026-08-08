@@ -16,27 +16,30 @@ const DataGridTable = () => {
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm" data-table>
           {/* ── Header ── */}
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b border-gray-200 bg-gray-200">
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    colSpan={header.colSpan}
-                    className={cn(
-                      spacing.header,
-                      "whitespace-nowrap text-xs font-semibold uppercase tracking-wider text-gray-600",
-                      header.column.columnDef.meta?.headerClassName
-                    )}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
+         <thead>
+  {table.getHeaderGroups().map((headerGroup) => (
+    <tr
+      key={headerGroup.id}
+      className="border-b-2 border-gray-300 bg-gray-100"
+    >
+      {headerGroup.headers.map((header) => (
+        <th
+          key={header.id}
+          colSpan={header.colSpan}
+          className={cn(
+            spacing.header,
+            "whitespace-nowrap border-r border-gray-300 last:border-r-0 text-xs font-semibold uppercase tracking-wider text-gray-900",
+            header.column.columnDef.meta?.headerClassName
+          )}
+        >
+          {header.isPlaceholder
+            ? null
+            : flexRender(header.column.columnDef.header, header.getContext())}
+        </th>
+      ))}
+    </tr>
+  ))}
+</thead>
 
           {/* ── Body ── */}
           <tbody className="divide-y divide-gray-100">
@@ -45,7 +48,7 @@ const DataGridTable = () => {
                 <tr
                   key={row.id}
                   className={cn(
-                    "transition-colors hover:bg-gray-50",
+                    "transition-colors hover:bg-gray-50 ",
                     row.getIsSelected() && "bg-blue-50/70"
                   )}
                 >
@@ -54,7 +57,7 @@ const DataGridTable = () => {
                       key={cell.id}
                       className={cn(
                         spacing.body,
-                        "text-gray-700",
+                        "text-gray-700 border border-gray-200 last:border-r-0",
                         cell.column.columnDef.meta?.cellClassName
                       )}
                     >

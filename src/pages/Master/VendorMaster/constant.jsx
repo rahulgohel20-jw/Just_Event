@@ -184,7 +184,7 @@ export const getVendorColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
     cell: ({ row }) => {
       const record = row.original;
       return (
-        <div className="flex items-center justify-start gap-2 text-rose-700">
+         <div className="flex items-center justify-start gap-2 text-rose-700">
          <button onClick={() => onView(row.original)} className="btn btn-sm btn-icon btn-clear">
           <i className="ki-filled ki-eye  text-primary"></i>
         </button>

@@ -40,7 +40,7 @@ export const getTaxColumns = ({ onView, onEdit, onDelete, onToggleStatus }) => [
     accessorKey: "srNo",
     header: "Sr. No.",
     cell: ({ row }) => (
-      <span className="text-sm text-gray-500">
+      <span >
         {String(row.index + 1).padStart(2,)}
       </span>
     ),
@@ -61,13 +61,13 @@ export const getTaxColumns = ({ onView, onEdit, onDelete, onToggleStatus }) => [
       </span>
     ),
   },
-  {
-    accessorKey: "createdAt",
-    header: "Created At",
-    cell: ({ getValue }) => (
-      <span className="text-sm text-gray-500">{getValue() || "-"}</span>
-    ),
-  },
+  // {
+  //   accessorKey: "createdAt",
+  //   header: "Created At",
+  //   cell: ({ getValue }) => (
+  //     <span >{getValue() || "-"}</span>
+  //   ),
+  // },
   {
     accessorKey: "isActive",
     header: "Status",

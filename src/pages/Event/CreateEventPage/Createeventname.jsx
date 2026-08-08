@@ -185,7 +185,7 @@ export default function CreateEventName() {
                 aria-pressed={priority === p}
                 className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
                   priority === p
-                    ? "bg-rose-900 text-white shadow-sm"
+                    ? "bg-primary text-white shadow-sm"
                     : "text-[#8A6A70] hover:text-rose-800"
                 }`}
               >
@@ -201,7 +201,7 @@ export default function CreateEventName() {
             onClick={handleCreateWorkspace}
             className={`w-full rounded-xl py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${
               canSubmit
-                ? "bg-rose-900 hover:bg-rose-950 text-white"
+                ? "bg-primary hover:bg-rose-950 text-white"
                 : "bg-rose-200 text-white cursor-not-allowed"
             }`}
           >
