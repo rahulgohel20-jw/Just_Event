@@ -54,11 +54,12 @@ const Login = () => {
 
         navigate("/", { replace: true });
       } catch (error) {
+        console.error('LOGIN ERROR:', error);
         const apiMsg =
-          error?.response?.data?.msg ||
-          error?.message ||
-          "The login details are incorrect";
-        setStatus(apiMsg);
+  error?.response?.data?.msg ||
+  error?.message ||           // 👈 "Invalid credentials." lands here
+  "The login details are incorrect";
+setStatus(apiMsg);
         setSubmitting(false);
       } finally {
         setLoading(false);

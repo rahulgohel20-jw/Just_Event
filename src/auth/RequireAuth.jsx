@@ -1,11 +1,12 @@
 // auth/RequireAuth.jsx
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useAuthContext } from './useAuthContext'; // adjust path to match your structure
 
 const RequireAuth = () => {
   const location = useLocation();
-  const token = localStorage.getItem('userToken');
+  const { auth } = useAuthContext();
 
-  if (!token) {
+  if (!auth?.token) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 

@@ -27,12 +27,12 @@ const removeAuth = () => {
 };
 export function setupAxios(axios) {
   axios.defaults.headers.Accept = 'application/json';
-  axios.interceptors.request.use(config => {
-    const auth = getAuth();
-    if (auth?.access_token) {
-      config.headers.Authorization = `Bearer ${auth.access_token}`;
-    }
-    return config;
-  }, async err => await Promise.reject(err));
+axios.interceptors.request.use(config => {
+  const auth = getAuth();
+  if (auth?.token) {
+    config.headers.Authorization = `Bearer ${auth.token}`;
+  }
+  return config;
+}, async err => await Promise.reject(err));
 }
 export { AUTH_LOCAL_STORAGE_KEY, getAuth, removeAuth, setAuth };
