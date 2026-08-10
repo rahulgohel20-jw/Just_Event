@@ -170,7 +170,6 @@ export const signup = (data) =>{
 export const login = (data) => {
   return POST(`/auth/login`, data);
 };
-
 export const getstatebycountry = (data) => {
   return POST(`/state/list`, data) ;
 };

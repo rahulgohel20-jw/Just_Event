@@ -34,15 +34,15 @@ const AuthProvider = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const saveAuth = (authData) => {
-    setAuth(authData);
-    if (authData) {
-      authHelper.setAuth(authData);
-    } else {
-      authHelper.removeAuth();
-      localStorage.removeItem('userData');
-    }
-  };
+const saveAuth = (authData) => {
+  setAuth(authData);
+  if (authData) {
+    authHelper.setAuth(authData);
+  } else {
+    authHelper.removeAuth();           // removes the auth key (metronic-tailwind-react-auth-v1...)
+    localStorage.removeItem('userData'); // removes the user data key
+  }
+};
 
   // No separate "get current user" endpoint — the login response IS the user,
   // so verify() just checks the stored token's expiry rather than calling an API.
@@ -73,47 +73,45 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (values) => {
-    try {
-      const response = await loginApi(values);
-      const { msg, data, success } = response?.data ?? response ?? {};
+const login = async (values) => {
+  try {
+    const response = await loginApi(values);
+    const { msg, data, success, errorMessage } = response?.data ?? response ?? {};
 
-      if (!success || !data?.token) {
-        throw new Error(msg || 'Login failed');
-      }
+    if (!success || !data?.token) {
+      throw new Error(errorMessage || msg || 'Login failed');
+    }
 
+    saveAuth(data);
+    localStorage.setItem('userData', JSON.stringify(data));
+    setCurrentUser(data);
+    return data;
+  } catch (error) {
+    saveAuth(undefined);
+    throw error;
+  }
+};
+
+const register = async (payload) => {
+  try {
+    const response = await signupApi(payload);
+    const { msg, data, success } = response ?? {};
+
+    if (!success) {
+      throw new Error(msg || 'Signup failed');
+    }
+
+    if (data?.token) {
       saveAuth(data);
       localStorage.setItem('userData', JSON.stringify(data));
       setCurrentUser(data);
-      return data;
-    } catch (error) {
-      saveAuth(undefined);
-      throw error;
     }
-  };
-
-  const register = async (payload) => {
-    try {
-      const response = await signupApi(payload);
-      const { msg, data, success } = response?.data ?? response ?? {};
-
-      if (!success) {
-        throw new Error(msg || 'Signup failed');
-      }
-
-      // Signup here does not log the user in automatically; Signup.jsx redirects
-      // to /login on success. Only persist auth if the API actually returned a token.
-      if (data?.token) {
-        saveAuth(data);
-        localStorage.setItem('userData', JSON.stringify(data));
-        setCurrentUser(data);
-      }
-      return data;
-    } catch (error) {
-      saveAuth(undefined);
-      throw error;
-    }
-  };
+    return data;
+  } catch (error) {
+    saveAuth(undefined);
+    throw error;
+  }
+};
 
   const requestPasswordResetLink = async (email) => {
     // wire to your forgot-password endpoint here

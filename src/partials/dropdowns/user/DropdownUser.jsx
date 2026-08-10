@@ -19,13 +19,7 @@ import {
 const DropdownUser = ({ menuItemRef }) => {
     const navigate = useNavigate(); 
   const { settings, storeSettings } = useSettings();
-   const logout = () => {
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("mainId");
-    localStorage.removeItem("auth-storage");
-    navigate("/auth/login", { replace: true });
-  };
+ const { logout } = useAuthContext();
 
   const { isRTL } = useLanguage();
   const handleThemeMode = (event) => {
@@ -33,6 +27,11 @@ const DropdownUser = ({ menuItemRef }) => {
     storeSettings({
       themeMode: newThemeMode,
     });
+  };
+
+   const handleLogout = () => {   // 👈 ADD this new function
+    logout();
+    navigate("/auth/login", { replace: true });
   };
   const buildHeader = () => {
     return (
@@ -300,7 +299,7 @@ const DropdownUser = ({ menuItemRef }) => {
         </div> */}
 
         <div className="menu-item mb-0.5">
-          <div className="menu-link" onClick={logout}>
+          <div className="menu-link" onClick={handleLogout}>
             <span className="menu-icon">
               <i className="ki-filled ki-exit-left"></i>
             </span>
