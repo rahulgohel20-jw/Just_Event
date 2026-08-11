@@ -71,7 +71,7 @@ const AddRowItem = ({ open, onClose, onSave, initialData }) => {
             try {
                 const res = await getAllUnitMaster({ page: 0, pageSize: 100, isActive: true });
                 const records = res?.data?.data?.content ?? [];
-                setUnitOptions(records.map((r) => ({ value: r.id, label: r.nameEnglish })));
+                setUnitOptions(records.map((r) => ({ value: r.id, label: r.unitNameEnglish })));
             } catch (err) {
                 console.error("Failed to fetch units:", err);
                 setUnitOptions([]);

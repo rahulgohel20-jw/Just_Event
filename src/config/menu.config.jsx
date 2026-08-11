@@ -273,7 +273,7 @@ export const MENU_SIDEBAR = [
       },
       {
         title:"Unit Master",
-        path: '/master/unitmast er'
+        path: '/master/unitmaster'
       },
       {
         title:"Raw Item Master",
