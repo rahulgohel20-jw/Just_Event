@@ -18,7 +18,7 @@ import {
 import Swal from "sweetalert2";
 import AddRole from "../../../partials/modals/add-rolemaster/AddRole";
 
-const STATIC_USER_ID = 1;
+  const userId = Number(localStorage.getItem("userId"));
 
 const RoleMaster = () => {
   const [tableData, setTableData] = useState([]);
@@ -43,7 +43,7 @@ const RoleMaster = () => {
           sortBy: DEFAULT_SORT_BY,
           sortDirection: DEFAULT_SORT_DIRECTION,
           name: searchText,
-          userId: STATIC_USER_ID,
+          userId,
           ...overrides,
         };
         const res = await getallrolemaster(payload);
@@ -208,7 +208,7 @@ const RoleMaster = () => {
       {/* Page header */}
       <div className="mb-3 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-primary">{PAGE_HEADER.title}</h1>
+          <h1 className="text-2xl  text-primary">{PAGE_HEADER.title}</h1>
           <p className="mt-1 max-w-xl text-sm text-gray-500">{PAGE_HEADER.description}</p>
         </div>
         <button

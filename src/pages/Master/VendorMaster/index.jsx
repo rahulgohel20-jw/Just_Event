@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Plus,
   Search,
   RefreshCcw,
   Share2,
   Columns3,
-  ChevronDown,  
+  ChevronDown,
   Users,
   CheckCircle2,
   TrendingUp,
@@ -14,15 +14,21 @@ import {
 import { TableComponent } from "@/components/table/TableComponent";
 import { AddVendorModal } from "../../../partials/modals/AddVendorModal/AddVendorModal";
 import { ViewVendorModal } from "../../../partials/modals/AddVendorModal/ViewVendorModal";
+import { confirmDelete, showApiResult, showApiError } from "../../../utils/swalHelpers";
 import {
   PAGE_HEADER,
   STATS_CARDS,
-  CATEGORY_FILTER_OPTIONS,
-  VENDOR_TABLE_DATA,
+  STATUS_FILTER,
   getVendorColumns,
   DEFAULT_PAGINATION_SIZE,
   DEFAULT_SORTING,
 } from "./constant";
+import {
+  deleteClientMaster,
+  getAllClientMaster,
+  getClientById,
+  getAllCategoryMaster,
+} from "../../../services/apiServices";
 
 const STAT_ICONS = {
   users: Users,
@@ -32,12 +38,127 @@ const STAT_ICONS = {
 };
 
 const VendorMaster = () => {
-  const [tableData, setTableData] = useState(VENDOR_TABLE_DATA);
+  const [tableData, setTableData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
   const [searchText, setSearchText] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [categoryOptions, setCategoryOptions] = useState([]);
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingVendor, setEditingVendor] = useState(null);
   const [viewVendor, setViewVendor] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const userId = Number(localStorage.getItem("userId"));
+
+  // Same source + same "not Customer" rule AddVendorModal uses for its
+  // category picker, so the filter dropdown always matches what a vendor
+  // can actually be categorized as.
+  const fetchCategoryOptions = useCallback(async () => {
+    try {
+      const res = await getAllCategoryMaster({
+        nameEnglish: "",
+        page: 0,
+        size: 1000,
+        sortBy: "id",
+        sortDirection: "DESC",
+        userId,
+      });
+      const body = res?.data ?? res;
+      const content = body?.data?.content ?? body?.data ?? [];
+
+      const filtered = (Array.isArray(content) ? content : []).filter(
+        (item) => item.categoryTypeNameEnglish !== "Customer"
+      );
+
+      setCategoryOptions([
+        { value: "", label: "All" },
+        ...filtered.map((item) => ({ value: item.id, label: item.nameEnglish })),
+      ]);
+    } catch (err) {
+      console.error("Failed to load category filter options:", err);
+      setCategoryOptions([{ value: "", label: "All" }]);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    fetchCategoryOptions();
+  }, [fetchCategoryOptions]);
+
+  const normalizeRow = (row) => ({
+    id: row.id,
+    vendorName: row.nameEnglish || row.nameHindi || row.nameGujarati || "",
+
+    vendorNameEnglish: row.nameEnglish,
+    vendorNameHindi: row.nameHindi,
+    vendorNameGujarati: row.nameGujarati,
+
+    email: row.email || "",
+    mobileNumber: row.mobileNo || "",
+    mainCategory: row.categoryNameEnglish || "",
+    categoryTypeNameEnglish: row.categoryTypeNameEnglish,
+
+    status: row.isActive === false ? "inactive" : "active",
+
+    initials: (row.nameEnglish || "NA")
+      .split(" ")
+      .map((x) => x[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase(),
+
+    birthDate: row.birthDate,
+    anniversary: row.aniversaryDate,
+    address: row.address,
+    officeNo: row.officeNo,
+    openingBalance: row.openingBalance,
+    uniqueCode: row.uniqueCode,
+
+    createdDate: row.createdAt,
+  });
+
+  const fetchVendorList = useCallback(async () => {
+    setLoading(true);
+
+    try {
+      const payload = {
+        categoryId: categoryFilter ? Number(categoryFilter) : null,
+        isActive: statusFilter === "" ? null : statusFilter === "active",
+
+        nameEnglish: searchText,
+
+        page,
+        size,
+
+        sortBy: DEFAULT_SORTING?.sortBy || "id",
+        sortDirection: DEFAULT_SORTING?.sortDirection || "DESC",
+
+        uniqueCode: "",
+        userId,
+      };
+
+      const res = await getAllClientMaster(payload);
+      const list = res?.data?.data?.content || res?.data?.data || [];
+
+      const vendorsOnly = Array.isArray(list)
+        ? list.filter((item) => item.categoryTypeNameEnglish !== "Customer")
+        : [];
+
+      setTableData(vendorsOnly.map((item) => normalizeRow(item)));
+    } catch (err) {
+      console.error(err);
+      setTableData([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [searchText, categoryFilter, statusFilter, page, size]);
+
+  useEffect(() => {
+    fetchVendorList();
+  }, [fetchVendorList]);
 
   const handleToggleStatus = (record) => {
     setTableData((prev) =>
@@ -52,49 +173,50 @@ const VendorMaster = () => {
   const handleView = (record) => {
     setViewVendor({
       ...record,
-      firmName: "Apex Media Firm",
+      firmName: record.vendorName,
       category: record.mainCategory,
       primaryMobile: record.mobileNumber,
-      emailAddress: "contact@apexmedia.in",
-      fullAddress:
-        "402, Signature Towers, Industrial Area Phase II, Near Metro Station, New Delhi - 110020, India",
-      city: "New Delhi",
-      zipCode: "110020",
-      openingBalance: "25,000",
-      balanceType: "CR",
-      gstNo: "07AAACR1234F1Z1",
-      panNo: "AAACR1234F",
-      aadharNo: "4567 •••• 8901",
-      tdsRate: "2.00",
-      updatedInfo: "Updated Oct 24, 2023 by Admin",
+      emailAddress: record.email,
+      fullAddress: record.address,
+      openingBalance: record.openingBalance,
       isVerified: true,
     });
     setIsViewModalOpen(true);
   };
 
-  const handleEdit = (record) => console.log("Edit vendor:", record);
-  const handleDelete = (record) => console.log("Delete vendor:", record);
+  const handleEdit = async (record) => {
+    try {
+      const res = await getClientById(record.id);
+      const vendor = res?.data?.data ?? res?.data;
+
+      setEditingVendor(vendor);
+      setIsAddModalOpen(true);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDelete = async (record) => {
+    const confirmed = await confirmDelete(record.vendorName || "this vendor");
+    if (!confirmed) return;
+
+    try {
+      const res = await deleteClientMaster(record.id);
+      const success = showApiResult(res, {
+        successTitle: "Deleted",
+        errorTitle: "Failed",
+      });
+      if (success) fetchVendorList();
+    } catch (err) {
+      showApiError(err, { title: "Error" });
+    }
+  };
 
   const handleAddVendor = () => setIsAddModalOpen(true);
 
-  const handleSaveVendor = (formValues) => {
-    const newRow = {
-      id: Date.now(), // replace with id from API response
-      vendorName: formValues.vendorName,
-      firmId: formValues.vendorCode,
-      mainCategory: formValues.category?.label || "General",
-      status: "active",
-      mobileNumber: formValues.mobile1,
-      initials: formValues.vendorName
-        ? formValues.vendorName
-            .split(" ")
-            .map((w) => w[0])
-            .join("")
-            .slice(0, 2)
-            .toUpperCase()
-        : "NA",
-    };
-    setTableData((prev) => [newRow, ...prev]);
+  const handleSaveVendor = async () => {
+    await fetchVendorList();
+    setEditingVendor(null);
     setIsAddModalOpen(false);
   };
 
@@ -108,18 +230,6 @@ const VendorMaster = () => {
       }),
     []
   );
-
-  const filteredData = useMemo(() => {
-    return tableData.filter((row) => {
-      const matchesSearch =
-        row.vendorName.toLowerCase().includes(searchText.toLowerCase()) ||
-        row.mobileNumber.toLowerCase().includes(searchText.toLowerCase());
-      const matchesCategory = categoryFilter
-        ? row.mainCategory.toLowerCase().replace(/\s+/g, "-") === categoryFilter
-        : true;
-      return matchesSearch && matchesCategory;
-    });
-  }, [tableData, searchText, categoryFilter]);
 
   const toolbar = (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl p-3">
@@ -139,20 +249,23 @@ const VendorMaster = () => {
 
       <div className="flex flex-wrap items-center gap-2">
         <FilterDropdown
+          label="Status"
+          value={statusFilter}
+          options={STATUS_FILTER}
+          onChange={setStatusFilter}
+        />
+        <FilterDropdown
           label="Category Name"
           value={categoryFilter}
-          options={CATEGORY_FILTER_OPTIONS}
+          options={categoryOptions}
           onChange={setCategoryFilter}
         />
-
-      
       </div>
     </div>
   );
 
   return (
     <div className="min-h-screen bg-white p-6">
-      {/* Page header */}
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl text-primary">{PAGE_HEADER.title}</h1>
@@ -168,56 +281,26 @@ const VendorMaster = () => {
         </button>
       </div>
 
-      {/* Stat cards */}
-      {/* <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {STATS_CARDS.map((stat) => {
-          const Icon = STAT_ICONS[stat.icon];
-          const badgeTone =
-            stat.badgeTone === "positive"
-              ? "text-rose-700 bg-rose-50"
-              : stat.badgeTone === "warning"
-              ? "text-amber-700 bg-transparent"
-              : "text-gray-500 bg-transparent";
-          return (
-            <div
-              key={stat.key}
-              className="rounded-xl border border-rose-50 bg-white p-4 shadow-sm"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-50 text-rose-800">
-                  <Icon size={18} />
-                </div>
-                {stat.badge && (
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${badgeTone}`}>
-                    {stat.badge}
-                  </span>
-                )}
-              </div>
-              <p className="mt-3 text-sm text-gray-500">{stat.label}</p>
-              <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
-            </div>
-          );
-        })}
-      </div> */}
-
-      {/* Table */}
       <TableComponent
         columns={columns}
-        data={filteredData}
-        tableData={filteredData}
+        data={tableData}
+        tableData={tableData}
+        loading={loading}
         paginationSize={DEFAULT_PAGINATION_SIZE}
-        defaultSorting={DEFAULT_SORTING}
         toolbar={toolbar}
       />
 
-      {/* Add Vendor Modal */}
       <AddVendorModal
         open={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        initialData={editingVendor}
+        onClose={() => {
+          setEditingVendor(null);
+          setIsAddModalOpen(false);
+          fetchVendorList();
+        }}
         onSave={handleSaveVendor}
       />
 
-      {/* View Vendor Modal */}
       <ViewVendorModal
         open={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
@@ -231,9 +314,6 @@ const VendorMaster = () => {
   );
 };
 
-// ---------------------------------------------------------------------------
-// Local presentational helpers
-// ---------------------------------------------------------------------------
 const IconButton = ({ children, onClick }) => (
   <button
     type="button"

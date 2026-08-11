@@ -168,43 +168,13 @@ const ViewClientModal = ({ open, onClose, client, onEdit, onAddNote }) => {
           {/* Right column */}
           <div className="space-y-4">
             {/* Relationship status */}
-            <div className="rounded-xl bg-[#7A2E45] text-white p-4">
-              <p className="text-xs text-rose-200 mb-1">Relationship Status</p>
-              <p className="text-lg font-semibold mb-3">{relationshipStatus}</p>
-              <div className="flex items-center justify-between text-xs text-rose-100 border-t border-white/20 pt-3">
-                <span>Client Since</span>
-                <span className="font-medium text-white">{clientSince}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs text-rose-100 mt-2">
-                <span>Loyalty Score</span>
-                <span className="font-medium text-white">{loyaltyScore}/100</span>
-              </div>
-            </div>
-
+           
             {/* Stat cards */}
             <StatCard icon={<Clock size={16} />} label="Total Events" value={totalEvents} />
             <StatCard icon={<CreditCard size={16} />} label="Total Revenue" value={`₹ ${totalRevenue}`} />
-            <StatCard icon={<Clock size={16} />} label="Avg. Order Value" value={`₹ ${avgOrderValue}`} />
 
             {/* Internal notes */}
-            <div className="rounded-xl bg-[#FBF1F3] p-4">
-              <div className="flex items-center gap-1.5 mb-2">
-                <StickyNote size={13} className="text-[#7A2E45]" />
-                <p className="text-xs font-semibold uppercase tracking-wide text-[#7A2E45]">
-                  Internal Notes
-                </p>
-              </div>
-              <p className="text-xs text-gray-600 italic leading-relaxed">
-                "{internalNote}"
-              </p>
-              <button
-                onClick={() => onAddNote?.(client)}
-                className="flex items-center gap-1 text-xs font-medium text-[#7A2E45] mt-2 hover:underline"
-              >
-                <Plus size={12} />
-                Add New Note
-              </button>
-            </div>
+           
           </div>
         </div>
       </div>

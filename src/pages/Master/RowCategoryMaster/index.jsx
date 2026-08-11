@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useMemo, useState } from "react";
 import { Plus, Search, ChevronDown } from "lucide-react";
-
+import { confirmDelete, showApiError, showApiResult } from "@/utils/swalHelpers";
 import { TableComponent } from "@/components/table/TableComponent";
 import {
   PAGE_HEADER,
@@ -35,6 +35,7 @@ const RowCategoryMaster = () => {
   const [editingCategory, setEditingCategory] = useState(null);
 
   const searchDebounceRef = useRef(null);
+const userId = Number(localStorage.getItem("userId"));
 
   useEffect(() => {
     if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
@@ -56,6 +57,7 @@ const RowCategoryMaster = () => {
         ...(typeFilter ? { itemType: typeFilter } : {}),
         ...(statusFilter ? { status: statusFilter } : {}),
         ...(debouncedSearch ? { search: debouncedSearch } : {}),
+        userId,
       };
 
       const res = await getAllRawCategoryMaster(payload);
@@ -84,36 +86,59 @@ const RowCategoryMaster = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (row) => {
+const handleDelete = async (row) => {
+    const confirmed = await confirmDelete(
+      row.nameEnglish || "this category"
+    );
+    if (!confirmed) return;
+
     try {
-      await deleterawcategory(row.id);
-      if (tableData.length === 1 && pageIndex > 0) {
-        setPageIndex((p) => p - 1);
-      } else {
-        fetchData();
-      }
+      const res = await deleterawcategory(row.id);
+      showApiResult(res, {
+        successTitle: "Category Deleted",
+        fallbackSuccess: "Category deleted successfully.",
+        onSuccess: () => {
+          if (tableData.length === 1 && pageIndex > 0) {
+            setPageIndex((p) => p - 1);
+          } else {
+            fetchData();
+          }
+        },
+      });
     } catch (err) {
-      console.error("Failed to delete category:", err);
+      showApiError(err, {
+        title: "Something went wrong",
+        fallback: "Failed to delete category.",
+      });
     }
   };
 
-const handleSaveCategory = async (formData) => {
+ const handleSaveCategory = async (formData) => {
     try {
         const payload = {
             nameEnglish: formData.categoryName?.english || "",
             nameHindi: formData.categoryName?.hindi || "",
             nameGujarati: formData.categoryName?.gujarati || "",
             rawCategoryTypeId: formData.rawCategoryTypeId,
-            status: formData.isActive ? "active" : "inactive",
+            isActive: formData.isActive,
             ...(editingCategory ? { id: editingCategory.id } : {}),
+            userId,
         };
 
-        await addupdaterawcategory(payload);
-        setIsModalOpen(false);
-        setEditingCategory(null);
-        fetchData();
+        const res = await addupdaterawcategory(payload);
+        showApiResult(res, {
+            successTitle: editingCategory ? "Category Updated" : "Category Saved",
+            onSuccess: () => {
+                setIsModalOpen(false);
+                setEditingCategory(null);
+                fetchData();
+            },
+        });
     } catch (err) {
-        console.error("Failed to save category:", err);
+        showApiError(err, {
+            title: "Something went wrong",
+            fallback: "Failed to save category.",
+        });
     }
 };
 
@@ -137,26 +162,7 @@ const handleSaveCategory = async (formData) => {
           className="w-full rounded-lg border border-primary-clarity bg-white py-2 pl-9 pr-3 text-sm text-dark placeholder:text-dark-clarity focus:outline-none focus:ring-2 focus:ring-primary-inverse"
         />
       </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <FilterDropdown
-          label="Select Type"
-          value={typeFilter}
-          options={ITEM_TYPE_OPTIONS}
-          onChange={(val) => {
-            setTypeFilter(val);
-            setPageIndex(0);
-          }}
-        />
-        <FilterDropdown
-          label="Status"
-          value={statusFilter}
-          options={STATUS_FILTER_OPTIONS}
-          onChange={(val) => {
-            setStatusFilter(val);
-            setPageIndex(0);
-          }}
-        />
-      </div>
+     
     </div>
   );
 
@@ -164,7 +170,7 @@ const handleSaveCategory = async (formData) => {
     <div className="min-h-screen p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-primary">{PAGE_HEADER.title}</h1>
+          <h1 className="text-2xl  text-primary">{PAGE_HEADER.title}</h1>
           <p className="mt-1 max-w-xl text-sm text-gray-500">{PAGE_HEADER.description}</p>
         </div>
         <button

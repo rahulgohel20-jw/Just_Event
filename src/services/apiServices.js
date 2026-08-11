@@ -1,3 +1,4 @@
+import { userId } from "../auth/_helpers";
 import axiosInstance, { POST, GET, PUT, DELETE } from "./axiosInstance";
 import { data } from "autoprefixer";
 
@@ -109,7 +110,6 @@ export const getAllRawCategoryTypeMaster = (data) => {
 
 
 // rawcat
-
 export const addupdaterawcategory = (data) => {
   return POST(`/raw-category/add-update`, data);
 };
@@ -126,6 +126,7 @@ export const getAllRawCategoryMaster = (data) => {
   return POST(`/raw-category/list`, data);
 };
 
+// raw sub cat
 export const addupdaterawsubcategory = (data) => {
   return POST(`/raw-sub-category/add-update`, data);
 };
@@ -142,6 +143,7 @@ export const getAllRawSubCategoryMaster = (data) => {
   return POST(`/raw-sub-category/list`, data);
 };
 
+// raw item 
 export const addupdaterawitem = (data) => {
   return POST(`/raw-item/add-update`, data);
 };
@@ -158,6 +160,7 @@ export const getAllRawItemMaster = (data) => {
   return POST(`/raw-item/list`, data);
 };
 
+// unit
 export const addupdateunitmaster = (data) => {
   return POST(`/unit-master/add-update`, data);
 };
@@ -186,12 +189,11 @@ export const getbyidrolemaster = (id) => {
   return GET(`/role/get/?id=${id}`);
 };
 
-
 export const deleterolemaster = (id) => {
   return DELETE(`/role/delete/?id=${id}`);
 };
 
-// Client API
+// Client /vendor API
 export const addupdateclientmaster = (formData) => {
   return axiosInstance.post("/party-master/add-update", formData, {
     headers: {
@@ -210,8 +212,12 @@ export const deleteClientMaster = (id) => {
   return DELETE(`/party-master/delete?id=${id}`);
 };
 
-// function 
-// function
+export const generateUniqueCodeforvendor = (userId) =>{
+  return GET(`party-master/generate-unique-code?userId=${userId}`);
+};
+
+
+// function master
 export const addupadtefunctionmaster = (formData) => {
   return POST(`/function/add-update`, formData);
 };
@@ -224,3 +230,23 @@ export const deletefunctionmaster = (id) => {
   return DELETE(`/function/delete?id=${id}`);
 };
 
+
+// plan
+export const addupdateplan = (data) =>{
+  return POST(`/plan/add-update`, data) ;
+
+};
+
+export const getAllPlanMaster = (data) =>
+  {
+    return POST(`/plan/list`, data );
+
+  };
+
+  export const deleteplan = (id) => {
+    return DELETE(`/plan/delete?id=${id}`);
+  };
+
+  export const getbyidplan = (id) =>{
+    return GET(`/paln/get?id=${id}`);
+  };

@@ -60,36 +60,36 @@ export const getCategoryColumns = ({ onView, onEdit, onDelete, onToggleStatus })
     header: "Main Category",
     cell: ({ getValue }) => <span>{getValue() || "-"}</span>,
   },
-  {
-    id: "status",
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const record = row.original;
-      return (
-        <button
-          type="button"
-          onClick={() => onToggleStatus?.(record)}
-          className="flex items-center gap-2"
-        >
-          <span
-            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-              record.status === "active" ? "bg-rose-800" : "bg-gray-300"
-            }`}
-          >
-            <span
-              className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
-                record.status === "active" ? "translate-x-4.5" : "translate-x-1"
-              }`}
-            />
-          </span>
-          <span className="text-sm font-medium">
-            {record.status === "active" ? "Active" : "Inactive"}
-          </span>
-        </button>
-      );
-    },
-  },
+  // {
+  //   id: "status",
+  //   accessorKey: "status",
+  //   header: "Status",
+  //   cell: ({ row }) => {
+  //     const record = row.original;
+  //     return (
+  //       <button
+  //         type="button"
+  //         onClick={() => onToggleStatus?.(record)}
+  //         className="flex items-center gap-2"
+  //       >
+  //         <span
+  //           className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+  //             record.status === "active" ? "bg-rose-800" : "bg-gray-300"
+  //           }`}
+  //         >
+  //           <span
+  //             className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+  //               record.status === "active" ? "translate-x-4.5" : "translate-x-1"
+  //             }`}
+  //           />
+  //         </span>
+  //         <span className="text-sm font-medium">
+  //           {record.status === "active" ? "Active" : "Inactive"}
+  //         </span>
+  //       </button>
+  //     );
+  //   },
+  // },
   {
     id: "createdDate",
     accessorKey: "createdDate",

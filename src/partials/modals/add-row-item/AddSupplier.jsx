@@ -1,35 +1,34 @@
 import { useState } from "react";
-import { Select } from "antd";
 import { Plus } from "lucide-react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { AddVendorModal } from "../AddVendorModal/AddVendorModal";
+import PaginatedSearchSelect from "@/components/form-inputs/select/PaginatedSearchSelect";
+import { getAllClientMaster } from "@/services/apiServices";
 
-const supplierOptionsData = [
-  { value: 1, label: "DINESH FRUIT", price: 45 },
-  { value: 2, label: "SHREE TRADERS", price: 55 },
-];
+const userId = Number(localStorage.getItem("userId"));
 
 const AddSupplier = ({ open, onClose, onSave }) => {
   const [supplier, setSupplier] = useState();
+  const [supplierName, setSupplierName] = useState("");
   const [price, setPrice] = useState("");
   const [defaultSupplier, setDefaultSupplier] = useState(false);
-  const [vendorList, setVendorList] = useState(supplierOptionsData);
+  const [localVendors, setLocalVendors] = useState([]); // vendors added via the "+" modal, shown immediately
   const [vendorModalOpen, setVendorModalOpen] = useState(false);
 
   const handleReset = () => {
     setSupplier(undefined);
+    setSupplierName("");
     setPrice("");
     setDefaultSupplier(false);
     onClose();
   };
 
   const handleSave = () => {
-    const selected = vendorList.find((x) => x.value === supplier);
-    if (!selected || !price) return;
+    if (!supplier || !price) return;
 
     onSave({
-      supplierId: selected.value,
-      supplierName: selected.label,
+      supplierId: supplier,
+      supplierName,
       price,
       isDefault: defaultSupplier,
     });
@@ -64,21 +63,26 @@ const AddSupplier = ({ open, onClose, onSave }) => {
 
           <label className="text-sm font-medium">Supplier</label>
           <div className="flex gap-2 mt-2 mb-5">
-            <Select
-              className="w-full"
-              placeholder="Select Supplier"
+            <PaginatedSearchSelect
+              key={open ? "open" : "closed"}
+              fetchFn={getAllClientMaster}
+              extraParams={{ isActive: true, userId }}
+              sizeParamName="size"
+              searchParamName="nameEnglish"
+              extraOptions={localVendors}
               value={supplier}
-              onChange={(value) => {
-                setSupplier(value);
-                const match = vendorList.find((v) => v.value === value);
-                if (match?.price) setPrice(String(match.price));
+              onChange={setSupplier}
+              onSelectOption={(full) => {
+                setSupplierName(full?.label || "");
+                // ⚠️ party-master/list records likely don't carry a price/rate —
+                // remove this line if getAllClientMaster never returns one.
+                if (full?.price) setPrice(String(full.price));
               }}
-              options={vendorList}
-              size="large"
+              placeholder="Select Supplier"
             />
             <button
               onClick={() => setVendorModalOpen(true)}
-              className="h-10 w-10 rounded-lg bg-primary text-white flex items-center justify-center"
+              className="h-10 w-10 rounded-lg bg-primary text-white flex items-center justify-center shrink-0"
             >
               <Plus size={18} />
             </button>
@@ -108,13 +112,13 @@ const AddSupplier = ({ open, onClose, onSave }) => {
         open={vendorModalOpen}
         onClose={() => setVendorModalOpen(false)}
         onSave={(vendor) => {
-          const newVendor = {
-            value: Date.now(),
-            label: vendor.vendorName,
-            price: vendor.price || 0,
-          };
-          setVendorList((prev) => [...prev, newVendor]);
+          // ⚠️ assumes AddVendorModal only creates the client locally for now
+          // (no create-client API call here) — if it does call an API,
+          // use the real returned id instead of Date.now().
+          const newVendor = { value: Date.now(), label: vendor.vendorName };
+          setLocalVendors((prev) => [...prev, newVendor]);
           setSupplier(newVendor.value);
+          setSupplierName(newVendor.label);
           if (vendor.price) setPrice(String(vendor.price));
           setVendorModalOpen(false);
         }}

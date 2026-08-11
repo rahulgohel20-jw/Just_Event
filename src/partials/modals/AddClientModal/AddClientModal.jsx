@@ -6,8 +6,7 @@ import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox"
 import { Translateapi } from "@/services/apiServices";
 import { AddCategoryModal } from "../../../partials/modals/AddCategoryModal/AddCategoryModal"; // adjust path as needed
 import { addupdateclientmaster, getAllCategoryMaster } from "../../../services/apiServices";
-import Swal from "sweetalert2";
-
+import { showApiResult, showApiError } from "../../../utils/swalHelpers";
 
 const opbTypeOptions = [
   { value: "CR", label: "CR" },
@@ -68,8 +67,9 @@ const AddClientModal = ({ open, onClose, onSave, initialData }) => {
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [errors, setErrors] = useState({});
   const isEditMode = Boolean(initialData);
+const userId = Number(localStorage.getItem("userId"));
 
-  const fetchCategories = useCallback(async () => {
+const fetchCategories = useCallback(async () => {
     try {
       const payload = {
         nameEnglish: "",
@@ -77,7 +77,7 @@ const AddClientModal = ({ open, onClose, onSave, initialData }) => {
         size: 1000,
         sortBy: "id",
         sortDirection: "DESC",
-        userId: 1,
+        userId,
       };
 
       const res = await getAllCategoryMaster(payload);
@@ -88,10 +88,15 @@ const AddClientModal = ({ open, onClose, onSave, initialData }) => {
         res?.data ||
         [];
 
-      const options = list.map((item) => ({
-        value: item.id,
-        label: item.nameEnglish,
-      }));
+      const options = list
+        .filter(
+          (item) =>
+            item.categoryTypeNameEnglish?.trim().toLowerCase() === "customer"
+        )
+        .map((item) => ({
+          value: item.id,
+          label: item.nameEnglish,
+        }));
 
       setCategoryOptions(options);
     } catch (err) {
@@ -187,11 +192,7 @@ opbDate: toInputDate(initialData.opbDate),
       newErrors.emailAddress = "Enter a valid Email";
     }
 
-    const uploadedDocs = kycDocuments.filter((d) => d.file);
-
-    if (uploadedDocs.length === 0) {
-      newErrors.kyc = "Please upload at least one document";
-    }
+    
 
     setErrors(newErrors);
 
@@ -320,7 +321,7 @@ formData.append(
 );
     formData.append("openingBalance", form.opbAmount);
     formData.append("uniqueCode", "");
-    formData.append("userId", 1);
+    formData.append("userId", userId); // Use the userId from localStorage
     kycDocuments.forEach((doc, index) => {
   formData.append(`kycDetails[${index}].kycType`, doc.type);
   formData.append(`kycDetails[${index}].docNumber`, doc.number);
@@ -333,36 +334,17 @@ formData.append(
 
     try {
       const res = await addupdateclientmaster(formData);
-      const body = res?.data ?? res;
-      if (body.success) {
-        Swal.fire({
-          icon: "success",
-          title: isEditMode ? "Client Updated" : "Client Added",
-          text: body.msg,
-          timer: 1800,
-          showConfirmButton: false,
-        });
+      const success = showApiResult(res, {
+        successTitle: isEditMode ? "Client Updated" : "Client Added",
+        errorTitle: "Failed",
+      });
 
-       await onSave?.();
-
+      if (success) {
+        await onSave?.();
         handleReset();
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Failed",
-          text: body.errorMessage || body.msg,
-        });
-        console.log(body.errorMessage || body.msg)
       }
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Failed",
-        text:
-          err?.response?.data?.errorMessage ||
-          err?.response?.data?.msg ||
-          err?.message,
-      });
+      showApiError(err);
     }
   };
 
@@ -653,7 +635,7 @@ formData.append(
                             onChange={(e) =>
                               uploadDocument(doc.id, e.target.files?.[0])
                             }
-                            required
+                           
                           />
                         </>
                       )}
@@ -670,20 +652,14 @@ formData.append(
                           updateDocument(doc.id, "number", e.target.value)
                         }
                         className={inputClass}
-                        required
+                      
                       />
                     </div>
 
                     {/* Verify */}
 
                     <div className="md:col-span-2 col-span-6 flex items-center gap-2">
-                      <button
-                        type="button"
-                        className="flex-1 h-[42px] rounded-lg bg-primary text-white hover:opacity-90"
-                      >
-                        Verify
-                      </button>
-
+                  
                       {kycDocuments.length >= 1 && (
                         <button
                           type="button"

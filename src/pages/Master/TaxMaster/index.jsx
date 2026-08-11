@@ -45,7 +45,7 @@ const TaxMaster = () => {
   const [totalElements, setTotalElements] = useState(0);
 
   const searchDebounceRef = useRef(null);
-const  STATIC_USER_ID = 1 ;
+const userId = Number(localStorage.getItem("userId"));
   const fetchTaxList = useCallback(
     async (overrides = {}) => {
       setLoading(true);
@@ -57,7 +57,7 @@ const  STATIC_USER_ID = 1 ;
           sortBy: DEFAULT_SORT_BY,
           sortDirection: DEFAULT_SORT_DIRECTION,
           taxNameEnglish: searchText,
-          userId: STATIC_USER_ID,
+          userId,
           ...overrides,
         };
         const res = await getalltaxmaster(payload);
@@ -212,11 +212,11 @@ const handleDelete = async (record) => {
   );
 
   return (
-    <div className="min-h-screen bg-white px-6">
+    <div className="min-h-screen bg-white p-6">
       {/* Page header */}
-      <div className="mb-3 flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-primary">{PAGE_HEADER.title}</h1>
+          <h1 className="text-2xl text-primary">{PAGE_HEADER.title}</h1>
           <p className="mt-1 max-w-xl text-sm text-gray-500">{PAGE_HEADER.description}</p>
         </div>
         <button

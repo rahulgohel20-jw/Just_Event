@@ -45,24 +45,23 @@ export const getUnitColumns = ({ onEdit, onDelete }) => [
             </span>
         ),
     },
-    {
-        accessorKey: "isActive",
-        header: "STATUS",
-        cell: ({ row }) => (
+   {
+    accessorKey: "isActive",
+    header: "STATUS",
+    cell: ({ row }) => (
+        <span
+        >
             <span
-                className={`rounded-full px-3 py-1 text-xs flex gap-2 items-center w-max font-medium `}
+                className={`w-2 h-2 rounded-full ${
+                    row.original.isActive ? "bg-success" : "bg-dark-clarity"
+                }`}
             >
-                <span
-                    className={`w-2 h-2 rounded-full ${
-                        row.original.isActive === "active" ? "bg-success" : "bg-dark-clarity"
-                    }`}
-                >
-                    {" "}
-                </span>
-                {row.original.isActive === "active" ? "Active" : "Inactive"}
+                {" "}
             </span>
-        ),
-    },
+            {row.original.isActive ? "Active" : "Inactive"}
+        </span>
+    ),
+},
     {
         id: "actions",
         header: "ACTIONS",

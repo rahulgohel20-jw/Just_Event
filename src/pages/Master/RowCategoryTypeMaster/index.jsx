@@ -8,6 +8,8 @@ import {
     addupdaterawcategorytype,
     deleterawcategorytype,
 } from '@/services/apiServices'; 
+import { confirmDelete, showApiError, getPrimaryColor } from "@/utils/swalHelpers";
+import Swal from "sweetalert2";
 
 const RowMaterialTypeMaster = () => {
     const [tableData, setTableData] = useState([]);
@@ -24,8 +26,9 @@ const RowMaterialTypeMaster = () => {
 
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState(null);
-
     const searchDebounceRef = useRef(null);
+const userId = Number(localStorage.getItem("userId"));
+
 
     // Debounce search input so we don't hit the API on every keystroke
     useEffect(() => {
@@ -46,6 +49,7 @@ const fetchData = useCallback(async () => {
             sortOrder: sorting?.[0]?.desc ? "desc" : "asc",
             ...(statusFilter ? { isActive: statusFilter === "active" } : {}),
             ...(debouncedSearch ? { search: debouncedSearch } : {}),
+            userId,
         };
 
         const res = await getAllRawCategoryTypeMaster(payload);
@@ -76,9 +80,23 @@ const fetchData = useCallback(async () => {
         setIsAddModalOpen(true);
     };
 
+   
+
     const handleDelete = async (record) => {
+        const confirmed = await confirmDelete(
+            record.nameEnglish || record.categoryNameEnglish || "this category type"
+        );
+        if (!confirmed) return;
+
         try {
             await deleterawcategorytype(record.id);
+            Swal.fire({
+                icon: "success",
+                title: "Category Type Deleted",
+                confirmButtonColor: getPrimaryColor(),
+                timer: 1500,
+                showConfirmButton: false,
+            });
             // Refetch; if we deleted the last row on a page, step back a page
             if (tableData.length === 1 && pageIndex > 0) {
                 setPageIndex((p) => p - 1);
@@ -86,7 +104,10 @@ const fetchData = useCallback(async () => {
                 fetchData();
             }
         } catch (err) {
-            console.error("Failed to delete category:", err);
+            showApiError(err, {
+                title: "Something went wrong",
+                fallback: "Failed to delete category type.",
+            });
         }
     };
 
@@ -96,18 +117,30 @@ const fetchData = useCallback(async () => {
                 nameEnglish: formData.categoryName?.english || "",
                 nameHindi: formData.categoryName?.hindi || "",
                 nameGujarati: formData.categoryName?.gujarati || "",
-                status: formData.status,
+                isActive: formData.isActive,
+                userId,
                 ...(editingCategory ? { id: editingCategory.id } : {}),
             };
 
             await addupdaterawcategorytype(payload);
+            Swal.fire({
+                icon: "success",
+                title: editingCategory ? "Category Type Updated" : "Category Type Saved",
+                confirmButtonColor: getPrimaryColor(),
+                timer: 1500,
+                showConfirmButton: false,
+            });
             setIsAddModalOpen(false);
             setEditingCategory(null);
             fetchData();
         } catch (err) {
-            console.error("Failed to save category:", err);
+            showApiError(err, {
+                title: "Something went wrong",
+                fallback: "Failed to save category type.",
+            });
         }
     };
+    
 
     const columns = useMemo(
         () =>
@@ -152,7 +185,7 @@ const fetchData = useCallback(async () => {
         <div className='min-h-screen p-6 mt-0'>
             <div className="mb-3 flex flex-wrap items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-primary">{PAGE_HEADER.title}</h1>
+                    <h1 className="text-2xl  text-primary">{PAGE_HEADER.title}</h1>
                     <p className="mt-1 max-w-xl text-sm text-gray-500">{PAGE_HEADER.description}</p>
                 </div>
                 <button
