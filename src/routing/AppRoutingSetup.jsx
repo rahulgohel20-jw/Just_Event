@@ -157,6 +157,7 @@ import RowItemMaster from "../pages/Master/RowItemMaster";
 import RawSubCategoryMaster from "../pages/Master/RowSubCategoryMaster";
 import QuotationDashboard from "../pages/quotation/quotion-dashboard";
 import RoleMaster from "../pages/Master/RoleMaster";
+import ExecutionPage from "../pages/execution/ExecutionPage";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -187,8 +188,9 @@ const AppRoutingSetup = () => {
             <Route path="/lead/details" element={<LeadDetailPage />} />
             <Route path="/overview" element={<OverviewPage />} />
 
-            {/* Quotation */}
-            <Route path="/quotation" element={<QuotationDashboard />} />
+          {/* Quotation */}
+          <Route path="/quotation" element={<QuotationDashboard/>}/>
+          <Route path="/execution" element={<ExecutionPage />}/>
 
             <Route path="/rolemaster" element={<RoleMaster />} />
 
