@@ -324,10 +324,22 @@ export const MENU_SIDEBAR = [
   },
 ];
 
+export const MENU_CREATE_EVENT_SIDEBAR = [
+  {
+    title: "Back to main menu",
+    icon: "black-left-line",
+    path: "/"
+  },
+  {
+    title: "Quotation",
+    icon: "ki-filled ki-file-sheet text-primary",
+    path: "/quotation"
+  },
+];
+
 export const MENU_INVENTORY_SIDEBAR = [
   {
     title: "Dashboard",
-   
     path: "/inventory-dashboard",
   },
 

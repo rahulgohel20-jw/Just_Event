@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import illustrationImg from "../../../assets/create-event-img.png";
+import { useNavigate } from "react-router";
 
 const EVENT_TYPES = [
   { id: "wedding", label: "Wedding", icon: Heart },
@@ -30,16 +31,16 @@ const EVENT_TYPES = [
 const PRIORITIES = ["High", "Med", "Low"];
 
 export default function CreateEventName() {
+  const navigate = useNavigate();
   const [eventName, setEventName] = useState("");
   const [eventType, setEventType] = useState("wedding");
   const [eventDate, setEventDate] = useState("");
   const [priority, setPriority] = useState("High");
-
+  
   const canSubmit = eventName.trim().length > 0;
 
   const handleCreateWorkspace = () => {
-    if (!canSubmit) return;
-    console.log({ eventName, eventType, eventDate, priority });
+    navigate("/creteEvent");
   };
 
   return (
@@ -50,10 +51,7 @@ export default function CreateEventName() {
           "radial-gradient(1200px 500px at 15% -10%, #FFE4E9 0%, rgba(255,228,233,0) 60%), linear-gradient(180deg, #FFF8F6 0%, #FFFFFF 100%)",
       }}
     >
-      <style>{`
-        
-       
-        input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.55; cursor: pointer; filter: invert(28%) sepia(45%) saturate(2000%) hue-rotate(315deg); }
+      <style>{`input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.55; cursor: pointer; filter: invert(28%) sepia(45%) saturate(2000%) hue-rotate(315deg); }
       `}</style>
 
       <main className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-10 grid grid-cols-1 xl:grid-cols-[1fr_1.15fr] gap-5 md:gap-6 items-start">
@@ -78,9 +76,9 @@ export default function CreateEventName() {
             Events with Precision
           </h1>
           <p className="text-[15px] leading-relaxed text-[#6B5257] mb-6 max-w-md">
-            Create your event workspace and manage clients, functions,
-            venues, budgets, vendors, and timelines effortlessly from one
-            centralized dashboard.
+            Create your event workspace and manage clients, functions, venues,
+            budgets, vendors, and timelines effortlessly from one centralized
+            dashboard.
           </p>
 
           <div className="flex items-center gap-3 pt-5 mt-1 border-t border-rose-50">
@@ -138,18 +136,18 @@ export default function CreateEventName() {
                   type="button"
                   onClick={() => setEventType(id)}
                   aria-pressed={active}
-                  className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border py-3.5 text-[12px] font-medium transition-all ${
-                    active
+                  className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border py-3.5 text-[12px] font-medium transition-all ${active
                       ? "border-rose-300 bg-rose-50 shadow-sm"
                       : "border-[#EFE3E5] hover:border-rose-200 hover:bg-rose-50/40"
-                  }`}
+                    }`}
                 >
                   <Icon
-                    className={`w-[18px] h-[18px] ${
-                      active ? "text-rose-700" : "text-rose-300"
-                    }`}
+                    className={`w-[18px] h-[18px] ${active ? "text-rose-700" : "text-rose-300"
+                      }`}
                   />
-                  <span className={active ? "text-[#350D1B]" : "text-[#7A5F64]"}>
+                  <span
+                    className={active ? "text-[#350D1B]" : "text-[#7A5F64]"}
+                  >
                     {label}
                   </span>
                 </button>
@@ -183,11 +181,10 @@ export default function CreateEventName() {
                 type="button"
                 onClick={() => setPriority(p)}
                 aria-pressed={priority === p}
-                className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
-                  priority === p
+                className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${priority === p
                     ? "bg-primary text-white shadow-sm"
                     : "text-[#8A6A70] hover:text-rose-800"
-                }`}
+                  }`}
               >
                 {p}
               </button>
@@ -197,13 +194,12 @@ export default function CreateEventName() {
           {/* Submit */}
           <button
             type="button"
-            disabled={!canSubmit}
+            // disabled={!canSubmit}
             onClick={handleCreateWorkspace}
-            className={`w-full rounded-xl py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${
-              canSubmit
+            className={`w-full rounded-xl py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${canSubmit
                 ? "bg-primary hover:bg-rose-950 text-white"
                 : "bg-rose-200 text-white cursor-not-allowed"
-            }`}
+              }`}
           >
             Create Event Workspace <ArrowRight className="w-4 h-4" />
           </button>

@@ -54,6 +54,7 @@
     "cmdk": "^1.0.4",
     "date-fns": "^3.0.0",
     "formik": "^2.4.6",
+    "framer-motion": "^13.1.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.456.0",
     "mini-svg-data-uri": "^1.4.4",
