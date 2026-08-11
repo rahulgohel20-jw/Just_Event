@@ -3,7 +3,7 @@ import { KeenIcon } from '@/components/keenicons';
 import { Menu, MenuArrow, MenuBadge, MenuBullet, MenuHeading, MenuIcon, MenuItem, MenuLabel, MenuLink, MenuSub, MenuTitle } from '@/components/menu';
 import { useMenus } from '@/providers';
 import { usePathname } from '@/providers';
-import { MENU_INVENTORY_SIDEBAR } from '@/config/menu.config';
+import { MENU_CREATE_EVENT_SIDEBAR, MENU_INVENTORY_SIDEBAR } from '@/config/menu.config';
 
 const SidebarMenu = () => {
   const linkPl = 'ps-[10px]';
@@ -171,8 +171,12 @@ const SidebarMenu = () => {
     path: '/',
   };
 
+  const isCreateEvent = pathname.startsWith('/creteEvent');
+
   const menuConfig = isInventoryRoute
     ? [backItem, ...MENU_INVENTORY_SIDEBAR]
+    : isCreateEvent
+    ? MENU_CREATE_EVENT_SIDEBAR
     : getMenuConfig('primary');
 
   return <Menu highlight={true} multipleExpand={false} className={clsx('flex flex-col grow', itemsGap)}>

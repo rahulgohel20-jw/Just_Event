@@ -161,382 +161,382 @@ const AppRoutingSetup = () => {
   return (
     <Routes>
       <Route element={<RequireAuth />}>
-            <Route>
+        <Route>
 
-        <Route element={<Demo1Layout />}>
-          {/* project routs */}
-          <Route path="/master/categorytypemaster" element={<CategoryTypeMaster/>}/>
-          <Route path="/creteEvent" element={<CreateEvent/>}/>
-          <Route path="/creteevnetname" element={<CreateEventName/>}/>
-          <Route path="/master/venuemaster/add" element={<AddVenuePage/>}/>
-          <Route path="/master/venuemaster" element={<VenueMaster/>}/>
-          <Route path="/master/functionmaster" element={<FunctionMaster/>}/>
-          <Route path="/master/taxmaster" element={<TaxMaster/>}/>
-          <Route path="/master/vendormaster" element={<VendorMaster/>}/>
-          <Route path="/master/clientmaster" element={<ClientMaster/>}/>
-          <Route path="/master/categorymaster" element={<CategoryMaster/>}/>
-          <Route path="/master/rowcategorytypemaster" element={<RowCategoryTypeMaster/>}/>
-          <Route path="/master/rowcategorymaster" element={<RowCategoryMaster/>}/>
-          <Route path="/master/unitmaster" element={<UnitMaster/>}/>
-          <Route path="/master/rowitemmaster" element={<RowItemMaster/>}/>
-          <Route path="/master/rowsubcategorymaster" element={<RawSubCategoryMaster/>}/>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/contacts/details" element={<ContactDetail />} />
-          <Route path="/contacts" element={<ContactListPage />} />
-          <Route path="/lead" element={<LeadPage />} />
-          <Route path="/lead/details" element={<LeadDetailPage />} />
-          <Route path="/overview" element={<OverviewPage />} />
+          <Route element={<Demo1Layout />}>
+            {/* project routs */}
+            <Route path="/master/categorytypemaster" element={<CategoryTypeMaster />} />
+            <Route path="/creteEvent" element={<CreateEvent />} />
+            <Route path="/creteevnetname" element={<CreateEventName />} />
+            <Route path="/master/venuemaster/add" element={<AddVenuePage />} />
+            <Route path="/master/venuemaster" element={<VenueMaster />} />
+            <Route path="/master/functionmaster" element={<FunctionMaster />} />
+            <Route path="/master/taxmaster" element={<TaxMaster />} />
+            <Route path="/master/vendormaster" element={<VendorMaster />} />
+            <Route path="/master/clientmaster" element={<ClientMaster />} />
+            <Route path="/master/categorymaster" element={<CategoryMaster />} />
+            <Route path="/master/rowcategorytypemaster" element={<RowCategoryTypeMaster />} />
+            <Route path="/master/rowcategorymaster" element={<RowCategoryMaster />} />
+            <Route path="/master/unitmaster" element={<UnitMaster />} />
+            <Route path="/master/rowitemmaster" element={<RowItemMaster />} />
+            <Route path="/master/rowsubcategorymaster" element={<RawSubCategoryMaster />} />
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/contacts/details" element={<ContactDetail />} />
+            <Route path="/contacts" element={<ContactListPage />} />
+            <Route path="/lead" element={<LeadPage />} />
+            <Route path="/lead/details" element={<LeadDetailPage />} />
+            <Route path="/overview" element={<OverviewPage />} />
 
-          {/* Quotation */}
-          <Route path="/quotation" element={<QuotationDashboard/>}/>
+            {/* Quotation */}
+            <Route path="/quotation" element={<QuotationDashboard />} />
 
-          <Route path="/rolemaster" element={<RoleMaster/>}/>
+            <Route path="/rolemaster" element={<RoleMaster />} />
 
-          <Route path="/company" element={<CompanyListPage />}></Route>
-          <Route path="/companydetails" element={<CompanyDetails />}></Route>
-          <Route path="/followup" element={<FollowUpListPage />}></Route>
+            <Route path="/company" element={<CompanyListPage />}></Route>
+            <Route path="/companydetails" element={<CompanyDetails />}></Route>
+            <Route path="/followup" element={<FollowUpListPage />}></Route>
 
-          {/* guest routes */}
-          <Route path="/guest-dashboard" element={<GuestDashboard />} />
-          <Route path="/guest-form" element={<GuestForm />} />
+            {/* guest routes */}
+            <Route path="/guest-dashboard" element={<GuestDashboard />} />
+            <Route path="/guest-form" element={<GuestForm />} />
 
 
-          {/* Inventory routes */}
-<Route path="/inventory-dashboard" element={<InventoryDashboard />} />
+            {/* Inventory routes */}
+            <Route path="/inventory-dashboard" element={<InventoryDashboard />} />
 
-<Route path="/inventory-category-type" element={<RawCategoryType />} />
+            <Route path="/inventory-category-type" element={<RawCategoryType />} />
 
-          {/* Theme routes */}
-          <Route path="/company" element={<CompanyListPage />}></Route>
-          <Route path="/companydetail" element={<CompanyDetails />}></Route>
-          <Route path="/links" element={<LinkList />}></Route>
-          <Route path="/product" element={<ProductListPage />}></Route>
-          <Route path="/product/detail" element={<ProductListDetail />}></Route>
-          <Route path="/team/seals-team" element={<SalesTeamList />} />
-          <Route path="/team/user-role" element={<UserRoleList />} />
-          <Route path="/team/all-members" element={<MemberList />} />
+            {/* Theme routes */}
+            <Route path="/company" element={<CompanyListPage />}></Route>
+            <Route path="/companydetail" element={<CompanyDetails />}></Route>
+            <Route path="/links" element={<LinkList />}></Route>
+            <Route path="/product" element={<ProductListPage />}></Route>
+            <Route path="/product/detail" element={<ProductListDetail />}></Route>
+            <Route path="/team/seals-team" element={<SalesTeamList />} />
+            <Route path="/team/user-role" element={<UserRoleList />} />
+            <Route path="/team/all-members" element={<MemberList />} />
 
-          {/* event management routes */}
-          <Route path="/calendar" element={<CalendarPage />} />
-          <Route path="/event" element={<EventListPage />} />
-          <Route path="/event-overview" element={<EventOverviewPage />} />
-          <Route path="/add-event" element={<CreateEventPage />} />
-          <Route path="/menu-preparation" element={<EventPreparationPage />} />
-          <Route
-            path="/menu-allocation"
-            element={<EventMenuAllocationPage />}
-          />
-          <Route
-            path="/raw-material-allocation"
-            element={<RawMaterialAllocationPage />}
-          />
-          <Route
-            path="/labour-and-other-management"
-            element={<LabourOtherManagementPage />}
-          />
-          <Route
-            path="/order-booking-reports"
-            element={<OrderBookingReportsPage />}
-          />
-          <Route path="/dish-costing" element={<DishCostingPage />} />
-          <Route path="/quotation" element={<QuotationPage />} />
-          <Route path="/event-invoice" element={<EventInvoicePage />} />
-          <Route path="/add-invoice" element={<AddInvoicePage />} />
-          <Route path="/view-invoice" element={<InvoiceViewPage />} />
-          <Route path="/proforma-invoice" element={<ProformaInvoicePage />} />
+            {/* event management routes */}
+            <Route path="/calendar" element={<CalendarPage />} />
+            <Route path="/event" element={<EventListPage />} />
+            <Route path="/event-overview" element={<EventOverviewPage />} />
+            <Route path="/add-event" element={<CreateEventPage />} />
+            <Route path="/menu-preparation" element={<EventPreparationPage />} />
+            <Route
+              path="/menu-allocation"
+              element={<EventMenuAllocationPage />}
+            />
+            <Route
+              path="/raw-material-allocation"
+              element={<RawMaterialAllocationPage />}
+            />
+            <Route
+              path="/labour-and-other-management"
+              element={<LabourOtherManagementPage />}
+            />
+            <Route
+              path="/order-booking-reports"
+              element={<OrderBookingReportsPage />}
+            />
+            <Route path="/dish-costing" element={<DishCostingPage />} />
+            <Route path="/quotation" element={<QuotationPage />} />
+            <Route path="/event-invoice" element={<EventInvoicePage />} />
+            <Route path="/add-invoice" element={<AddInvoicePage />} />
+            <Route path="/view-invoice" element={<InvoiceViewPage />} />
+            <Route path="/proforma-invoice" element={<ProformaInvoicePage />} />
 
-          {/* Tasks routes */}
-          <Route path="/tasks" element={<TaskListPage />}></Route>
-          <Route
-            path="/tasks-directory"
-            element={<TaskDirectoryPage />}
-          ></Route>
-          <Route path="/tasks-template" element={<TaskTemplatePage />}></Route>
+            {/* Tasks routes */}
+            <Route path="/tasks" element={<TaskListPage />}></Route>
+            <Route
+              path="/tasks-directory"
+              element={<TaskDirectoryPage />}
+            ></Route>
+            <Route path="/tasks-template" element={<TaskTemplatePage />}></Route>
 
-          {/* leavs route */}
-          <Route path="/approval" element={<Approval />}></Route>
-          <Route path="/holiday" element={<Holiday />}></Route>
-          <Route path="/myleaves" element={<MyLeaves />}></Route>
-          <Route path="/allleave" element={<Allleave />}></Route>
-          <Route path="allattendance" element={<AllAttendance />}></Route>
-          <Route path="leavetype" element={<LeaveType />}></Route>
-          <Route path="/myattendance" element={<Myattendance />}></Route>
-          <Route path="/leave-dashboard" element={<Leavedashboard />}></Route>
-          <Route
-            path="/attendance-setting"
-            element={<AttendanceSetting></AttendanceSetting>}
-          ></Route>
-          <Route path="officesetting" element={<OfficeSetting />}></Route>
-          {/* Settings routes */}
-          <Route path="/settings/general" element={<GeneralSettingsPage />} />
-          <Route
-            path="/settings/customize"
-            element={<CustomizeSettingsPage />}
-          />
-          <Route path="/settings/channel" element={<ChannelSettingsPage />} />
-          <Route
-            path="/settings/notifications"
-            element={<NotificationsSettingsPage />}
-          />
-          {/* Support routes */}
-          <Route path="/support/events" element={<EventsPage />} />
-          <Route path="/support/tutorials" element={<TutorialsPage />} />
-          <Route path="/support/tickets" element={<TicketsPage />} />
-          <Route path="/support/application" element={<ApplicationPage />} />
-          <Route
-            path="/support/progress-checklist"
-            element={<ProgressChecklistPage />}
-          />
-          <Route path="/support/raise-ticket" element={<RaiseTicketPage />} />
-          {/* Billing routes */}
-          <Route path="/billing/overview" element={<BillingOverviewPage />} />
-          <Route path="/billing/wallet-logs" element={<WalletLogsPage />} />
-          {/* Theme route */}
-          <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
-          <Route
-            path="/public-profile/profiles/default"
-            element={<ProfileDefaultPage />}
-          />
-          <Route
-            path="/public-profile/profiles/creator"
-            element={<ProfileCreatorPage />}
-          />
-          <Route
-            path="/public-profile/profiles/company"
-            element={<ProfileCompanyPage />}
-          />
-          <Route
-            path="/public-profile/profiles/nft"
-            element={<ProfileNFTPage />}
-          />
-          <Route
-            path="/public-profile/profiles/blogger"
-            element={<ProfileBloggerPage />}
-          />
-          <Route
-            path="/public-profile/profiles/crm"
-            element={<ProfileCRMPage />}
-          />
-          <Route
-            path="/public-profile/profiles/gamer"
-            element={<ProfileGamerPage />}
-          />
-          <Route
-            path="/public-profile/profiles/feeds"
-            element={<ProfileFeedsPage />}
-          />
-          <Route
-            path="/public-profile/profiles/plain"
-            element={<ProfilePlainPage />}
-          />
-          <Route
-            path="/public-profile/profiles/modal"
-            element={<ProfileModalPage />}
-          />
-          <Route
-            path="/public-profile/projects/3-columns"
-            element={<ProjectColumn3Page />}
-          />
-          <Route
-            path="/public-profile/projects/2-columns"
-            element={<ProjectColumn2Page />}
-          />
-          <Route path="/public-profile/works" element={<ProfileWorksPage />} />
-          <Route path="/public-profile/teams" element={<ProfileTeamsPage />} />
-          <Route
-            path="/public-profile/network"
-            element={<ProfileNetworkPage />}
-          />
-          <Route
-            path="/public-profile/activity"
-            element={<ProfileActivityPage />}
-          />
-          <Route
-            path="/public-profile/campaigns/card"
-            element={<CampaignsCardPage />}
-          />
-          <Route
-            path="/public-profile/campaigns/list"
-            element={<CampaignsListPage />}
-          />
-          <Route path="/public-profile/empty" element={<ProfileEmptyPage />} />
-          <Route
-            path="/account/home/get-started"
-            element={<AccountGetStartedPage />}
-          />
-          <Route
-            path="/account/home/user-profile"
-            element={<AccountUserProfilePage />}
-          />
-          <Route
-            path="/account/home/company-profile"
-            element={<AccountCompanyProfilePage />}
-          />
-          <Route
-            path="/account/home/settings-sidebar"
-            element={<AccountSettingsSidebarPage />}
-          />
-          <Route
-            path="/account/home/settings-enterprise"
-            element={<AccountSettingsEnterprisePage />}
-          />
-          <Route
-            path="/account/home/settings-plain"
-            element={<AccountSettingsPlainPage />}
-          />
-          <Route
-            path="/account/home/settings-modal"
-            element={<AccountSettingsModalPage />}
-          />
-          <Route path="/account/billing/basic" element={<AccountBasicPage />} />
-          <Route
-            path="/account/billing/enterprise"
-            element={<AccountEnterprisePage />}
-          />
-          <Route path="/account/billing/plans" element={<AccountPlansPage />} />
-          <Route
-            path="/account/billing/history"
-            element={<AccountHistoryPage />}
-          />
-          <Route
-            path="/account/security/get-started"
-            element={<AccountSecurityGetStartedPage />}
-          />
-          <Route
-            path="/account/security/overview"
-            element={<AccountOverviewPage />}
-          />
-          <Route
-            path="/account/security/allowed-ip-addresses"
-            element={<AccountAllowedIPAddressesPage />}
-          />
-          <Route
-            path="/account/security/privacy-settings"
-            element={<AccountPrivacySettingsPage />}
-          />
-          <Route
-            path="/account/security/device-management"
-            element={<AccountDeviceManagementPage />}
-          />
-          <Route
-            path="/account/security/backup-and-recovery"
-            element={<AccountBackupAndRecoveryPage />}
-          />
-          <Route
-            path="/account/security/current-sessions"
-            element={<AccountCurrentSessionsPage />}
-          />
-          <Route
-            path="/account/security/security-log"
-            element={<AccountSecurityLogPage />}
-          />
-          <Route
-            path="/account/members/team-starter"
-            element={<AccountTeamsStarterPage />}
-          />
-          <Route path="/account/members/teams" element={<AccountTeamsPage />} />
-          <Route
-            path="/account/members/team-info"
-            element={<AccountTeamInfoPage />}
-          />
-          <Route
-            path="/account/members/members-starter"
-            element={<AccountMembersStarterPage />}
-          />
-          <Route
-            path="/account/members/team-members"
-            element={<AccountTeamMembersPage />}
-          />
-          <Route
-            path="/account/members/import-members"
-            element={<AccountImportMembersPage />}
-          />
-          <Route path="/account/members/roles" element={<AccountRolesPage />} />
-          <Route
-            path="/account/members/permissions-toggle"
-            element={<AccountPermissionsTogglePage />}
-          />
-          <Route
-            path="/account/members/permissions-check"
-            element={<AccountPermissionsCheckPage />}
-          />
-          <Route
-            path="/account/integrations"
-            element={<AccountIntegrationsPage />}
-          />
-          <Route
-            path="/account/notifications"
-            element={<AccountNotificationsPage />}
-          />
-          <Route path="/account/api-keys" element={<AccountApiKeysPage />} />
-          <Route
-            path="/account/appearance"
-            element={<AccountAppearancePage />}
-          />
-          <Route
-            path="/account/invite-a-friend"
-            element={<AccountInviteAFriendPage />}
-          />
-          <Route path="/account/activity" element={<AccountActivityPage />} />
-          <Route
-            path="/network/get-started"
-            element={<NetworkGetStartedPage />}
-          />
-          <Route
-            path="/network/user-cards/mini-cards"
-            element={<NetworkMiniCardsPage />}
-          />
-          <Route
-            path="/network/user-cards/team-crew"
-            element={<NetworkUserCardsTeamCrewPage />}
-          />
-          <Route
-            path="/network/user-cards/author"
-            element={<NetworkAuthorPage />}
-          />
-          <Route path="/network/user-cards/nft" element={<NetworkNFTPage />} />
-          <Route
-            path="/network/user-cards/social"
-            element={<NetworkSocialPage />}
-          />
-          <Route
-            path="/network/user-table/team-crew"
-            element={<NetworkUserTableTeamCrewPage />}
-          />
-          <Route
-            path="/network/user-table/app-roster"
-            element={<NetworkAppRosterPage />}
-          />
-          <Route
-            path="/network/user-table/market-authors"
-            element={<NetworkMarketAuthorsPage />}
-          />
-          <Route
-            path="/network/user-table/saas-users"
-            element={<NetworkSaasUsersPage />}
-          />
-          <Route
-            path="/network/user-table/store-clients"
-            element={<NetworkStoreClientsPage />}
-          />
-          <Route
-            path="/network/user-table/visitors"
-            element={<NetworkVisitorsPage />}
-          />
-          <Route
-            path="/auth/welcome-message"
-            element={<AuthenticationWelcomeMessagePage />}
-          />
-          <Route
-            path="/auth/account-deactivated"
-            element={<AuthenticationAccountDeactivatedPage />}
-          />
-          <Route
-            path="/authentication/get-started"
-            element={<AuthenticationGetStartedPage />}
-          />
+            {/* leavs route */}
+            <Route path="/approval" element={<Approval />}></Route>
+            <Route path="/holiday" element={<Holiday />}></Route>
+            <Route path="/myleaves" element={<MyLeaves />}></Route>
+            <Route path="/allleave" element={<Allleave />}></Route>
+            <Route path="allattendance" element={<AllAttendance />}></Route>
+            <Route path="leavetype" element={<LeaveType />}></Route>
+            <Route path="/myattendance" element={<Myattendance />}></Route>
+            <Route path="/leave-dashboard" element={<Leavedashboard />}></Route>
+            <Route
+              path="/attendance-setting"
+              element={<AttendanceSetting></AttendanceSetting>}
+            ></Route>
+            <Route path="officesetting" element={<OfficeSetting />}></Route>
+            {/* Settings routes */}
+            <Route path="/settings/general" element={<GeneralSettingsPage />} />
+            <Route
+              path="/settings/customize"
+              element={<CustomizeSettingsPage />}
+            />
+            <Route path="/settings/channel" element={<ChannelSettingsPage />} />
+            <Route
+              path="/settings/notifications"
+              element={<NotificationsSettingsPage />}
+            />
+            {/* Support routes */}
+            <Route path="/support/events" element={<EventsPage />} />
+            <Route path="/support/tutorials" element={<TutorialsPage />} />
+            <Route path="/support/tickets" element={<TicketsPage />} />
+            <Route path="/support/application" element={<ApplicationPage />} />
+            <Route
+              path="/support/progress-checklist"
+              element={<ProgressChecklistPage />}
+            />
+            <Route path="/support/raise-ticket" element={<RaiseTicketPage />} />
+            {/* Billing routes */}
+            <Route path="/billing/overview" element={<BillingOverviewPage />} />
+            <Route path="/billing/wallet-logs" element={<WalletLogsPage />} />
+            {/* Theme route */}
+            <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
+            <Route
+              path="/public-profile/profiles/default"
+              element={<ProfileDefaultPage />}
+            />
+            <Route
+              path="/public-profile/profiles/creator"
+              element={<ProfileCreatorPage />}
+            />
+            <Route
+              path="/public-profile/profiles/company"
+              element={<ProfileCompanyPage />}
+            />
+            <Route
+              path="/public-profile/profiles/nft"
+              element={<ProfileNFTPage />}
+            />
+            <Route
+              path="/public-profile/profiles/blogger"
+              element={<ProfileBloggerPage />}
+            />
+            <Route
+              path="/public-profile/profiles/crm"
+              element={<ProfileCRMPage />}
+            />
+            <Route
+              path="/public-profile/profiles/gamer"
+              element={<ProfileGamerPage />}
+            />
+            <Route
+              path="/public-profile/profiles/feeds"
+              element={<ProfileFeedsPage />}
+            />
+            <Route
+              path="/public-profile/profiles/plain"
+              element={<ProfilePlainPage />}
+            />
+            <Route
+              path="/public-profile/profiles/modal"
+              element={<ProfileModalPage />}
+            />
+            <Route
+              path="/public-profile/projects/3-columns"
+              element={<ProjectColumn3Page />}
+            />
+            <Route
+              path="/public-profile/projects/2-columns"
+              element={<ProjectColumn2Page />}
+            />
+            <Route path="/public-profile/works" element={<ProfileWorksPage />} />
+            <Route path="/public-profile/teams" element={<ProfileTeamsPage />} />
+            <Route
+              path="/public-profile/network"
+              element={<ProfileNetworkPage />}
+            />
+            <Route
+              path="/public-profile/activity"
+              element={<ProfileActivityPage />}
+            />
+            <Route
+              path="/public-profile/campaigns/card"
+              element={<CampaignsCardPage />}
+            />
+            <Route
+              path="/public-profile/campaigns/list"
+              element={<CampaignsListPage />}
+            />
+            <Route path="/public-profile/empty" element={<ProfileEmptyPage />} />
+            <Route
+              path="/account/home/get-started"
+              element={<AccountGetStartedPage />}
+            />
+            <Route
+              path="/account/home/user-profile"
+              element={<AccountUserProfilePage />}
+            />
+            <Route
+              path="/account/home/company-profile"
+              element={<AccountCompanyProfilePage />}
+            />
+            <Route
+              path="/account/home/settings-sidebar"
+              element={<AccountSettingsSidebarPage />}
+            />
+            <Route
+              path="/account/home/settings-enterprise"
+              element={<AccountSettingsEnterprisePage />}
+            />
+            <Route
+              path="/account/home/settings-plain"
+              element={<AccountSettingsPlainPage />}
+            />
+            <Route
+              path="/account/home/settings-modal"
+              element={<AccountSettingsModalPage />}
+            />
+            <Route path="/account/billing/basic" element={<AccountBasicPage />} />
+            <Route
+              path="/account/billing/enterprise"
+              element={<AccountEnterprisePage />}
+            />
+            <Route path="/account/billing/plans" element={<AccountPlansPage />} />
+            <Route
+              path="/account/billing/history"
+              element={<AccountHistoryPage />}
+            />
+            <Route
+              path="/account/security/get-started"
+              element={<AccountSecurityGetStartedPage />}
+            />
+            <Route
+              path="/account/security/overview"
+              element={<AccountOverviewPage />}
+            />
+            <Route
+              path="/account/security/allowed-ip-addresses"
+              element={<AccountAllowedIPAddressesPage />}
+            />
+            <Route
+              path="/account/security/privacy-settings"
+              element={<AccountPrivacySettingsPage />}
+            />
+            <Route
+              path="/account/security/device-management"
+              element={<AccountDeviceManagementPage />}
+            />
+            <Route
+              path="/account/security/backup-and-recovery"
+              element={<AccountBackupAndRecoveryPage />}
+            />
+            <Route
+              path="/account/security/current-sessions"
+              element={<AccountCurrentSessionsPage />}
+            />
+            <Route
+              path="/account/security/security-log"
+              element={<AccountSecurityLogPage />}
+            />
+            <Route
+              path="/account/members/team-starter"
+              element={<AccountTeamsStarterPage />}
+            />
+            <Route path="/account/members/teams" element={<AccountTeamsPage />} />
+            <Route
+              path="/account/members/team-info"
+              element={<AccountTeamInfoPage />}
+            />
+            <Route
+              path="/account/members/members-starter"
+              element={<AccountMembersStarterPage />}
+            />
+            <Route
+              path="/account/members/team-members"
+              element={<AccountTeamMembersPage />}
+            />
+            <Route
+              path="/account/members/import-members"
+              element={<AccountImportMembersPage />}
+            />
+            <Route path="/account/members/roles" element={<AccountRolesPage />} />
+            <Route
+              path="/account/members/permissions-toggle"
+              element={<AccountPermissionsTogglePage />}
+            />
+            <Route
+              path="/account/members/permissions-check"
+              element={<AccountPermissionsCheckPage />}
+            />
+            <Route
+              path="/account/integrations"
+              element={<AccountIntegrationsPage />}
+            />
+            <Route
+              path="/account/notifications"
+              element={<AccountNotificationsPage />}
+            />
+            <Route path="/account/api-keys" element={<AccountApiKeysPage />} />
+            <Route
+              path="/account/appearance"
+              element={<AccountAppearancePage />}
+            />
+            <Route
+              path="/account/invite-a-friend"
+              element={<AccountInviteAFriendPage />}
+            />
+            <Route path="/account/activity" element={<AccountActivityPage />} />
+            <Route
+              path="/network/get-started"
+              element={<NetworkGetStartedPage />}
+            />
+            <Route
+              path="/network/user-cards/mini-cards"
+              element={<NetworkMiniCardsPage />}
+            />
+            <Route
+              path="/network/user-cards/team-crew"
+              element={<NetworkUserCardsTeamCrewPage />}
+            />
+            <Route
+              path="/network/user-cards/author"
+              element={<NetworkAuthorPage />}
+            />
+            <Route path="/network/user-cards/nft" element={<NetworkNFTPage />} />
+            <Route
+              path="/network/user-cards/social"
+              element={<NetworkSocialPage />}
+            />
+            <Route
+              path="/network/user-table/team-crew"
+              element={<NetworkUserTableTeamCrewPage />}
+            />
+            <Route
+              path="/network/user-table/app-roster"
+              element={<NetworkAppRosterPage />}
+            />
+            <Route
+              path="/network/user-table/market-authors"
+              element={<NetworkMarketAuthorsPage />}
+            />
+            <Route
+              path="/network/user-table/saas-users"
+              element={<NetworkSaasUsersPage />}
+            />
+            <Route
+              path="/network/user-table/store-clients"
+              element={<NetworkStoreClientsPage />}
+            />
+            <Route
+              path="/network/user-table/visitors"
+              element={<NetworkVisitorsPage />}
+            />
+            <Route
+              path="/auth/welcome-message"
+              element={<AuthenticationWelcomeMessagePage />}
+            />
+            <Route
+              path="/auth/account-deactivated"
+              element={<AuthenticationAccountDeactivatedPage />}
+            />
+            <Route
+              path="/authentication/get-started"
+              element={<AuthenticationGetStartedPage />}
+            />
+          </Route>
         </Route>
-      </Route>
       </Route>
       <Route path="error/*" element={<ErrorsRouting />} />
       <Route path="auth/*" element={<AuthPage />} />
