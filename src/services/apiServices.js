@@ -1,6 +1,5 @@
-import axiosInstance, { POST, GET, PUT, DELETE } from "./axiosInstance";
-import { data } from "autoprefixer";
-import { POST, GET, PUT, DELETE } from "./axiosInstance";
+// import axiosInstance, { POST, GET, PUT, DELETE } from "./axiosInstance";
+// import { data } from "autoprefixer";
 
 // Create Role
 export const createRole = (data) => {
@@ -180,18 +179,19 @@ export const getClientById = (id) => {
     return GET(`/party-master/get?id=${id}`);
 };
 export const deleteClientMaster = (id) => {
-        return DELETE(`/party-master/delete?id=${id}`);
-        export const signup = (data) => {
-            return POST(`/auth/signup`, data);
-        };
+    return DELETE(`/party-master/delete?id=${id}`);
+}
+export const signup = (data) => {
+    return POST(`/auth/signup`, data);
+};
 
-        export const login = (data) => {
-            return POST(`/auth/login`, data);
-        };
-        export const getstatebycountry = (data) => {
-            return POST(`/state/list`, data);
-        };
+export const login = (data) => {
+    return POST(`/auth/login`, data);
+};
+export const getstatebycountry = (data) => {
+    return POST(`/state/list`, data);
+};
 
-        export const getbycitiesbystate = (data) => {
-            return POST(`/city/list`, data);
-        };
+export const getbycitiesbystate = (data) => {
+    return POST(`/city/list`, data);
+};
