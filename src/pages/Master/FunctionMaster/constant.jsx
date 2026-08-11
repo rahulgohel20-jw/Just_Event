@@ -121,67 +121,51 @@ export const getFunctionColumns = ({ onView, onEdit, onDelete, onToggleStatus })
     header: "Sr. No.",
     cell: ({ row }) => (
       <span className="text-sm text-gray-500">
-        {String(row.index + 1).padStart(2, "0")}
+        {String(row.index + 1).padStart(2,)}
       </span>
     ),
   },
-  {
-    accessorKey: "functionName",
-    header: "Function Name",
+ {
+  accessorKey: "functionName",
+  header: "Function Name",
+  cell: ({ row }) => {
+    const { functionName, images } = row.original;
+    const thumb = images?.[0]?.path;
+    return (
+      <div className="flex items-center gap-3">
+        {thumb && (
+          <img src={thumb} alt="" className="h-8 w-8 rounded object-cover" />
+        )}
+        <p className="text-sm font-medium text-gray-800">{functionName}</p>
+      </div>
+    );
+  },
+},
+  {accessorKey: "functionNameHindi",
+    header :"Function Name (Hindi)",
     cell: ({ row }) => {
-      const { functionName, segment, coverImage } = row.original;
+      const { functionNameHindi } = row.original;
       return (
-        <div className="flex items-center  gap-3">
-          
-          <div>
-            <p className="text-sm font-medium items-center text-gray-800">{functionName}</p>
-          </div>
+        <div className="flex items-center gap-3">
+          <p className="text-sm font-medium text-gray-800">{functionNameHindi}</p>
         </div>
       );
-    },
+    }
+
+
   },
-  {
-    accessorKey: "type",
-    header: "Type",
-    cell: ({ getValue }) => {
-      const value = getValue();
-      return (
-        <span
-          
-        >
-          {value}
-        </span>
-      );
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
+   {accessorKey: "functionNameGujarati",
+    header :"Function Name (Gujarati)",
     cell: ({ row }) => {
-      const isActive = row.original.status === "active";
+      const { functionNameGujarati } = row.original;
       return (
-        <div className="inline-flex items-center gap-2">
-          <button
-            type="button"
-            role="switch"
-            aria-checked={isActive}
-            onClick={() => onToggleStatus(row.original)}
-            style={{ backgroundColor: isActive ? "#881337" : "#e5e7eb" }}
-            className="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none"
-          >
-            <span
-              style={{ transform: isActive ? "translateX(18px)" : "translateX(2px)" }}
-              className="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
-            />
-          </button>
-          <span
-           
-          >
-            {isActive ? "Active" : "Inactive"}
-          </span>
+        <div className="flex items-center gap-3">
+          <p className="text-sm font-medium text-gray-800">{functionNameGujarati}</p>
         </div>
       );
-    },
+    }
+
+
   },
   {
     accessorKey: "duration",

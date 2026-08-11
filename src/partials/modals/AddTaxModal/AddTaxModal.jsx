@@ -3,7 +3,7 @@ import { Percent, Save, Loader2 } from "lucide-react";
 import Swal from "sweetalert2";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox";
-import { addupadtetaxmaster, Translateapi } from "@/services/apiServices"; // <-- Translateapi imported here now
+import { addupadtetaxmaster, Translateapi } from "@/services/apiServices"; 
 import { showApiResult, showApiError } from "@/utils/swalHelpers";
 
 const initialFormState = {

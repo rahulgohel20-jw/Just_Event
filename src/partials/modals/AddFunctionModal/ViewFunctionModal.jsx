@@ -1,41 +1,37 @@
-import { X, Clock, IndianRupee, Pencil } from "lucide-react";
+import { X, Clock, Pencil, Calendar } from "lucide-react";
 import { CustomModal } from "@/components/custom-modal/CustomModal"; // adjust path as needed
-
-const typeBadgeStyles = {
-  Bride: "bg-rose-50 text-rose-700",
-  Groom: "bg-blue-50 text-blue-700",
-  Corporate: "bg-purple-50 text-purple-700",
-};
 
 const ViewFunctionModal = ({ open, onClose, functionData, onEdit }) => {
   if (!functionData) return null;
 
-  const { functionName, type, status, timeFrom, timeTo, price, coverImage } =
-    functionData;
-  const isActive = status === "active";
+  const {
+    functionName,
+    functionNameHindi,
+    functionNameGujarati,
+    timeFrom,
+    timeTo,
+    images = [],
+    createdAt,
+  } = functionData;
+
+  const coverImage = images[0]?.path;
 
   return (
     <CustomModal
       open={open}
       onClose={onClose}
-      width={480}
+      width={520}
       centered
       title={null}
       footer={
-        <div className="flex justify-between items-center px-6 pb-6">
+        <div className="flex justify-end items-center px-6 pb-6">
           <button
             onClick={onClose}
             className="px-5 py-2 rounded-lg bg-[#F7E5EA] text-[#7A2E45] font-medium hover:bg-[#f0d3dc] transition-colors"
           >
             Close
           </button>
-          <button
-            onClick={() => onEdit?.(functionData)}
-            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-[#7A2E45] text-white font-medium hover:bg-[#66253a] transition-colors"
-          >
-            <Pencil size={16} />
-            Edit Function
-          </button>
+         
         </div>
       }
     >
@@ -44,27 +40,7 @@ const ViewFunctionModal = ({ open, onClose, functionData, onEdit }) => {
         <div className="flex justify-between items-start px-6 pt-4 pb-3">
           <div>
             <h2 className="text-lg font-semibold text-gray-800">{functionName}</h2>
-            <div className="flex items-center gap-2 mt-1.5">
-              <span
-                className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                  typeBadgeStyles[type] || "bg-gray-100 text-gray-700"
-                }`}
-              >
-                {type}
-              </span>
-              <span
-                className={`flex items-center gap-1 text-xs font-medium ${
-                  isActive ? "text-emerald-600" : "text-gray-400"
-                }`}
-              >
-                <span
-                  className={`h-1.5 w-1.5 rounded-full ${
-                    isActive ? "bg-emerald-500" : "bg-gray-300"
-                  }`}
-                />
-                {isActive ? "Active" : "Inactive"}
-              </span>
-            </div>
+           
           </div>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <X size={18} />
@@ -72,38 +48,69 @@ const ViewFunctionModal = ({ open, onClose, functionData, onEdit }) => {
         </div>
 
         {/* Cover image */}
-        <div className="px-6">
-          <img
-            src={coverImage}
-            alt={functionName}
-            className="w-full h-56 rounded-xl object-cover"
-          />
-        </div>
+        {coverImage && (
+          <div className="px-6">
+            <img
+              src={coverImage}
+              alt={functionName}
+              className="w-full h-56 rounded-xl object-cover"
+            />
+          </div>
+        )}
+
+        {/* All images gallery */}
+        {images.length > 1 && (
+          <div className="px-6 mt-3">
+            <p className="text-xs text-gray-400 mb-2">
+              All images ({images.length})
+            </p>
+            <div className="grid grid-cols-4 gap-2">
+              {images.map((img) => (
+                <img
+                  key={img.id}
+                  src={img.path}
+                  alt=""
+                  className="h-16 w-full rounded-lg object-cover border border-gray-200"
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Details */}
         <div className="px-6 py-5 grid grid-cols-2 gap-4">
           <div>
-            <p className="text-xs text-gray-400 mb-1">Function Name</p>
+            <p className="text-xs text-gray-600 mb-1">Function name</p>
             <p className="text-sm font-medium text-gray-800">{functionName}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-400 mb-1">Type</p>
-            <p className="text-sm font-medium text-gray-800">{type}</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-400 mb-1">Time Slot</p>
+            <p className="text-xs text-gray-600 mb-1">Time slot</p>
             <p className="flex items-center gap-1.5 text-sm font-medium text-gray-800">
-              <Clock size={12} className="text-gray-400" />
+              <Clock size={12} className="text-gray-900" />
               {timeFrom} - {timeTo}
             </p>
           </div>
-          <div>
-            <p className="text-xs text-gray-400 mb-1">Price</p>
-            <p className="flex items-center gap-1 text-sm font-semibold text-[#7A2E45]">
-              <IndianRupee size={13} />
-              {Number(price).toLocaleString("en-IN")}
-            </p>
-          </div>
+          {functionNameHindi && (
+            <div>
+              <p className="text-xs text-gray-600 mb-1">Name (Hindi)</p>
+              <p className="text-sm font-medium text-gray-800">{functionNameHindi}</p>
+            </div>
+          )}
+          {functionNameGujarati && (
+            <div>
+              <p className="text-xs text-gray-600 mb-1">Name (Gujarati)</p>
+              <p className="text-sm font-medium text-gray-800">{functionNameGujarati}</p>
+            </div>
+          )}
+          {createdAt && (
+            <div>
+              <p className="text-xs text-gray-600 mb-1">Created</p>
+              <p className="flex items-center gap-1.5 text-sm font-medium text-gray-800">
+                <Calendar size={12} className="text-gray-900" />
+                {createdAt}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </CustomModal>

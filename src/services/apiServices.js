@@ -1,31 +1,51 @@
 import { data } from "autoprefixer";
 import { POST, GET, PUT, DELETE } from "./axiosInstance";
 
-// Create Role
-export const createRole = (data) => {
-  return POST("/role_master/save-single-or-multiple", data);
+// Sign Up Login 
+export const signup = (data) =>{
+  return POST(`/auth/signup` , data);
 };
 
-// Get All Roles
-export const getAllRoles = (data) => {
-  return GET("/role_master", data);
+export const login = (data) => {
+  return POST(`/auth/login`, data);
 };
 
-// Update Role
-export const updateRole = (roleId, data) => {
-  return PUT(`/role_master/update-by-id/${roleId}/role_id`, data);
-};
 
-// Delete Role
-export const deleteRole = (roleId) => {
-  return DELETE(`/role_master/${roleId}/role_id`);
-};
-
+// translate
 export const Translateapi = (data) => {
   return GET(`/transliterate?text=${data}`);
 };
 
 
+// city state 
+export const getstatebycountry = (data) => {
+  return POST(`/state/list`, data) ;
+};
+
+export const getbycitiesbystate = (data) =>{
+  return POST(`/city/list` , data) ;
+};
+
+
+// Create Role
+export const createRole = (data) => {
+  return POST("/role_master/save-single-or-multiple", data);
+};
+
+export const getAllRoles = (data) => {
+  return GET("/role_master", data);
+};
+
+export const updateRole = (roleId, data) => {
+  return PUT(`/role_master/update-by-id/${roleId}/role_id`, data);
+};
+
+export const deleteRole = (roleId) => {
+  return DELETE(`/role_master/${roleId}/role_id`);
+}
+
+
+// Tax 
 export const addupadtetaxmaster = ( data) => {
   return POST(`/tax-master/add-update`,data) ;
 } ;
@@ -42,6 +62,8 @@ export const getalltaxmaster = (data) =>{
   return POST(`/tax-master/list`,data) ;
 };  
 
+
+// category type master
 export const addupadtecategorytypemaster = (data) =>{
   return POST(`/category-type/add-update`, data) ;
 };
@@ -54,6 +76,7 @@ export const getAllCategoryTypemaster = (data) => {
   return POST (`/category-type/list`,data) ;
 };
 
+// cat
 export const addupdatecategorymaster = (data) => {
   return POST(`/category-master/add-update` , data);
 };
@@ -66,6 +89,8 @@ export const getAllCategoryMaster = (data) =>{
   return POST(`/category-master/list`,data);
 };
 
+
+// rawcattype
 export const addupdaterawcategorytype = (data) => {
   return POST(`/raw-category-type/add-update`, data);
 };
@@ -81,6 +106,9 @@ export const getbyidrawcategorytype = (id) => {
 export const getAllRawCategoryTypeMaster = (data) => {
   return POST(`/raw-category-type/list`, data);
 };
+
+
+// rawcat
 
 export const addupdaterawcategory = (data) => {
   return POST(`/raw-category/add-update`, data);
@@ -163,17 +191,18 @@ export const deleterolemaster = (id) => {
   return DELETE(`/role/delete/?id=${id}`);
 };
 
-export const signup = (data) =>{
-  return POST(`/auth/signup` , data);
+
+// function 
+// function
+export const addupadtefunctionmaster = (formData) => {
+  return POST(`/function/add-update`, formData);
 };
 
-export const login = (data) => {
-  return POST(`/auth/login`, data);
-};
-export const getstatebycountry = (data) => {
-  return POST(`/state/list`, data) ;
+export const getalllistfuntionmaster = (data) => {
+  return POST(`/function/list` , data);
 };
 
-export const getbycitiesbystate = (data) =>{
-  return POST(`/city/list` , data) ;
+export const deletefunctionmaster = (id) => {
+  return DELETE(`/function/delete?id=${id}`);
 };
+
