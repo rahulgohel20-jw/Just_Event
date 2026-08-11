@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import { useMenuChildren } from '@/components/menu';
-import { MENU_SIDEBAR, MENU_INVENTORY_SIDEBAR  } from '@/config/menu.config';
+import { MENU_SIDEBAR, MENU_INVENTORY_SIDEBAR, MENU_CREATE_EVENT_SIDEBAR } from '@/config/menu.config';
 import { useScrollPosition } from '@/hooks/useScrollPosition';
 import { useMenus } from '@/providers';
 import { useLayout } from '@/providers';
@@ -59,13 +59,15 @@ const Demo1LayoutProvider = ({ children }) => {
   // Always call the hook (rules of hooks), decide which result to use after
   const derivedSecondaryMenu = useMenuChildren(pathname, MENU_SIDEBAR, 0);
 
+  const isCreateEvent = pathname.startsWith('/creteEvent');
   const isInventoryRoute = pathname.startsWith('/inventory-dashboard');
   const secondaryMenu = isInventoryRoute
     ? MENU_INVENTORY_SIDEBAR
     : derivedSecondaryMenu;
 
-  setMenuConfig('primary', MENU_SIDEBAR);
+  setMenuConfig('primary', isCreateEvent ? MENU_CREATE_EVENT_SIDEBAR : MENU_SIDEBAR);
   setMenuConfig('secondary', secondaryMenu);
+
   const {
     getLayout,
     updateLayout,
