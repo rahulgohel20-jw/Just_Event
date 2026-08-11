@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useMemo, useState } from "react";
 import { ChevronDown, Plus, Search } from "lucide-react";
-
+import { confirmDelete, showApiError, showApiResult } from "@/utils/swalHelpers";
 import { TableComponent } from "@/components/table/TableComponent";
 
 import {
@@ -33,6 +33,8 @@ const UnitMaster = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingUnit, setEditingUnit] = useState(null);
 
+  const userId = Number(localStorage.getItem("userId"));
+
     const searchDebounceRef = useRef(null);
 
     useEffect(() => {
@@ -54,6 +56,7 @@ const UnitMaster = () => {
                 sortOrder: sorting?.[0]?.desc ? "desc" : "asc",
                 ...(statusFilter ? { isActive: statusFilter === "active" } : {}),
                 ...(debouncedSearch ? { search: debouncedSearch } : {}),
+                userId,
             };
 
             const res = await getAllUnitMaster(payload);
@@ -80,38 +83,59 @@ const UnitMaster = () => {
         setIsModalOpen(true);
     };
 
-    const handleDelete = async (row) => {
-        try {
-            await deleteunitmaster(row.id);
-            if (tableData.length === 1 && pageIndex > 0) {
-                setPageIndex((p) => p - 1);
-            } else {
+   const handleDelete = async (row) => {
+    const confirmed = await confirmDelete(row.nameEnglish || "this unit");
+    if (!confirmed) return;
+
+    try {
+        const res = await deleteunitmaster(row.id);
+        showApiResult(res, {
+            successTitle: "Unit Deleted",
+            fallbackSuccess: "Unit deleted successfully.",
+            onSuccess: () => {
+                if (tableData.length === 1 && pageIndex > 0) {
+                    setPageIndex((p) => p - 1);
+                } else {
+                    fetchData();
+                }
+            },
+        });
+    } catch (err) {
+        showApiError(err, {
+            title: "Something went wrong",
+            fallback: "Failed to delete unit.",
+        });
+    }
+};
+
+const handleSaveUnit = async (formData) => {
+    try {
+        const payload = {
+            unitNameEnglish: formData.unitName?.english || "",
+            unitNameHindi: formData.unitName?.hindi || "",
+            unitNameGujarati: formData.unitName?.gujarati || "",
+            symbolEnglish: formData.symbol,
+            isActive: formData.isActive,
+            ...(editingUnit ? { id: editingUnit.id } : {}),
+            userId,
+        };
+
+        const res = await addupdateunitmaster(payload);
+        showApiResult(res, {
+            successTitle: editingUnit ? "Unit Updated" : "Unit Saved",
+            onSuccess: () => {
+                setIsModalOpen(false);
+                setEditingUnit(null);
                 fetchData();
-            }
-        } catch (err) {
-            console.error("Failed to delete unit:", err);
-        }
-    };
-
-    const handleSaveUnit = async (formData) => {
-        try {
-            const payload = {
-                unitNameEnglish: formData.unitName?.english || "",
-                unitNameHindi: formData.unitName?.hindi || "",
-                unitNameGujarati: formData.unitName?.gujarati || "",
-                symbolEnglish: formData.symbol,
-                isActive: formData.isActive,
-                ...(editingUnit ? { id: editingUnit.id } : {}),
-            };
-
-            await addupdateunitmaster(payload);
-            setIsModalOpen(false);
-            setEditingUnit(null);
-            fetchData();
-        } catch (err) {
-            console.error("Failed to save unit:", err);
-        }
-    };
+            },
+        });
+    } catch (err) {
+        showApiError(err, {
+            title: "Something went wrong",
+            fallback: "Failed to save unit.",
+        });
+    }
+};
 
     const columns = useMemo(
         () => getUnitColumns({ onEdit: handleEdit, onDelete: handleDelete }),
@@ -123,7 +147,7 @@ const UnitMaster = () => {
             {/* Header */}
             <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-primary">{PAGE_HEADER.title}</h1>
+                    <h1 className="text-2xl  text-primary">{PAGE_HEADER.title}</h1>
                     <p className="mt-1 max-w-xl text-sm text-gray-500">{PAGE_HEADER.description}</p>
                 </div>
                 <button
@@ -155,17 +179,7 @@ const UnitMaster = () => {
                     />
                 </div>
 
-                <div>
-                    <FilterDropdown
-                        label="Status"
-                        value={statusFilter}
-                        options={STATUS_OPTIONS}
-                        onChange={(val) => {
-                            setStatusFilter(val);
-                            setPageIndex(0);
-                        }}
-                    />
-                </div>
+               
             </div>
 
             <TableComponent

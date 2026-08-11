@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { TableComponent } from "@/components/table/TableComponent";
 import { AddClientModal } from "../../../partials/modals/AddClientModal/AddClientModal";
-
+import { confirmDelete, showApiResult, showApiError } from "../../../utils/swalHelpers";
 import {
   PAGE_HEADER,
   STATS_CARDS,
@@ -52,6 +52,7 @@ const ClientMaster = () => {
   const [editingClient, setEditingClient] = useState(null);
   const [viewClient, setViewClient] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+const userId = Number(localStorage.getItem("userId"));
 
   const normalizeRow = (row, index) => ({
     id: row.id,
@@ -111,7 +112,7 @@ const ClientMaster = () => {
           DEFAULT_SORTING?.sortDirection || "DESC",
 
         uniqueCode: "",
-        userId: 1,
+        userId,
       };
 
       const res = await getAllClientMaster(payload);
@@ -153,35 +154,44 @@ const ClientMaster = () => {
     );
   };
 
-  const handleView = (record) => {
-    setViewClient({
-      ...record,
-      fullName: record.clientName,
-      accountType: "Customer",
-      accountStatus: "Active Account",
-      relationshipStatus: "Platinum Elite",
-      clientSince: "Mar 2021",
-      loyaltyScore: 98,
-      clientCategory: "Premium Retail",
-      birthDate: "14th July, 1988",
-      anniversary: "02nd November",
-      primaryMobile: record.mobileNumber,
-      emailAddress: record.email,
-      homeAddress: "Flat 402, Royal Residency, Skyline Heights, Mumbai - 400001",
-      orderAddress: "Suite 12, Corporate Park, Lower Parel, Mumbai - 400013",
-      gstNumber: "27AAAAA0000A1Z5",
-      panNumber: "ABCPS1234F",
-      aadharNumber: "**** **** 4567",
-      openingBalance: "45,200.00",
-      balanceType: "CR",
-      totalEvents: 24,
-      totalRevenue: "12.8L",
-      avgOrderValue: "53.4K",
-      internalNote:
-        "Prefer high-end minimalist decor with deep berry accents. Always requests vegan catering options.",
-    });
-    setIsViewModalOpen(true);
+ const handleView = async (record) => {
+    try {
+      const res = await getClientById(record.id);
+      const client = res?.data?.data ?? res?.data;
+
+      setViewClient({
+        id: client.id,
+        fullName: client.nameEnglish || client.nameHindi || client.nameGujarati || "",
+        initials: (client.nameEnglish || "NA")
+          .split(" ")
+          .map((x) => x[0])
+          .join("")
+          .substring(0, 2)
+          .toUpperCase(),
+        accountType: client.categoryNameEnglish || "—",
+        accountStatus: client.isActive === false ? "Inactive Account" : "Active Account",
+        clientCategory: client.categoryNameEnglish || "—",
+        birthDate: client.birthDate || "",
+        anniversary: client.aniversaryDate || "",
+        primaryMobile: client.mobileNo || "",
+        officeNumber: client.officeNo || "",
+        emailAddress: client.email || "",
+        homeAddress: client.address || "",
+        gstNumber: client.gstNo || "",
+        panNumber: client.panCardNo || "",
+        aadharNumber: client.aadharCardNo || "",
+        openingBalance: client.openingBalance ?? "",
+        balanceType: client.opbType || "CR",
+        uniqueCode: client.uniqueCode || "",
+        createdDate: client.createdAt || "",
+        kycDetails: client.kycDetails || [],
+      });
+      setIsViewModalOpen(true);
+    } catch (err) {
+      showApiError(err, { title: "Failed", fallback: "Failed to load client details." });
+    }
   };
+
   const handleEdit = async (record) => {
     try {
       const res = await getClientById(record.id);
@@ -198,49 +208,18 @@ const ClientMaster = () => {
   };
 
   const handleDelete = async (record) => {
-    const result = await Swal.fire({
-      title: "Delete Client?",
-      text: "This action cannot be undone.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Delete",
-      cancelButtonText: "Cancel",
-      confirmButtonColor: "#d33",
-    });
-
-    if (!result.isConfirmed) return;
+    const confirmed = await confirmDelete(record.clientName || "this client");
+    if (!confirmed) return;
 
     try {
       const res = await deleteClientMaster(record.id);
-
-      const body = res?.data ?? res;
-
-      if (body.success) {
-        Swal.fire({
-          icon: "success",
-          title: "Deleted",
-          text: body.msg,
-          timer: 1500,
-          showConfirmButton: false,
-        });
-
-        fetchClientList(); // Refresh table
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Failed",
-          text: body.errorMessage || body.msg,
-        });
-      }
-    } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text:
-          err?.response?.data?.errorMessage ||
-          err?.response?.data?.msg ||
-          err.message,
+      const success = showApiResult(res, {
+        successTitle: "Deleted",
+        errorTitle: "Failed",
       });
+      if (success) fetchClientList();
+    } catch (err) {
+      showApiError(err, { title: "Error" });
     }
   };
 
@@ -279,21 +258,7 @@ const ClientMaster = () => {
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <FilterDropdown
-          label="Status"
-          value={statusFilter}
-          options={STATUS_FILTER}
-          onChange={setStatusFilter}
-        />
-        <FilterDropdown
-          label="Category Name"
-          value={categoryFilter}
-          options={CATEGORY_NAME_FILTER_OPTIONS}
-          onChange={setCategoryFilter}
-        />
-
-      </div>
+  
     </div>
   );
 

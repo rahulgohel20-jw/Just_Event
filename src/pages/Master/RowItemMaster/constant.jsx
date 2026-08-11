@@ -46,7 +46,7 @@ const getCategoryColor = (category) => {
 export const getRawItemColumns = ({ onEdit, onDelete }) => [
   {
     accessorKey: "srNo",
-    header: "SR. NO.",
+    header: "Sr. No.",
     cell: ({ row }) => (
       <span className="text-sm text-gray-500">
         {String(row.index + 1).padStart(2, "0")}
@@ -54,70 +54,76 @@ export const getRawItemColumns = ({ onEdit, onDelete }) => [
     ),
   },
   {
-    accessorKey: "nameEnglish",
-    header: "ITEM NAME",
-    cell: ({ row }) => (
-      <div className="flex gap-3 items-center my-2">
-        <div className="w-10 h-10 rounded-xl bg-primary-inverse flex items-center justify-center text-primary">
-          <Wine size={18} />
+    accessorKey: "image",
+    header: "Image",
+    enableSorting: false,
+    cell: ({ row }) => {
+      const { image, itemNameEnglish } = row.original;
+      return image ? (
+        <img
+          src={image}
+          alt={itemNameEnglish}
+          className="h-10 w-10 rounded-md object-cover border border-gray-200"
+        />
+      ) : (
+        <div className="h-10 w-10 rounded-md bg-gray-100 flex items-center justify-center text-[10px] text-gray-400">
+          N/A
         </div>
-        <div>
-          <p className="font-semibold text-dark m-0">{row.original.nameEnglish}</p>
-          {row.original.inventoryId && (
-            <p className="text-xs text-gray-500 m-0">Inv ID: {row.original.inventoryId}</p>
-          )}
-        </div>
-      </div>
-    ),
+      );
+    },
   },
   {
-    accessorKey: "rawCategoryNameEnglish",
-    header: "MAIN ITEM CATEGORY",
+    accessorKey: "itemName",
+    header: "Raw Item",
     cell: ({ row }) => (
-      <span className={`rounded-md px-3 py-1 text-xs font-medium ${getCategoryColor(row.original.rawCategoryNameEnglish)}`}>
-        {row.original.rawCategoryNameEnglish}
+      <span className="text-sm font-medium text-gray-800">
+        {row.original.itemNameEnglish}
       </span>
     ),
   },
   {
-    accessorKey: "unitType",
-    header: "UNIT",
+    accessorKey: "mainCategory",
+    header: "Raw Material Category",
+    cell: ({ getValue }) => <span>{getValue()}</span>,
+  },
+  {
+    accessorKey: "unit",
+    header: "Unit",
+    cell: ({ getValue }) => <span>{getValue()}</span>,
   },
   {
     accessorKey: "status",
-    header: "STATUS",
-    cell: ({ row }) => (
-      <span
-        className={`rounded-full px-4 py-1 text-xs font-semibold ${
-          row.original.status === "active"
-            ? "bg-green-100 text-green-700"
-            : "bg-gray-100 text-gray-500"
-        }`}
-      >
-        ● {row.original.status === "active" ? "Active" : "Inactive"}
-      </span>
-    ),
+    header: "Status",
+    cell: ({ row }) => {
+      const isActive = row.original.status === "active";
+      return (
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            isActive ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-500"
+          }`}
+        >
+          {isActive ? "Active" : "Inactive"}
+        </span>
+      );
+    },
   },
   {
     id: "actions",
-    header: "ACTIONS",
+    header: "Actions",
     enableSorting: false,
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => onEdit(row.original)}
-          className="btn btn-sm btn-icon btn-clear border rounded-lg"
-        >
-          <i className="ki-filled ki-notepad-edit text-third"></i>
-        </button>
-        <button
-          onClick={() => onDelete(row.original)}
-          className="btn btn-sm btn-icon btn-clear border rounded-lg text-danger"
-        >
-          <Trash2 size={16} />
-        </button>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const record = row.original;
+      return (
+        <div className="flex items-center justify-start gap-2 text-rose-700">
+          <button className="btn btn-sm btn-icon btn-clear" type="button" onClick={() => onEdit?.(record)}>
+            <i className="ki-filled ki-notepad-edit text-third"></i>
+          </button>
+          <button className="btn btn-sm btn-icon btn-clear text-danger" type="button" onClick={() => onDelete?.(record)}>
+            <Trash2 size={16} />
+          </button>
+        </div>
+      );
+    },
   },
 ];
 

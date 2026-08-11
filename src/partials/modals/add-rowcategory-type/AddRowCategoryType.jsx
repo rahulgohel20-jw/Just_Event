@@ -9,7 +9,7 @@ const initialFormState = {
         hindi: "",
         gujarati: "",
     },
-    status: "",
+    isActive: true,
 };
 const handleTranslate = async (englishText) => {
     try {
@@ -33,28 +33,26 @@ const AddRowCategoryType = ({
     initialData,
 }) => {
     const [form, setForm] = useState(initialFormState);
+const userId = Number(localStorage.getItem("userId"));
 
     const isEditMode = Boolean(initialData);
 
-    useEffect(() => {
-        if (open) {
-            if (initialData) {
-                setForm({
-                    categoryName: {
-                        english:
-                            initialData.categoryNameEnglish ||
-                            initialData.categoryName ||
-                            "",
-                        hindi: initialData.categoryNameHindi || "",
-                        gujarati: initialData.categoryNameGujarati || "",
-                    },
-                    status: initialData.status || "",
-                });
-            } else {
-                setForm(initialFormState);
-            }
+   useEffect(() => {
+    if (open) {
+        if (initialData) {
+            setForm({
+                categoryName: {
+                    english: initialData.nameEnglish || "",
+                    hindi: initialData.nameHindi || "",
+                    gujarati: initialData.nameGujarati || "",
+                },
+                isActive: initialData.isActive ?? true,
+            });
+        } else {
+            setForm(initialFormState);
         }
-    }, [open, initialData]);
+    }
+}, [open, initialData]);
 
 
     const handleCategoryNameChange = (name, value) => {
@@ -151,15 +149,28 @@ const AddRowCategoryType = ({
                         Status
                     </label>
 
-                    <select
-                        value={form.status}
-                        onChange={(e) => updateField("status", e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-lg border border-primary-clarity focus:outline-none"
-                    >
-                        <option value="">Select Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
+                     <div className="flex items-center gap-3">
+        <button
+            type="button"
+            onClick={() => updateField("isActive", !form.isActive)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                form.isActive ? "bg-primary" : "bg-gray-300"
+            }`}
+        >
+            <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                    form.isActive ? "translate-x-6" : "translate-x-1"
+                }`}
+            />
+        </button>
+        <span
+            className={`text-sm font-medium ${
+                form.isActive ? "text-primary" : "text-gray-400"
+            }`}
+        >
+            {form.isActive ? "Active" : "Inactive"}
+        </span>
+    </div>
                 </div>
             </div>
         </CustomModal>

@@ -33,29 +33,16 @@ const ViewVendorModal = ({ open, onClose, vendor, onEdit }) => {
       centered
       title={null}
       footer={
-        <div className="flex justify-between items-center px-6 pb-6">
-          <div className="flex items-center gap-1.5 text-xs text-[#7A2E45] font-medium">
-            {isVerified && (
-              <>
-                <ShieldCheck size={14} />
-                Verified Vendor Entity
-              </>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
+        <div className="flex justify-end items-center px-6 pb-6">
+          
+          <div className="flex items-center  gap-3">
             <button
               onClick={onClose}
               className="px-5 py-2 rounded-lg bg-[#F7E5EA] text-[#7A2E45] font-medium hover:bg-[#f0d3dc] transition-colors"
             >
               Close
             </button>
-            <button
-              onClick={() => onEdit?.(vendor)}
-              className="flex items-center gap-2 px-5 py-2 rounded-lg bg-[#7A2E45] text-white font-medium hover:bg-[#66253a] transition-colors"
-            >
-              <Pencil size={16} />
-              Edit Details
-            </button>
+           
           </div>
         </div>
       }
@@ -80,9 +67,7 @@ const ViewVendorModal = ({ open, onClose, vendor, onEdit }) => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-gray-500 hover:text-gray-700">
-              <Printer size={16} />
-            </button>
+          
             <button
               onClick={onClose}
               className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-gray-500 hover:text-gray-700"

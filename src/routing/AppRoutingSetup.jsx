@@ -158,6 +158,7 @@ import RawSubCategoryMaster from "../pages/Master/RowSubCategoryMaster";
 import QuotationDashboard from "../pages/quotation/quotion-dashboard";
 import RoleMaster from "../pages/Master/RoleMaster";
 import ExecutionPage from "../pages/execution/ExecutionPage";
+import PlanMaster from "../pages/Master/Plan Master";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -166,7 +167,8 @@ const AppRoutingSetup = () => {
 
           <Route element={<Demo1Layout />}>
             {/* project routs */}
-            <Route path="/master/categorytypemaster" element={<CategoryTypeMaster />} />
+            <Route path="/planmaster" element={<PlanMaster/>}/>
+          <Route path="/master/categorytypemaster" element={<CategoryTypeMaster />} />
             <Route path="/creteEvent" element={<CreateEvent />} />
             <Route path="/creteevnetname" element={<CreateEventName />} />
             <Route path="/master/venuemaster/add" element={<AddVenuePage />} />

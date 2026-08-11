@@ -30,6 +30,7 @@ const RawSubCategoryMaster = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+const userId = Number(localStorage.getItem("userId"));
 
   const [categoryOptions, setCategoryOptions] = useState([
     { label: "All Category", value: "" },
@@ -53,7 +54,7 @@ const RawSubCategoryMaster = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await getAllRawCategoryMaster({ page: 0, pageSize: 100, isActive: true });
+        const res = await getAllRawCategoryMaster({ page: 0, pageSize: 100, isActive: true , userId });
         const records = res?.data?.data?.content ?? [];
         setCategoryOptions([
           { label: "All Category", value: "" },
@@ -77,6 +78,7 @@ const RawSubCategoryMaster = () => {
         ...(categoryFilter ? { rawCategoryId: categoryFilter } : {}),
         ...(statusFilter ? { isActive: statusFilter === "active" } : {}),
         ...(debouncedSearch ? { search: debouncedSearch } : {}),
+        userId,
       };
 
       const res = await getAllRawSubCategoryMaster(payload);
@@ -129,6 +131,7 @@ const RawSubCategoryMaster = () => {
         nameGujarati: formData.subCategoryName?.gujarati || "",
         mainCategoryId: formData.mainCategoryId,
         isActive: formData.isActive,
+        userId,
         ...(editingSubCategory ? { id: editingSubCategory.id } : {}),
       };
 
@@ -189,7 +192,7 @@ const RawSubCategoryMaster = () => {
     <div className="min-h-screen p-6 mt-0">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-primary">{PAGE_HEADER.title}</h1>
+          <h1 className="text-2xl  text-primary">{PAGE_HEADER.title}</h1>
           <p className="mt-1 max-w-xl text-sm text-gray-500">{PAGE_HEADER.description}</p>
         </div>
 

@@ -2,22 +2,24 @@ import { DataGrid } from "@/components";
 
 const TableComponent = ({
   columns,
-  data,
   tableData,
   paginationSize,
   defaultSorting,
   toolbar,
+  serverSide,
+  onFetchData,
+  data,
 }) => {
-  console.log("TableComponent Data:", data, columns, paginationSize);
-
   return (
     <DataGrid
       columns={columns}
-      data={tableData}
+      data={serverSide ? data : tableData}
       pagination={{ size: paginationSize }}
       sorting={defaultSorting}
       toolbar={toolbar}
       layout={{ card: true }}
+      serverSide={serverSide}
+      onFetchData={onFetchData}
     />
   );
 };

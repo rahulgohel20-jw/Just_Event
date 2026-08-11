@@ -4,26 +4,24 @@ import { TableComponent } from "@/components/table/TableComponent";
 import {
   PAGE_HEADER,
   STATUS_FILTER_OPTIONS,
-  CATEGORY_NAME_FILTER_OPTIONS,
   getCategoryColumns,
   DEFAULT_PAGINATION_SIZE,
   DEFAULT_SORTING,
 } from "./constant";
 import { AddCategorytypeModal } from "./AddCategorytypeModal";
-import { getAllCategoryTypemaster  , deletecategorytypemaster } from "@/services/apiServices"; 
-import Swal from "sweetalert2";
+import { getAllCategoryTypemaster, deletecategorytypemaster } from "@/services/apiServices";
+import { confirmDelete, showApiResult, showApiError } from "@/utils/swalHelpers";
+
 const CategoryTypeMaster = () => {
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGINATION_SIZE || 10);
 
-  // Normalize an API row into the shape the table/columns expect
   const normalizeRow = (row, index) => ({
     id: row.id,
     srNo: String(index + 1).padStart(2, "0"),
@@ -87,35 +85,19 @@ const CategoryTypeMaster = () => {
     setIsAddModalOpen(true);
   };
 
- const handleDelete = async (record) => {
-    const confirm = await Swal.fire({
-      icon: "warning",
-      title: "Delete this category?",
-      text: `This will permanently delete "${record.categoryName?.english || ""}".`,
-      showCancelButton: true,
-      confirmButtonText: "Delete",
-      confirmButtonColor: "#7A2E45",
-      cancelButtonText: "Cancel",
-    });
-
-    if (!confirm.isConfirmed) return;
+  const handleDelete = async (record) => {
+    const confirmed = await confirmDelete(record.categoryName?.english || "this category");
+    if (!confirmed) return;
 
     try {
-      await deletecategorytypemaster(record.id);
-      Swal.fire({
-        icon: "success",
-        title: "Category Deleted",
-        timer: 1500,
-        showConfirmButton: false,
+      const res = await deletecategorytypemaster(record.id);
+      showApiResult(res, {
+        successTitle: "Category Deleted",
+        onSuccess: fetchCategoryList,
       });
-      fetchCategoryList();
     } catch (err) {
       console.error("Delete category failed:", err);
-      Swal.fire({
-        icon: "error",
-        title: "Something went wrong",
-        text: err?.response?.data?.message || "Failed to delete category.",
-      });
+      showApiError(err, { title: "Something went wrong" });
     }
   };
 
@@ -129,8 +111,6 @@ const CategoryTypeMaster = () => {
     setEditingCategory(null);
   };
 
-  // Modal already calls addupadtecategorytypemaster itself and returns the saved
-  // row via onSave — just refetch the list so it reflects the server state.
   const handleSaveCategory = () => {
     handleCloseModal();
     fetchCategoryList();
@@ -181,19 +161,12 @@ const CategoryTypeMaster = () => {
           options={STATUS_FILTER_OPTIONS}
           onChange={setStatusFilter}
         />
-        <FilterDropdown
-          label="Category Name"
-          value={categoryFilter}
-          options={CATEGORY_NAME_FILTER_OPTIONS}
-          onChange={setCategoryFilter}
-        />
       </div>
     </div>
   );
 
   return (
     <div className="min-h-screen bg-white p-6">
-      {/* Page header */}
       <div className=" flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl text-primary">{PAGE_HEADER.title}</h1>
@@ -209,7 +182,6 @@ const CategoryTypeMaster = () => {
         </button>
       </div>
 
-      {/* Table */}
       <TableComponent
         columns={columns}
         data={filteredData}
@@ -220,7 +192,6 @@ const CategoryTypeMaster = () => {
         toolbar={toolbar}
       />
 
-      {/* Add / Edit Category Modal */}
       <AddCategorytypeModal
         open={isAddModalOpen}
         onClose={handleCloseModal}
@@ -231,9 +202,6 @@ const CategoryTypeMaster = () => {
   );
 };
 
-// ---------------------------------------------------------------------------
-// Local presentational helpers
-// ---------------------------------------------------------------------------
 const FilterDropdown = ({ label, value, options, onChange }) => (
   <div className="relative">
     <select

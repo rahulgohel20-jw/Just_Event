@@ -1,34 +1,54 @@
-// import axiosInstance, { POST, GET, PUT, DELETE } from "./axiosInstance";
-// import { data } from "autoprefixer";
+import axiosInstance, { POST, GET, PUT, DELETE } from "./axiosInstance";
+import { data } from "autoprefixer";
+
+// Sign Up Login 
+export const signup = (data) =>{
+  return POST(`/auth/signup` , data);
+};
+
+export const login = (data) => {
+  return POST(`/auth/login`, data);
+};
+
+
+// translate
+export const Translateapi = (data) => {
+  return GET(`/transliterate?text=${data}`);
+};
+
+
+// city state 
+export const getstatebycountry = (data) => {
+  return POST(`/state/list`, data) ;
+};
+
+export const getbycitiesbystate = (data) =>{
+  return POST(`/city/list` , data) ;
+};
+
 
 // Create Role
 export const createRole = (data) => {
     return POST("/role_master/save-single-or-multiple", data);
 };
 
-// Get All Roles
 export const getAllRoles = (data) => {
     return GET("/role_master", data);
 };
 
-// Update Role
 export const updateRole = (roleId, data) => {
     return PUT(`/role_master/update-by-id/${roleId}/role_id`, data);
 };
 
-// Delete Role
 export const deleteRole = (roleId) => {
-    return DELETE(`/role_master/${roleId}/role_id`);
-};
-
-export const Translateapi = (data) => {
-    return GET(`/transliterate?text=${data}`);
-};
+  return DELETE(`/role_master/${roleId}/role_id`);
+}
 
 
-export const addupadtetaxmaster = (data) => {
-    return POST(`/tax-master/add-update`, data);
-};
+// Tax 
+export const addupadtetaxmaster = ( data) => {
+  return POST(`/tax-master/add-update`,data) ;
+} ;
 
 export const deletetaxmaster = (id) => {
     return DELETE(`/tax-master/delete?id=${id}`);
@@ -42,8 +62,10 @@ export const getalltaxmaster = (data) => {
     return POST(`/tax-master/list`, data);
 };
 
-export const addupadtecategorytypemaster = (data) => {
-    return POST(`/category-type/add-update`, data);
+
+// category type master
+export const addupadtecategorytypemaster = (data) =>{
+  return POST(`/category-type/add-update`, data) ;
 };
 
 export const deletecategorytypemaster = (id) => {
@@ -54,6 +76,7 @@ export const getAllCategoryTypemaster = (data) => {
     return POST(`/category-type/list`, data);
 };
 
+// cat
 export const addupdatecategorymaster = (data) => {
     return POST(`/category-master/add-update`, data);
 };
@@ -66,6 +89,8 @@ export const getAllCategoryMaster = (data) => {
     return POST(`/category-master/list`, data);
 };
 
+
+// rawcattype
 export const addupdaterawcategorytype = (data) => {
     return POST(`/raw-category-type/add-update`, data);
 };
@@ -82,6 +107,8 @@ export const getAllRawCategoryTypeMaster = (data) => {
     return POST(`/raw-category-type/list`, data);
 };
 
+
+// rawcat
 export const addupdaterawcategory = (data) => {
     return POST(`/raw-category/add-update`, data);
 };
@@ -98,6 +125,7 @@ export const getAllRawCategoryMaster = (data) => {
     return POST(`/raw-category/list`, data);
 };
 
+// raw sub cat
 export const addupdaterawsubcategory = (data) => {
     return POST(`/raw-sub-category/add-update`, data);
 };
@@ -114,6 +142,7 @@ export const getAllRawSubCategoryMaster = (data) => {
     return POST(`/raw-sub-category/list`, data);
 };
 
+// raw item 
 export const addupdaterawitem = (data) => {
     return POST(`/raw-item/add-update`, data);
 };
@@ -130,6 +159,7 @@ export const getAllRawItemMaster = (data) => {
     return POST(`/raw-item/list`, data);
 };
 
+// unit
 export const addupdateunitmaster = (data) => {
     return POST(`/unit-master/add-update`, data);
 };
@@ -158,12 +188,11 @@ export const getbyidrolemaster = (id) => {
     return GET(`/role/get/?id=${id}`);
 };
 
-
 export const deleterolemaster = (id) => {
     return DELETE(`/role/delete/?id=${id}`);
 };
 
-// Client API
+// Client /vendor API
 export const addupdateclientmaster = (formData) => {
     return axiosInstance.post("/party-master/add-update", formData, {
         headers: {
@@ -179,19 +208,44 @@ export const getClientById = (id) => {
     return GET(`/party-master/get?id=${id}`);
 };
 export const deleteClientMaster = (id) => {
-    return DELETE(`/party-master/delete?id=${id}`);
-}
-export const signup = (data) => {
-    return POST(`/auth/signup`, data);
+  return DELETE(`/party-master/delete?id=${id}`);
 };
 
-export const login = (data) => {
-    return POST(`/auth/login`, data);
-};
-export const getstatebycountry = (data) => {
-    return POST(`/state/list`, data);
+export const generateUniqueCodeforvendor = (userId) =>{
+  return GET(`party-master/generate-unique-code?userId=${userId}`);
 };
 
-export const getbycitiesbystate = (data) => {
-    return POST(`/city/list`, data);
+
+// function master
+export const addupadtefunctionmaster = (formData) => {
+  return POST(`/function/add-update`, formData);
 };
+
+export const getalllistfuntionmaster = (data) => {
+  return POST(`/function/list` , data);
+};
+
+export const deletefunctionmaster = (id) => {
+  return DELETE(`/function/delete?id=${id}`);
+};
+
+
+// plan
+export const addupdateplan = (data) =>{
+  return POST(`/plan/add-update`, data) ;
+
+};
+
+export const getAllPlanMaster = (data) =>
+  {
+    return POST(`/plan/list`, data );
+
+  };
+
+  export const deleteplan = (id) => {
+    return DELETE(`/plan/delete?id=${id}`);
+  };
+
+  export const getbyidplan = (id) =>{
+    return GET(`/paln/get?id=${id}`);
+  };

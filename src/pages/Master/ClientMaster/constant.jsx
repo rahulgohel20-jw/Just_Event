@@ -95,7 +95,7 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
   },
   {
     accessorKey: "mainCategory",
-    header: "Main Category",
+    header: "  Category",
     cell: ({ getValue }) => {
       const value = getValue();
       return (
@@ -105,18 +105,7 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
       );
     },
   },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const isActive = row.original.status === "active";
-      return (
-          <span>
-            {isActive ? "Active" : "Inactive"}
-          </span>
-      );
-    },
-  },
+  
   {
     accessorKey: "mobileNumber",
     header: "Mobile Number",
@@ -124,22 +113,25 @@ export const getClientColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =
       <span className="text-sm text-gray-600">{getValue()}</span>
     ),
   },
-  {
+{
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => (
-      <div className="flex items-center justify-start gap-2 text-rose-700">
-         <button onClick={() => onView(row.original)} className="btn btn-sm btn-icon btn-clear">
-          <i className="ki-filled ki-eye  text-primary"></i>
-        </button>
-          <button className="btn btn-sm btn-icon btn-clear" type="button" onClick={() => onEdit?.(record)} >
+    cell: ({ row }) => {
+      const record = row.original;
+      return (
+        <div className="flex items-center justify-start gap-2 text-rose-700">
+          <button onClick={() => onView(record)} className="btn btn-sm btn-icon btn-clear">
+            <i className="ki-filled ki-eye  text-primary"></i>
+          </button>
+          <button className="btn btn-sm btn-icon btn-clear" type="button" onClick={() => onEdit?.(record)}>
             <i className="ki-filled ki-notepad-edit text-third"></i>
           </button>
-          <button  className=" tn btn-sm btn-icon btn-clear text-danger" type="button" onClick={() => onDelete?.(record)} >
+          <button className="tn btn-sm btn-icon btn-clear text-danger" type="button" onClick={() => onDelete?.(record)}>
             <Trash2 size={16} />
           </button>
         </div>
-    ),
+      );
+    },
   },
 
 ];

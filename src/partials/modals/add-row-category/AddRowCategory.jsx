@@ -5,6 +5,7 @@ import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox"
 import { Translateapi, getAllRawCategoryTypeMaster } from "@/services/apiServices";
 import { Select } from "antd";
 
+
 const initialFormState = {
     categoryName: {
         english: "",
@@ -25,6 +26,7 @@ const AddRowCategory = ({
     const [saving, setSaving] = useState(false);
     const [itemTypeOptions, setItemTypeOptions] = useState([]);
     const [loadingItemTypes, setLoadingItemTypes] = useState(false);
+const userId = Number(localStorage.getItem("userId"));
 
     const isEditMode = Boolean(initialData);
 
@@ -39,6 +41,7 @@ const AddRowCategory = ({
                     page: 0,
                     pageSize: 100, // pull enough for a dropdown; paginate/search here if the list grows large
                     status: "active",
+                    userId,
                 });
                 const records = res?.data?.data?.content ?? [];
                 setItemTypeOptions(
@@ -58,25 +61,21 @@ const AddRowCategory = ({
         fetchItemTypes();
     }, [open]);
 
-    useEffect(() => {
-        if (open && initialData) {
-            setForm({
-                categoryName: {
-                    english:
-                        initialData.nameEnglish ||
-                        initialData.categoryName ||
-                        "",
-                    hindi: initialData.nameHindi || "",
-                    gujarati: initialData.nameGujarati || "",
-                },
-                // rawCategoryTypeId now stores the raw-category-type id
-                rawCategoryTypeId: initialData.itemTypeId ?? initialData.rawCategoryTypeId,
-                isActive: initialData.status === "active",
-            });
-        } else if (open) {
-            setForm(initialFormState);
-        }
-    }, [open, initialData]);
+   useEffect(() => {
+    if (open && initialData) {
+        setForm({
+            categoryName: {
+                english: initialData.nameEnglish || "",
+                hindi: initialData.nameHindi || "",
+                gujarati: initialData.nameGujarati || "",
+            },
+            rawCategoryTypeId: initialData.rawCategoryTypeId,
+            isActive: initialData.isActive ?? true,
+        });
+    } else if (open) {
+        setForm(initialFormState);
+    }
+}, [open, initialData]);
 
     const handleSave = async () => {
         setSaving(true);

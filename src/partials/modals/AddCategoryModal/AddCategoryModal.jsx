@@ -3,6 +3,7 @@ import { Select } from "antd";
 import Swal from "sweetalert2";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox";
+import { showApiError, getPrimaryColor } from "../../../utils/swalHelpers";
 import {
   Translateapi,
   getAllCategoryTypemaster,
@@ -18,6 +19,7 @@ const AddCategoryModal = ({ open, onClose, onSave, initialData }) => {
   const [loadingTypes, setLoadingTypes] = useState(false);
   const [saving, setSaving] = useState(false);
   const isEditMode = Boolean(initialData);
+const userId = Number(localStorage.getItem("userId"));
 
   // Fetch Main Category Group options (category types) whenever modal opens
   useEffect(() => {
@@ -31,7 +33,7 @@ const AddCategoryModal = ({ open, onClose, onSave, initialData }) => {
           size: 1000,
           sortBy: "id",
           sortDirection: "ASC",
-          userId: 1,
+          userId: 1 ,
         };
         const res = await getAllCategoryTypemaster(payload);
         const list = res?.data?.data?.content || res?.data?.data || res?.data || [];
@@ -80,12 +82,13 @@ const AddCategoryModal = ({ open, onClose, onSave, initialData }) => {
     }
   };
 
-  const handleSave = async () => {
+const handleSave = async () => {
     if (!categoryName.english?.trim()) return;
     if (!categoryTypeId) {
       Swal.fire({
         icon: "warning",
         title: "Main Category Group is required",
+        confirmButtonColor: getPrimaryColor(),
       });
       return;
     }
@@ -96,7 +99,7 @@ const AddCategoryModal = ({ open, onClose, onSave, initialData }) => {
       nameEnglish: categoryName.english,
       nameGujarati: categoryName.gujarati,
       nameHindi: categoryName.hindi,
-      userId: 1, // static for now
+      userId,
     };
 
     setSaving(true);
@@ -107,6 +110,7 @@ const AddCategoryModal = ({ open, onClose, onSave, initialData }) => {
       Swal.fire({
         icon: "success",
         title: isEditMode ? "Category Updated" : "Category Saved",
+        confirmButtonColor: getPrimaryColor(),
         timer: 1500,
         showConfirmButton: false,
       });
@@ -114,12 +118,7 @@ const AddCategoryModal = ({ open, onClose, onSave, initialData }) => {
       onSave?.(result || payload);
       handleReset();
     } catch (err) {
-      console.error("Save category failed:", err);
-      Swal.fire({
-        icon: "error",
-        title: "Something went wrong",
-        text: err?.response?.data?.message || "Failed to save category.",
-      });
+      showApiError(err, { title: "Something went wrong", fallback: "Failed to save category." });
     } finally {
       setSaving(false);
     }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { Plus, Search, ChevronDown } from "lucide-react";
-import Swal from "sweetalert2";
+import { confirmDelete, showApiError, getPrimaryColor } from "../../../utils/swalHelpers";
 import { TableComponent } from "@/components/table/TableComponent";
 import { AddCategoryModal } from "../../../partials/modals/AddCategoryModal/AddCategoryModal";
 import {
@@ -23,6 +23,7 @@ const CategoryMaster = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGINATION_SIZE || 10);
+const userId = Number(localStorage.getItem("userId"));
 
   // Normalize an API row into the shape the table/columns expect
   const normalizeRow = (row, index) => ({
@@ -48,7 +49,7 @@ const CategoryMaster = () => {
         size,
         sortBy: DEFAULT_SORTING?.sortBy || "id",
         sortDirection: DEFAULT_SORTING?.sortDirection || "DESC",
-        userId: 1, // static for now
+        userId: userId,
       };
       const res = await getAllCategoryMaster(payload);
       const list = res?.data?.data?.content || res?.data?.data || res?.data || [];
@@ -73,7 +74,6 @@ const CategoryMaster = () => {
           : row
       )
     );
-    // TODO: call status toggle API here if one exists, then refetch
   };
 
   const handleView = (record) => console.log("View category:", record);
@@ -84,34 +84,21 @@ const CategoryMaster = () => {
   };
 
   const handleDelete = async (record) => {
-    const confirm = await Swal.fire({
-      icon: "warning",
-      title: "Delete this category?",
-      text: `This will permanently delete "${record.categoryName?.english || ""}".`,
-      showCancelButton: true,
-      confirmButtonText: "Delete",
-      confirmButtonColor: "#7A2E45",
-      cancelButtonText: "Cancel",
-    });
-
-    if (!confirm.isConfirmed) return;
+    const confirmed = await confirmDelete(record.categoryName?.english || "this category");
+    if (!confirmed) return;
 
     try {
       await deletecategorymaster(record.id);
       Swal.fire({
         icon: "success",
         title: "Category Deleted",
+        confirmButtonColor: getPrimaryColor(),
         timer: 1500,
         showConfirmButton: false,
       });
       fetchCategoryList();
     } catch (err) {
-      console.error("Delete category failed:", err);
-      Swal.fire({
-        icon: "error",
-        title: "Something went wrong",
-        text: err?.response?.data?.message || "Failed to delete category.",
-      });
+      showApiError(err, { title: "Something went wrong", fallback: "Failed to delete category." });
     }
   };
 
@@ -170,20 +157,7 @@ const CategoryMaster = () => {
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <FilterDropdown
-          label="Status"
-          value={statusFilter}
-          options={STATUS_FILTER_OPTIONS}
-          onChange={setStatusFilter}
-        />
-        <FilterDropdown
-          label="Category Name"
-          value={categoryFilter}
-          options={CATEGORY_NAME_FILTER_OPTIONS}
-          onChange={setCategoryFilter}
-        />
-      </div>
+     
     </div>
   );
 

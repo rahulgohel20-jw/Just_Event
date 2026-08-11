@@ -25,21 +25,21 @@ const AddUnit = ({
 
   const isEditMode = Boolean(initialData);
 
-  useEffect(() => {
+useEffect(() => {
     if (open && initialData) {
-      setForm({
-        unitName: {
-          english: initialData.nameEnglish || "",
-          hindi: initialData.nameHindi || "",
-          gujarati: initialData.nameGujarati || "",
-        },
-        symbol: initialData.symbol || "",
-        isActive: initialData.status === "active",
-      });
+        setForm({
+            unitName: {
+                english: initialData.unitNameEnglish || "",
+                hindi: initialData.unitNameHindi || "",
+                gujarati: initialData.unitNameGujarati || "",
+            },
+            symbol: initialData.symbolEnglish || "",
+            isActive: initialData.isActive ?? true,
+        });
     } else if (open) {
-      setForm(initialFormState);
+        setForm(initialFormState);
     }
-  }, [open, initialData]);
+}, [open, initialData]);
 
   const updateField = (field, value) => {
     setForm((prev) => ({

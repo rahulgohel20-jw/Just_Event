@@ -1,17 +1,8 @@
-import { useMemo, useState } from "react";
-import {
-  Plus,
-  Search,
-  RefreshCcw,
-  Share2,
-  Columns3,
-  ChevronDown,
-  LayoutGrid,
-  Heart,
-  Briefcase,
-  Coins,
-} from "lucide-react";
+import { useMemo, useState, useCallback } from "react";
+import { getalllistfuntionmaster, deletefunctionmaster } from "@/services/apiServices";
+import { Plus, ChevronDown, LayoutGrid, Heart, Briefcase, Coins } from "lucide-react";
 import { TableComponent } from "@/components/table/TableComponent";
+import { DataGridSearchBox } from "@/components/table/DataGridSearchBox";
 import { AddFunctionModal } from "../../../partials/modals/AddFunctionModal/AddFunctionModal";
 import { ViewFunctionModal } from "../../../partials/modals/AddFunctionModal/ViewFunctionModal";
 import {
@@ -19,11 +10,11 @@ import {
   STATS_CARDS,
   FUNCTION_TYPE_FILTER_OPTIONS,
   PRICE_RANGE_FILTER_OPTIONS,
-  FUNCTION_TABLE_DATA,
   getFunctionColumns,
   DEFAULT_PAGINATION_SIZE,
   DEFAULT_SORTING,
 } from "./constant";
+import { confirmDelete, showApiResult, showApiError } from "@/utils/swalHelpers";
 
 const STAT_ICONS = {
   layout: LayoutGrid,
@@ -33,24 +24,55 @@ const STAT_ICONS = {
 };
 
 const FunctionMaster = () => {
-  const [tableData, setTableData] = useState(FUNCTION_TABLE_DATA);
-  const [searchText, setSearchText] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [priceRangeFilter, setPriceRangeFilter] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingFunction, setEditingFunction] = useState(null);
   const [viewFunction, setViewFunction] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+const userId = Number(localStorage.getItem("userId"));
+  const mapApiRowToTableRow = (item) => ({
+    id: item.id,
+    functionName: item.nameEnglish,
+    functionNameHindi: item.nameHindi,
+    functionNameGujarati: item.nameGujarati,
+    timeFrom: item.timeFrom,
+    timeTo: item.timeTo,
+    userId: item.userId,
+    images: item.images || [],
+    coverImage:
+      item.images?.[0]?.path ||
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=200&h=200&fit=crop",
+    createdAt: item.createdAt,
+    uuid: item.uuid,
+    status: "active", // ⚠️ no status field in API response
+  });
 
-  const handleToggleStatus = (record) => {
-    setTableData((prev) =>
-      prev.map((row) =>
-        row.id === record.id
-          ? { ...row, status: row.status === "active" ? "inactive" : "active" }
-          : row
-      )
-    );
-  };
+  const handleFetchData = useCallback(async ({ pageIndex, pageSize, columnFilters }) => {
+    const nameFilter =
+      columnFilters?.find((f) => f.id === "functionName")?.value || "";
+
+    try {
+      const res = await getalllistfuntionmaster({
+        nameEnglish: nameFilter,
+        page: pageIndex,
+        size: pageSize,
+        sortBy: "id",
+        sortDirection: "ASC",
+        userId // ⚠️ replace with real logged-in user id
+      });
+      const body = res?.data ?? res;
+      const data = body?.data ?? {};
+      return {
+        data: (data.content ?? []).map(mapApiRowToTableRow),
+        totalCount: data.totalElements ?? 0,
+      };
+    } catch (err) {
+      console.error("Failed to fetch functions:", err);
+      return { data: [], totalCount: 0 };
+    }
+  }, []);
 
   const handleView = (record) => {
     setViewFunction(record);
@@ -62,48 +84,38 @@ const FunctionMaster = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleDelete = (record) => console.log("Delete function:", record);
-
   const handleAddFunction = () => {
     setEditingFunction(null);
     setIsAddModalOpen(true);
   };
 
-  const handleSaveFunction = (formValues) => {
-    if (editingFunction) {
-      setTableData((prev) =>
-        prev.map((row) =>
-          row.id === editingFunction.id
-            ? {
-                ...row,
-                functionName: formValues.functionName,
-                type: formValues.functionType?.label || row.type,
-                timeFrom: formValues.timeFrom,
-                timeTo: formValues.timeTo,
-                price: Number(formValues.price) || 0,
-                coverImage: formValues.coverImagePreview || row.coverImage,
-              }
-            : row
-        )
-      );
-    } else {
-      const newRow = {
-        id: Date.now(), // replace with id from API response
-        functionName: formValues.functionName,
-        segment: "New Segment",
-        type: formValues.functionType?.label || "General",
-        status: "active",
-        timeFrom: formValues.timeFrom,
-        timeTo: formValues.timeTo,
-        price: Number(formValues.price) || 0,
-        coverImage:
-          formValues.coverImagePreview ||
-          "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=200&h=200&fit=crop",
-      };
-      setTableData((prev) => [newRow, ...prev]);
-    }
+  const handleSaveFunction = async () => {
     setIsAddModalOpen(false);
     setEditingFunction(null);
+    setRefreshTrigger((n) => n + 1);
+  };
+
+  const handleDelete = async (record) => {
+    const confirmed = await confirmDelete(record.functionName);
+    if (!confirmed) return;
+
+    try {
+      const res = await deletefunctionmaster(record.id);
+      showApiResult(res, {
+        successTitle: "Deleted",
+        fallbackSuccess: "The function has been removed.",
+        errorTitle: "Delete failed",
+        onSuccess: () => setRefreshTrigger((n) => n + 1),
+      });
+    } catch (err) {
+      console.error("Failed to delete function:", err);
+      showApiError(err, { title: "Delete failed" });
+    }
+  };
+
+  // Status toggle has no backend field/endpoint yet — flagged, not wired.
+  const handleToggleStatus = (record) => {
+    console.warn("Status toggle has no backend support yet:", record.id);
   };
 
   const columns = useMemo(
@@ -117,61 +129,11 @@ const FunctionMaster = () => {
     []
   );
 
-  const filteredData = useMemo(() => {
-    return tableData.filter((row) => {
-      const matchesSearch = row.functionName
-        .toLowerCase()
-        .includes(searchText.toLowerCase());
-      const matchesType = typeFilter
-        ? row.type.toLowerCase() === typeFilter
-        : true;
-      const matchesPrice = priceRangeFilter
-        ? isWithinPriceRange(row.price, priceRangeFilter)
-        : true;
-      return matchesSearch && matchesType && matchesPrice;
-    });
-  }, [tableData, searchText, typeFilter, priceRangeFilter]);
-
   const toolbar = (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl mb-3">
-      <div className="relative w-full max-w-xs">
-        <Search
-          size={16}
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-        />
-        <input
-          type="text"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          placeholder="Search Function Name..."
-          className="w-full rounded-lg border border-rose-100 bg-white py-2 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-200"
-        />
-      </div>
+      <DataGridSearchBox columnId="functionName" placeholder="Search Function Name..." />
 
-      <div className="flex flex-wrap items-center gap-2">
-        <FilterDropdown
-          label="Function Type"
-          value={typeFilter}
-          options={FUNCTION_TYPE_FILTER_OPTIONS}
-          onChange={setTypeFilter}
-        />
-        <FilterDropdown
-          label="Price Range"
-          value={priceRangeFilter}
-          options={PRICE_RANGE_FILTER_OPTIONS}
-          onChange={setPriceRangeFilter}
-        />
-
-        <IconButton onClick={() => console.log("Refresh")}>
-          <RefreshCcw size={16} />
-        </IconButton>
-        <IconButton onClick={() => console.log("Export")}>
-          <Share2 size={16} />
-        </IconButton>
-        <IconButton onClick={() => console.log("Toggle columns")}>
-          <Columns3 size={16} />
-        </IconButton>
-      </div>
+   
     </div>
   );
 
@@ -180,7 +142,7 @@ const FunctionMaster = () => {
       {/* Page header */}
       <div className="mb-3 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl  text-primary">{PAGE_HEADER.title}</h1>
+          <h1 className="text-2xl text-primary">{PAGE_HEADER.title}</h1>
           <p className="mt-1 max-w-xl text-sm text-gray-500">{PAGE_HEADER.description}</p>
         </div>
         <button
@@ -193,36 +155,12 @@ const FunctionMaster = () => {
         </button>
       </div>
 
-      {/* Stat cards */}
-      {/* <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {STATS_CARDS.map((stat) => {
-          const Icon = STAT_ICONS[stat.icon];
-          const trendColor =
-            stat.trendTone === "positive" ? "text-emerald-600" : "text-gray-400";
-          return (
-            <div
-              key={stat.key}
-              className="rounded-xl border border-rose-50 bg-white p-4 shadow-sm"
-            >
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-50 text-rose-800 mb-3">
-                <Icon size={18} />
-              </div>
-              <p className="text-sm text-gray-500">{stat.label}</p>
-              <p className="text-2xl font-bold text-rose-800">{stat.value}</p>
-              <p className={`text-xs mt-1 ${trendColor}`}>
-                {stat.trendTone === "positive" && "↗ "}
-                {stat.trend}
-              </p>
-            </div>
-          );
-        })}
-      </div> */}
-
       {/* Table */}
       <TableComponent
         columns={columns}
-        data={filteredData}
-        tableData={filteredData}
+        serverSide
+        onFetchData={handleFetchData}
+        data={[refreshTrigger]}
         paginationSize={DEFAULT_PAGINATION_SIZE}
         defaultSorting={DEFAULT_SORTING}
         toolbar={toolbar}
@@ -256,22 +194,6 @@ const FunctionMaster = () => {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-const isWithinPriceRange = (price, rangeValue) => {
-  if (rangeValue === "50000+") return price >= 50000;
-  const [min, max] = rangeValue.split("-").map(Number);
-  return price >= min && price <= max;
-};
-
-const IconButton = ({ children, onClick }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className="flex h-9 w-9 items-center justify-center rounded-lg border border-rose-100 bg-white text-gray-500 transition hover:bg-rose-50 hover:text-rose-800"
-  >
-    {children}
-  </button>
-);
-
 const FilterDropdown = ({ label, value, options, onChange }) => (
   <div className="relative">
     <select

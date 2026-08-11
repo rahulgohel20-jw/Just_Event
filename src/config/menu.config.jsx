@@ -286,6 +286,10 @@ export const MENU_SIDEBAR = [
       {
         title:"Role Master",
         path: '/rolemaster'
+      },
+      {
+        title :"Plan Master ",
+        path:"/planmaster",
       }
     ],
   },

@@ -104,9 +104,24 @@ axiosInstance.interceptors.response.use(
 );
 
 // === Helpers ===
-export const POST = (url, data) => axiosInstance.post(url, data);
+export const POST = (url, data) => {
+  if (data instanceof FormData) {
+    return axiosInstance.post(url, data, {
+      headers: { "Content-Type": undefined },
+    });
+  }
+  return axiosInstance.post(url, data);
+};
+
+export const PUT = (url, data) => {
+  if (data instanceof FormData) {
+    return axiosInstance.put(url, data, {
+      headers: { "Content-Type": undefined },
+    });
+  }
+  return axiosInstance.put(url, data);
+};
 export const GET = (url, params) => axiosInstance.get(url, { params });
-export const PUT = (url, data) => axiosInstance.put(url, data);
 export const DELETE = (url) => axiosInstance.delete(url);
 
 export default axiosInstance;

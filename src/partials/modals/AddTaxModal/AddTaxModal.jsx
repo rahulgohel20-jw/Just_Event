@@ -3,7 +3,7 @@ import { Percent, Save, Loader2 } from "lucide-react";
 import Swal from "sweetalert2";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox";
-import { addupadtetaxmaster, Translateapi } from "@/services/apiServices"; // <-- Translateapi imported here now
+import { addupadtetaxmaster, Translateapi } from "@/services/apiServices"; 
 import { showApiResult, showApiError } from "@/utils/swalHelpers";
 
 const initialFormState = {
@@ -16,7 +16,7 @@ const AddTaxModal = ({ open, onClose, onSave, initialData }) => {
   const [form, setForm] = useState(initialFormState);
   const [saving, setSaving] = useState(false);
   const isEditMode = Boolean(initialData);
-  const STATIC_USER_ID = 1;
+const userId = Number(localStorage.getItem("userId"));
 
   useEffect(() => {
     if (open && initialData) {
@@ -69,7 +69,7 @@ const handleSave = async () => {
     taxNameEnglish: form.taxName.english,
     taxNameGujarati: form.taxName.gujarati,
     taxNameHindi: form.taxName.hindi,
-    userId: STATIC_USER_ID,
+    userId,
   };
 
   setSaving(true);
