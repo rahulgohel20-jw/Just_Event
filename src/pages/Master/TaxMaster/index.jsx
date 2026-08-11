@@ -27,8 +27,7 @@ import {
   DEFAULT_SORT_DIRECTION,
   DEFAULT_SORTING,
 } from "./constant";
-import Swal from "sweetalert2";
-
+import { confirmDelete, showApiResult, showApiError } from "@/utils/swalHelpers";
 const STAT_ICONS = {
   receipt: Receipt,
   check: CheckCircle2,
@@ -164,51 +163,21 @@ const getPrimaryColor = () =>
     .trim() || "#881337"; 
 
 const handleDelete = async (record) => {
-  const primaryColor = getComputedStyle(document.documentElement)
-    .getPropertyValue("--primary")
-    .trim();
-
-  const result = await Swal.fire({
-    icon: "warning",
-    title: "Are you sure?",
-    text: `Do you want to delete "${record.taxNameEnglish}"? This action cannot be undone.`,
-    showCancelButton: true,
-      confirmButtonText: "Yes, Delete",
-      confirmButtonColor: "#7A2E45",
-      cancelButtonText: "Cancel",
-  });
-
-  if (!result.isConfirmed) return;
+  const confirmed = await confirmDelete(record.taxNameEnglish);
+  if (!confirmed) return;
 
   try {
-    await deletetaxmaster(record.id);
-
-    Swal.fire({
-      icon: "success",
-      title: "Deleted",
-      text: "Tax has been deleted successfully.",
-      confirmButtonColor: primaryColor,
-      timer: 1500,
-      timerProgressBar: true,
-      showConfirmButton: false,
+    const res = await deletetaxmaster(record.id);
+    showApiResult(res, {
+      successTitle: "Deleted",
+      fallbackSuccess: "Tax has been deleted successfully.",
+      onSuccess: fetchTaxList,
     });
-
-    fetchTaxList();
   } catch (err) {
     console.error("Failed to delete tax:", err);
-
-    Swal.fire({
-      icon: "error",
-      title: "Failed",
-      text:
-        err?.response?.data?.errorMessage ||
-        err?.message ||
-        "Something went wrong. Please try again.",
-      confirmButtonColor: primaryColor,
-    });
+    showApiError(err);
   }
 };
-
   const columns = useMemo(
     () =>
       getTaxColumns({

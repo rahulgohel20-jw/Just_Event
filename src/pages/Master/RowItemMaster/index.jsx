@@ -12,10 +12,10 @@ import { TableComponent } from "@/components/table/TableComponent";
 
 import {
     PAGE_HEADER,
-    RAW_ITEM_TABLE_DATA,
+    // RAW_ITEM_TABLE_DATA,
     DEFAULT_PAGINATION_SIZE,
     DEFAULT_SORTING,
-    CATEGORY_OPTIONS,
+    // CATEGORY_OPTIONS,
     STATUS_OPTIONS,
     getRawItemColumns,
     UNIT_OPTIONS,
@@ -23,7 +23,7 @@ import {
 import AddRowItem from "../../../partials/modals/add-row-item/AddRowItem";
 
 const RowItemMaster = () => {
-    const [tableData, setTableData] = useState(RAW_ITEM_TABLE_DATA);
+    const [tableData, setTableData] = useState([]);
     const [searchText, setSearchText] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
@@ -31,37 +31,32 @@ const RowItemMaster = () => {
     const [editingItem, setEditingItem] = useState(null);
     const [unitFilter, setUnitFilter] = useState("");
 
-    const filteredData = useMemo(() => {
-        return tableData.filter((row) => {
-            const matchesSearch = row.itemName
-                .toLowerCase()
-                .includes(searchText.toLowerCase());
+  const filteredData = useMemo(() => {
+    return tableData.filter((row) => {
+        const matchesSearch = row.itemName
+            .toLowerCase()
+            .includes(searchText.toLowerCase());
 
-            const matchesCategory = categoryFilter
-                ? row.category === categoryFilter
-                : true;
+        const matchesStatus = statusFilter
+            ? row.status === statusFilter
+            : true;
 
-            const matchesStatus = statusFilter
-                ? row.status === statusFilter
-                : true;
-
-            const matchesUnit = unitFilter
+        const matchesUnit = unitFilter
             ? row.unit === unitFilter
             : true;
-            return (
-                matchesSearch &&
-                matchesCategory &&
-                matchesStatus &&
-                matchesUnit
-            );
-        });
-    }, [
-        tableData,
-        searchText,
-        categoryFilter,
-        statusFilter,
-        unitFilter
-    ]);
+
+        return (
+            matchesSearch &&
+            matchesStatus &&
+            matchesUnit
+        );
+    });
+}, [
+    tableData,
+    searchText,
+    statusFilter,
+    unitFilter,
+]);
 
     const handleEdit = (row) => {
         setEditingItem(row);
@@ -110,12 +105,7 @@ const RowItemMaster = () => {
 
 
             <div className="flex flex-wrap items-center gap-2">
-                <FilterDropdown
-                    label="Select Category"
-                    value={categoryFilter}
-                    options={CATEGORY_OPTIONS}
-                    onChange={setCategoryFilter}
-                />
+            
                 <FilterDropdown
                     label="Unit"
                     value={unitFilter}

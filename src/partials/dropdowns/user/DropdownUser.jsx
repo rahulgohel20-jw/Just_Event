@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import { Link } from "react-router-dom";
+import { Link  , useNavigate } from "react-router-dom";
 import { FormattedMessage } from "react-intl";
 import { useAuthContext } from "@/auth";
 import { useLanguage } from "@/i18n";
@@ -17,14 +17,21 @@ import {
   MenuIcon,
 } from "@/components/menu";
 const DropdownUser = ({ menuItemRef }) => {
+    const navigate = useNavigate(); 
   const { settings, storeSettings } = useSettings();
-  const { logout } = useAuthContext();
+ const { logout } = useAuthContext();
+
   const { isRTL } = useLanguage();
   const handleThemeMode = (event) => {
     const newThemeMode = event.target.checked ? "dark" : "light";
     storeSettings({
       themeMode: newThemeMode,
     });
+  };
+
+   const handleLogout = () => {   // 👈 ADD this new function
+    logout();
+    navigate("/auth/login", { replace: true });
   };
   const buildHeader = () => {
     return (
@@ -292,7 +299,7 @@ const DropdownUser = ({ menuItemRef }) => {
         </div> */}
 
         <div className="menu-item mb-0.5">
-          <div className="menu-link" onClick={logout}>
+          <div className="menu-link" onClick={handleLogout}>
             <span className="menu-icon">
               <i className="ki-filled ki-exit-left"></i>
             </span>

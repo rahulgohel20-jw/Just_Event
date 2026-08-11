@@ -5,7 +5,6 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import { KeenIcon } from "@/components";
 import { ShieldCheck, Zap, Briefcase } from "lucide-react";
-import { toAbsoluteUrl } from "@/utils";
 import { useAuthContext } from "@/auth";
 import { useLayout } from "@/providers";
 import { Alert } from "@/components";
@@ -24,8 +23,8 @@ const loginSchema = Yup.object().shape({
 });
 
 const initialValues = {
-  email: "demo@keenthemes.com",
-  password: "demo1234",
+  email: "",
+  password: "",
   remember: false,
 };
 
@@ -33,7 +32,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuthContext();
   const navigate = useNavigate();
-  const from = "/auth/2fa";
   const [showPassword, setShowPassword] = useState(false);
   const { currentLayout } = useLayout();
 
@@ -46,20 +44,32 @@ const Login = () => {
         if (!login) {
           throw new Error("JWTProvider is required for this form.");
         }
-        await login(values.email, values.password);
-        localStorage.setItem("email", values.email);
-        navigate(from, { replace: true });
-      } catch {
-        setStatus("The login details are incorrect");
+        await login({ email: values.email, password: values.password });
+
+        if (values.remember) {
+          localStorage.setItem("email", values.email);
+        } else {
+          localStorage.removeItem("email");
+        }
+
+        navigate("/", { replace: true });
+      } catch (error) {
+        console.error('LOGIN ERROR:', error);
+        const apiMsg =
+  error?.response?.data?.msg ||
+  error?.message ||           // 👈 "Invalid credentials." lands here
+  "The login details are incorrect";
+setStatus(apiMsg);
         setSubmitting(false);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     },
   });
 
   const togglePassword = (event) => {
     event.preventDefault();
-    setShowPassword(!showPassword);
+    setShowPassword((v) => !v);
   };
 
   return (
@@ -79,14 +89,19 @@ const Login = () => {
           </span>
         </div>
 
-        {formik.status && <Alert variant="danger">{formik.status}</Alert>}
+        {formik.status && (
+          <Alert variant="danger" className="text-white">
+            {formik.status}
+          </Alert>
+        )}
 
         <div className="flex flex-col gap-1">
           <div className="relative">
             <i className="ki-filled ki-sms absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-600 text-base pointer-events-none" />
             <input
               placeholder="Email Address"
-              autoComplete="off"
+              type="email"
+              autoComplete="username"
               {...formik.getFieldProps("email")}
               className={clsx(
                 "form-control w-full !pl-10 !py-3 !rounded-lg !border !border-gray-200 focus:!border-primary focus:!ring-1 focus:!ring-primary-clarity",
@@ -107,7 +122,7 @@ const Login = () => {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              autoComplete="off"
+              autoComplete="current-password"
               {...formik.getFieldProps("password")}
               className={clsx(
                 "form-control w-full !pl-10 !pr-10 !py-3 !rounded-lg !border !border-gray-200 focus:!border-primary focus:!ring-1 focus:!ring-primary-clarity",
@@ -145,6 +160,7 @@ const Login = () => {
               className="checkbox checkbox-sm"
               type="checkbox"
               {...formik.getFieldProps("remember")}
+              checked={formik.values.remember}
             />
             <span className="text-sm text-gray-600">Remember Me</span>
           </label>

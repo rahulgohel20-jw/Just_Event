@@ -33,7 +33,7 @@ export const getRawCategoryColumns = ({ onEdit, onDelete }) => [
         accessorKey: "srNo",
         header: "SR. NO.",
         cell: ({ row }) => (
-            <span className="text-sm text-gray-500">
+            <span >
                 {String(row.index + 1).padStart(2, "0")}
             </span>
         ),
@@ -46,7 +46,7 @@ export const getRawCategoryColumns = ({ onEdit, onDelete }) => [
         accessorKey: "rawCategoryTypeId",
         header: "RAW CATEGORY TYPE",
         cell: ({ row }) => (
-            <span className="rounded-md bg-gray-100 px-2 py-1 text-xs">
+            <span >
                 {row.original.rawCategoryTypeNameEnglish}
             </span>
         ),

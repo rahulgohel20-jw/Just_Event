@@ -1,115 +1,151 @@
-/* eslint-disable no-unused-vars */
-import axios from 'axios';
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import * as authHelper from '../_helpers';
-const API_URL = import.meta.env.VITE_APP_API_URL;
-export const LOGIN_URL = `${API_URL}/login`;
-export const REGISTER_URL = `${API_URL}/register`;
-export const FORGOT_PASSWORD_URL = `${API_URL}/forgot-password`;
-export const RESET_PASSWORD_URL = `${API_URL}/reset-password`;
-export const GET_USER_URL = `${API_URL}/user`;
-const AuthContext = createContext(null);
-const AuthProvider = ({
-  children
-}) => {
+import { login as loginApi, signup as signupApi } from '@/services/apiServices';
+
+export const AuthContext = createContext(null);
+
+// JWTs use base64url, not base64 — atob() alone corrupts payloads containing
+// '-' or '_' (exactly the chars in your sample token), so decode manually.
+const decodeJwtPayload = (token) => {
+  const base64Url = token.split('.')[1];
+  if (!base64Url) return null;
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+  return JSON.parse(atob(padded));
+};
+
+const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [auth, setAuth] = useState(authHelper.getAuth());
-  const [currentUser, setCurrentUser] = useState();
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem('userData');
+      return stored ? JSON.parse(stored) : undefined;
+    } catch {
+      return undefined;
+    }
+  });
+
+  useEffect(() => {
+    (async () => {
+      await verify();
+      setLoading(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+const saveAuth = (authData) => {
+  setAuth(authData);
+  if (authData) {
+    authHelper.setAuth(authData);
+  } else {
+    authHelper.removeAuth();           // removes the auth key (metronic-tailwind-react-auth-v1...)
+    localStorage.removeItem('userData'); // removes the user data key
+  }
+};
+
+  // No separate "get current user" endpoint — the login response IS the user,
+  // so verify() just checks the stored token's expiry rather than calling an API.
   const verify = async () => {
-    if (auth) {
-      try {
-        const {
-          data: user
-        } = await getUser();
-        setCurrentUser(user);
-      } catch {
+    const storedAuth = authHelper.getAuth();
+    const storedUserRaw = localStorage.getItem('userData');
+
+    if (!storedAuth?.token || !storedUserRaw) {
+      saveAuth(undefined);
+      setCurrentUser(undefined);
+      return;
+    }
+
+    try {
+      const payload = decodeJwtPayload(storedAuth.token);
+      const isExpired = !payload?.exp || payload.exp * 1000 < Date.now();
+
+      if (isExpired) {
         saveAuth(undefined);
         setCurrentUser(undefined);
+      } else {
+        setAuth(storedAuth);
+        setCurrentUser(JSON.parse(storedUserRaw));
       }
-    }
-  };
-  const saveAuth = auth => {
-    setAuth(auth);
-    if (auth) {
-      authHelper.setAuth(auth);
-    } else {
-      authHelper.removeAuth();
-    }
-  };
-  const login = async (email, password) => {
-    try {
-      const {
-        data: auth
-      } = await axios.post(LOGIN_URL, {
-        email,
-        password
-      });
-      saveAuth(auth);
-      const {
-        data: user
-      } = await getUser();
-      setCurrentUser(user);
-    } catch (error) {
+    } catch {
       saveAuth(undefined);
-      throw new Error(`Error ${error}`);
+      setCurrentUser(undefined);
     }
   };
-  const register = async (email, password, password_confirmation) => {
-    try {
-      const {
-        data: auth
-      } = await axios.post(REGISTER_URL, {
-        email,
-        password,
-        password_confirmation
-      });
-      saveAuth(auth);
-      const {
-        data: user
-      } = await getUser();
-      setCurrentUser(user);
-    } catch (error) {
-      saveAuth(undefined);
-      throw new Error(`Error ${error}`);
+
+const login = async (values) => {
+  try {
+    const response = await loginApi(values);
+    const { msg, data, success, errorMessage } = response?.data ?? response ?? {};
+
+    if (!success || !data?.token) {
+      throw new Error(errorMessage || msg || 'Login failed');
     }
+
+    saveAuth(data);
+    localStorage.setItem('userData', JSON.stringify(data));
+    setCurrentUser(data);
+    return data;
+  } catch (error) {
+    saveAuth(undefined);
+    throw error;
+  }
+};
+
+const register = async (payload) => {
+  try {
+    const response = await signupApi(payload);
+    const { msg, data, success } = response ?? {};
+
+    if (!success) {
+      throw new Error(msg || 'Signup failed');
+    }
+
+    if (data?.token) {
+      saveAuth(data);
+      localStorage.setItem('userData', JSON.stringify(data));
+      setCurrentUser(data);
+    }
+    return data;
+  } catch (error) {
+    saveAuth(undefined);
+    throw error;
+  }
+};
+
+  const requestPasswordResetLink = async (email) => {
+    // wire to your forgot-password endpoint here
   };
-  const requestPasswordResetLink = async email => {
-    await axios.post(FORGOT_PASSWORD_URL, {
-      email
-    });
-  };
+
   const changePassword = async (email, token, password, password_confirmation) => {
-    await axios.post(RESET_PASSWORD_URL, {
-      email,
-      token,
-      password,
-      password_confirmation
-    });
+    // wire to your reset-password endpoint here
   };
-  const getUser = async () => {
-    return await axios.get(GET_USER_URL);
-  };
+
   const logout = () => {
-    localStorage.removeItem('phone');
     saveAuth(undefined);
     setCurrentUser(undefined);
   };
-  return <AuthContext.Provider value={{
-    loading,
-    setLoading,
-    auth,
-    saveAuth,
-    currentUser,
-    setCurrentUser,
-    login,
-    register,
-    requestPasswordResetLink,
-    changePassword,
-    getUser,
-    logout,
-    verify
-  }}>
+
+  return (
+    <AuthContext.Provider
+      value={{
+        loading,
+        setLoading,
+        auth,
+        saveAuth,
+        currentUser,
+        setCurrentUser,
+        login,
+        register,
+        requestPasswordResetLink,
+        changePassword,
+        logout,
+        verify,
+      }}
+    >
       {children}
-    </AuthContext.Provider>;
+    </AuthContext.Provider>
+  );
 };
-export { AuthContext, AuthProvider };
+
+export { AuthProvider };

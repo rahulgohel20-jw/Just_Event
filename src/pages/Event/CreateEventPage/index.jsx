@@ -130,7 +130,7 @@ export default function CreateEvent({ onSubmit }) {
             <button
               type="button"
               onClick={handleContinue}
-              className="flex items-center gap-1.5 bg-rose-900 hover:bg-rose-950 text-white text-sm font-semibold rounded-xl px-5 py-2.5 transition-colors"
+              className="flex items-center gap-1.5 bg-primary hover:bg-rose-950 text-white text-sm font-semibold rounded-xl px-5 py-2.5 transition-colors"
             >
               {isLast ? "Finish" : "Continue"} <ArrowRight className="w-4 h-4" />
             </button>
