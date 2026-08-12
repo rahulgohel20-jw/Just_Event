@@ -290,7 +290,25 @@ export const MENU_SIDEBAR = [
       {
         title :"Plan Master ",
         path:"/planmaster",
-      }
+      },
+      {
+        title:"Theme",
+        path:"",
+      },
+      {
+        tite:"Theme Type",
+        path:"",
+      },
+      {
+        title:"All Theme",
+        path:"",
+
+      },
+      {
+        title:"Report Configuration",
+        path :"",
+      },
+     
     ],
   },
   {

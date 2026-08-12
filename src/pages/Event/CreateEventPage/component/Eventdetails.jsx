@@ -13,24 +13,25 @@ export default function EventDetails({ data, onChange }) {
       <section>
         <SectionHeading icon={Info} label="BASIC INFORMATION" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-          <FloatField
+          {/* <FloatField
             placeholder="Client ID"
             value={data.clientId || ""}
             onChange={set("clientId")}
-          />
-          <FloatField
-            placeholder="Event Name"
-            value={data.eventName || ""}
-            onChange={set("eventName")}
-          />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FloatField
+          /> */}
+           <FloatField
             label="Inquiry Date"
             type="date"
             value={data.inquiryDate || ""}
             onChange={set("inquiryDate")}
           />
+          <FloatField
+            placeholder="Event Type"
+            value={data.eventName || ""}
+            onChange={set("eventName")}
+          />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+         
           <div>
             <p className="text-[13px] font-medium text-dark mb-2 pl-2">
               Event Status
@@ -80,7 +81,7 @@ export default function EventDetails({ data, onChange }) {
       {/* Budget information */}
       <section>
         <SectionHeading icon={IndianRupee} label="BUDGET INFORMATION" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-1 gap-4">
           <Field
             icon={IndianRupee}
             placeholder="Budget Amount"
@@ -88,13 +89,7 @@ export default function EventDetails({ data, onChange }) {
             value={data.budgetAmount || ""}
             onChange={set("budgetAmount")}
           />
-          <Field
-            icon={IndianRupee}
-            placeholder="Advance Received"
-            type="number"
-            value={data.advanceReceived || ""}
-            onChange={set("advanceReceived")}
-          />
+        
         </div>
       </section>
 
@@ -113,20 +108,7 @@ export default function EventDetails({ data, onChange }) {
             <option value="the-pavilion">The Pavilion, Ahmedabad</option>
           </select>
         </div>
-        <div className="flex items-center gap-4 text-xs font-medium mb-6">
-          <button
-            type="button"
-            className="text-primary"
-          >
-            + Add New Venue
-          </button>
-          <button
-            type="button"
-            className="text-primary"
-          >
-            − Remove New Venue
-          </button>
-        </div>
+       
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -139,7 +121,7 @@ export default function EventDetails({ data, onChange }) {
             className="w-full bg-light border border-primary-lighter rounded-xl px-4 py-3 text-sm text-dark-active placeholder:text-dark-light outline-none focus:ring-2 focus:ring-primary-lighter resize-none"
           />
           </div>
-          <div>
+          {/* <div>
             <p className="text-[13px] font-medium text-dark mb-2">
               Tentative Booking
             </p>
@@ -148,7 +130,7 @@ export default function EventDetails({ data, onChange }) {
               value={data.tentativeBooking || "No"}
               onChange={(v) => onChange({ tentativeBooking: v })}
             />
-          </div>
+          </div> */}
         </div>
       </section>
     </div>

@@ -110,7 +110,7 @@ export default function CreateEventName() {
 
           {/* Event name */}
           <label className="block text-[12px] font-bold tracking-wider text-[#8A6A70] mb-2">
-            EVENT NAME
+           PROJECT NAME
           </label>
           <div className="relative mb-7">
             <Sparkles className="w-4 h-4 text-primary absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -125,7 +125,7 @@ export default function CreateEventName() {
 
           {/* Event type */}
           <label className="block text-[12px] font-bold tracking-wider text-[#8A6A70] mb-2">
-            EVENT CATEGORY
+            EVENT TYPE
           </label>
           <div className="grid grid-cols-3 gap-2.5 mb-7">
             {EVENT_TYPES.map(({ id, label, icon: Icon }) => {

@@ -49,36 +49,7 @@ export default function ClientDetails({ data, onChange }) {
   return (
     <div className="space-y-6">
       {/* Bride & Groom toggle */}
-      <div className="flex items-center justify-between bg-primary-inverse rounded-xl p-4">
-        <div className="flex items-center gap-3 px-2">
-          <div className="w-9 h-9 flex items-center justify-center shrink-0">
-            <Users className="w-7 h-7 text-primary" />
-          </div>
-          <div>
-            <h5 className="text-sm font-bold text-dark">
-              Add Bride &amp; Groom
-            </h5>
-            <h4 className="text-sm text-primary font-bold">
-              Enable for wedding event specifics
-            </h4>
-          </div>
-        </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={addBrideGroom}
-          onClick={toggleBrideGroom}
-          className={`w-11 h-6 rounded-full relative transition-colors shrink-0 ${
-            addBrideGroom ? "bg-primary" : "bg-primary-clarity"
-          }`}
-        >
-          <span
-            className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
-              addBrideGroom ? "translate-x-5" : "translate-x-0"
-            }`}
-          />
-        </button>
-      </div>
+      
 
       {visibleClients.map((client, i) => (
         <ClientCard
@@ -233,7 +204,7 @@ function ClientCard({ index, client, showTypeToggle, onChange }) {
             </div>
           </div>
         )}
-        <div>
+        {/* <div>
           <label className="block text-[13px] font-medium text-dark-light mb-1.5">
             Lead Source:
           </label>
@@ -248,7 +219,7 @@ function ClientCard({ index, client, showTypeToggle, onChange }) {
               ))}
             </select>
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

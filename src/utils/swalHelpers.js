@@ -7,8 +7,63 @@ export const getPrimaryColor = () =>
     .trim() || "#881337";
 
 /**
+ * Extracts a human-readable message from an API error/response body.
+ * Purely additive — used internally by showApiResult/showApiError only.
+ * Does not change the public signature of anything.
+ *
+ * Handles all shapes seen across endpoints so far:
+ *  - errorMessage: "Some string"
+ *  - errorMessage: ["msg1", "msg2"]
+ *  - errorMessage: { fieldName: ["msg1", "msg2"], otherField: ["msg3"] }
+ *  - errorMessage: { fieldName: "single string msg" }
+ *  - errors: [{ message: "..." }]   (some endpoints use "errors" instead)
+ *  - falls back to msg / message
+ *  - falls back to the provided fallback string
+ */
+const extractErrorMessage = (body, fallback) => {
+  if (!body) return fallback;
+
+  const { errorMessage, errors, msg, message } = body;
+
+  // 1) errorMessage as plain string
+  if (typeof errorMessage === "string" && errorMessage.trim()) {
+    return errorMessage;
+  }
+
+  // 2) errorMessage as array of strings
+  if (Array.isArray(errorMessage) && errorMessage.length) {
+    const flat = errorMessage.filter(Boolean);
+    if (flat.length) return flat.join("\n");
+  }
+
+  // 3) errorMessage as field-map: { field: [msgs] } or { field: "msg" }
+  if (errorMessage && typeof errorMessage === "object" && !Array.isArray(errorMessage)) {
+    const lines = Object.values(errorMessage)
+      .flatMap((v) => (Array.isArray(v) ? v : [v]))
+      .filter(Boolean);
+    if (lines.length) return lines.join("\n");
+  }
+
+  // 4) some endpoints use "errors" instead of "errorMessage"
+  if (Array.isArray(errors) && errors.length) {
+    const lines = errors
+      .map((e) => (typeof e === "string" ? e : e?.message))
+      .filter(Boolean);
+    if (lines.length) return lines.join("\n");
+  }
+
+  // 5) fall back to msg/message, but skip generic non-informative values
+  const generic = msg || message;
+  if (generic && String(generic).toUpperCase() !== "FAILED") return generic;
+
+  // 6) nothing usable found
+  return fallback;
+};
+
+/**
  * Generic "Are you sure?" confirmation dialog.
  * Returns true if the user confirmed, false otherwise.
+ * UNCHANGED — no behavior modified.
  */
 export const confirmDialog = async ({
   title = "Are you sure?",
@@ -33,6 +88,7 @@ export const confirmDialog = async ({
 };
 
 // Convenience wrapper specifically for delete confirmations
+// UNCHANGED — no behavior modified.
 export const confirmDelete = (itemName) =>
   confirmDialog({
     title: "Are you sure?",
@@ -42,9 +98,8 @@ export const confirmDelete = (itemName) =>
 
 /**
  * Shows success/error toast based on an API response object.
- * Handles the { success, msg } / { success, message } envelope shape
- * used across your services (adjust the field names if a given
- * endpoint differs).
+ * Same signature and same return value (boolean) as before.
+ * Only the error-text extraction is smarter now.
  */
 export const showApiResult = (
   res,
@@ -59,13 +114,12 @@ export const showApiResult = (
   const primaryColor = getPrimaryColor();
   const body = res?.data ?? res;
   const isSuccess = body?.success !== false;
-  const msg = body?.msg || body?.message;
 
   if (isSuccess) {
     Swal.fire({
       icon: "success",
       title: successTitle,
-      text: msg || fallbackSuccess,
+      text: body?.msg || body?.message || fallbackSuccess,
       confirmButtonColor: primaryColor,
       timer: 1500,
       timerProgressBar: true,
@@ -76,7 +130,7 @@ export const showApiResult = (
     Swal.fire({
       icon: "error",
       title: errorTitle,
-      text: msg || fallbackError,
+      text: extractErrorMessage(body, fallbackError),
       confirmButtonColor: primaryColor,
     });
   }
@@ -86,20 +140,19 @@ export const showApiResult = (
 /**
  * Shows an error dialog from a caught exception (network/API failure,
  * not a { success: false } response).
+ * Same signature as before. Only the error-text extraction is smarter now.
  */
 export const showApiError = (
   err,
   { title = "Failed", fallback = "Something went wrong. Please try again." } = {}
 ) => {
   const primaryColor = getPrimaryColor();
+  const body = err?.response?.data;
+
   Swal.fire({
     icon: "error",
     title,
-    text:
-      err?.response?.data?.errorMessage ||
-      err?.response?.data?.msg ||
-      err?.message ||
-      fallback,
+    text: extractErrorMessage(body, err?.message || fallback),
     confirmButtonColor: primaryColor,
   });
 };

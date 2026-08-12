@@ -1,4 +1,4 @@
-import axiosInstance, { POST, GET, PUT, DELETE } from "./axiosInstance";
+import axiosInstance, { POST, GET, PUT, DELETE , PATCH } from "./axiosInstance";
 import { data } from "autoprefixer";
 
 // Sign Up Login 
@@ -249,3 +249,23 @@ export const getAllPlanMaster = (data) =>
   export const getbyidplan = (id) =>{
     return GET(`/paln/get?id=${id}`);
   };
+
+  //venu
+  export const addupadtevenuemaster = (data) => {
+    return POST(`/venue/add-update` , data);
+  };
+  
+  export const getallvenuemmmaster = (data) => {
+return POST(`/venue/list`,data);
+  };
+
+  export const getbyvenuid = (id) => {
+    return GET(`/venue/get?id=${id}`);
+  };
+  export const deletevenu = (id) =>{
+    return DELETE(`/venue/delete?id=${id}`);
+  };
+
+export const updatestatus = (id, isActive) => {
+  return PATCH(`/venue/status?id=${id}&isActive=${isActive}`);
+};
