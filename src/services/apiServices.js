@@ -2,28 +2,28 @@ import axiosInstance, { POST, GET, PUT, DELETE } from "./axiosInstance";
 import { data } from "autoprefixer";
 
 // Sign Up Login 
-export const signup = (data) =>{
-  return POST(`/auth/signup` , data);
+export const signup = (data) => {
+    return POST(`/auth/signup`, data);
 };
 
 export const login = (data) => {
-  return POST(`/auth/login`, data);
+    return POST(`/auth/login`, data);
 };
 
 
 // translate
 export const Translateapi = (data) => {
-  return GET(`/transliterate?text=${data}`);
+    return GET(`/transliterate?text=${data}`);
 };
 
 
 // city state 
 export const getstatebycountry = (data) => {
-  return POST(`/state/list`, data) ;
+    return POST(`/state/list`, data);
 };
 
-export const getbycitiesbystate = (data) =>{
-  return POST(`/city/list` , data) ;
+export const getbycitiesbystate = (data) => {
+    return POST(`/city/list`, data);
 };
 
 
@@ -41,14 +41,14 @@ export const updateRole = (roleId, data) => {
 };
 
 export const deleteRole = (roleId) => {
-  return DELETE(`/role_master/${roleId}/role_id`);
+    return DELETE(`/role_master/${roleId}/role_id`);
 }
 
 
 // Tax 
-export const addupadtetaxmaster = ( data) => {
-  return POST(`/tax-master/add-update`,data) ;
-} ;
+export const addupadtetaxmaster = (data) => {
+    return POST(`/tax-master/add-update`, data);
+};
 
 export const deletetaxmaster = (id) => {
     return DELETE(`/tax-master/delete?id=${id}`);
@@ -64,8 +64,8 @@ export const getalltaxmaster = (data) => {
 
 
 // category type master
-export const addupadtecategorytypemaster = (data) =>{
-  return POST(`/category-type/add-update`, data) ;
+export const addupadtecategorytypemaster = (data) => {
+    return POST(`/category-type/add-update`, data);
 };
 
 export const deletecategorytypemaster = (id) => {
@@ -74,6 +74,13 @@ export const deletecategorytypemaster = (id) => {
 
 export const getAllCategoryTypemaster = (data) => {
     return POST(`/category-type/list`, data);
+};
+export const getAllEventTypemaster = (data) => {
+    return POST(`/event-type/list`, data);
+};
+
+export const addupadteeventtypemaster = (data) => {
+    return POST(`/event-type/add-update`, data);
 };
 
 // cat
@@ -208,44 +215,43 @@ export const getClientById = (id) => {
     return GET(`/party-master/get?id=${id}`);
 };
 export const deleteClientMaster = (id) => {
-  return DELETE(`/party-master/delete?id=${id}`);
+    return DELETE(`/party-master/delete?id=${id}`);
 };
 
-export const generateUniqueCodeforvendor = (userId) =>{
-  return GET(`party-master/generate-unique-code?userId=${userId}`);
+export const generateUniqueCodeforvendor = (userId) => {
+    return GET(`party-master/generate-unique-code?userId=${userId}`);
 };
 
 
 // function master
 export const addupadtefunctionmaster = (formData) => {
-  return POST(`/function/add-update`, formData);
+    return POST(`/function/add-update`, formData);
 };
 
 export const getalllistfuntionmaster = (data) => {
-  return POST(`/function/list` , data);
+    return POST(`/function/list`, data);
 };
 
 export const deletefunctionmaster = (id) => {
-  return DELETE(`/function/delete?id=${id}`);
+    return DELETE(`/function/delete?id=${id}`);
 };
 
 
 // plan
-export const addupdateplan = (data) =>{
-  return POST(`/plan/add-update`, data) ;
+export const addupdateplan = (data) => {
+    return POST(`/plan/add-update`, data);
 
 };
 
-export const getAllPlanMaster = (data) =>
-  {
-    return POST(`/plan/list`, data );
+export const getAllPlanMaster = (data) => {
+    return POST(`/plan/list`, data);
 
-  };
+};
 
-  export const deleteplan = (id) => {
+export const deleteplan = (id) => {
     return DELETE(`/plan/delete?id=${id}`);
-  };
+};
 
-  export const getbyidplan = (id) =>{
+export const getbyidplan = (id) => {
     return GET(`/paln/get?id=${id}`);
-  };
+};

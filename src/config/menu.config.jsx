@@ -288,8 +288,12 @@ export const MENU_SIDEBAR = [
         path: '/rolemaster'
       },
       {
-        title :"Plan Master ",
+        title :"Plan Master",
         path:"/planmaster",
+      },
+      {
+        title :"Event Type Master",
+        path:"/eventtypemaster",
       }
     ],
   },
