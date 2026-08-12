@@ -160,6 +160,7 @@ import RoleMaster from "../pages/Master/RoleMaster";
 import ExecutionPage from "../pages/execution/ExecutionPage";
 import PlanMaster from "../pages/Master/Plan Master";
 import EventTypeMaster from "../pages/Master/EventTypeMaster";
+import EventFlower from "../pages/Event/EventFlower/EventFlower";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -195,6 +196,7 @@ const AppRoutingSetup = () => {
           {/* Quotation */}
           <Route path="/quotation" element={<QuotationDashboard/>}/>
           <Route path="/execution" element={<ExecutionPage />}/>
+          <Route path="/flower" element={<EventFlower />}/>
 
             <Route path="/rolemaster" element={<RoleMaster />} />
 
