@@ -1,47 +1,105 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Sparkles,
   ArrowRight,
-  Heart,
-  Briefcase,
-  Cake,
-  Gift,
-  PartyPopper,
-  Music,
-  GraduationCap,
-  Trophy,
   Calendar,
+  Search,
+  Loader2,
 } from "lucide-react";
 
 import illustrationImg from "../../../assets/create-event-img.png";
 import { useNavigate } from "react-router";
+import { getAllEventTypemaster } from "@/services/apiServices";
+import DateField from "../../../components/form-inputs/DatePicker/Datefield";
+import { useEventDraftStore } from "@/stores/useEventDraftStore";
 
-const EVENT_TYPES = [
-  { id: "wedding", label: "Wedding", icon: Heart },
-  { id: "corporate", label: "Corporate", icon: Briefcase },
-  { id: "birthday", label: "Birthday", icon: Cake },
-  { id: "anniversary", label: "Anniversary", icon: Gift },
-  { id: "babyShower", label: "Baby Shower", icon: PartyPopper },
-  { id: "concert", label: "Concert", icon: Music },
-  { id: "graduation", label: "Graduation", icon: GraduationCap },
-  { id: "award", label: "Awards", icon: Trophy },
-  { id: "other", label: "Other", icon: Sparkles },
-];
-
+const PAGE_SIZE = 9;
 const PRIORITIES = ["High", "Med", "Low"];
 
 export default function CreateEventName() {
   const navigate = useNavigate();
-  const [eventName, setEventName] = useState("");
-  const [eventType, setEventType] = useState("wedding");
-  const [eventDate, setEventDate] = useState("");
-  const [priority, setPriority] = useState("High");
-  
-  const canSubmit = eventName.trim().length > 0;
 
-  const handleCreateWorkspace = () => {
-    navigate("/creteEvent");
+  const {
+    eventName, setEventName,
+    eventType, setEventType,
+    eventDate, setEventDate,
+    priority, setPriority,
+     venue, setVenue,
+  } = useEventDraftStore();
+
+  // ---- Event Type list (local — not shared state) ----
+  const [eventTypes, setEventTypes] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loadingTypes, setLoadingTypes] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const debounceRef = useRef(null);
+
+  const fetchEventTypes = async (pageToFetch, search, append = false) => {
+    if (append) setLoadingMore(true);
+    else setLoadingTypes(true);
+
+    try {
+      const res = await getAllEventTypemaster({
+        nameEnglish: search || "",
+        page: pageToFetch,
+        size: PAGE_SIZE,
+        sortBy: "id",
+        sortDirection: "DESC",
+      });
+      const body = res?.data ?? res;
+      const pageData = body?.data ?? body;
+      const records = pageData?.content ?? [];
+
+      setEventTypes((prev) => (append ? [...prev, ...records] : records));
+      setTotalPages(pageData?.totalPages ?? 0);
+      setPage(pageToFetch);
+    } catch (err) {
+      console.error("Failed to fetch event types:", err);
+      if (!append) setEventTypes([]);
+    } finally {
+      setLoadingTypes(false);
+      setLoadingMore(false);
+    }
   };
+
+  // Initial load
+  useEffect(() => {
+    fetchEventTypes(0, "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Debounced search — resets to page 0 on every new search term
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      fetchEventTypes(0, searchTerm);
+    }, 400);
+    return () => clearTimeout(debounceRef.current);
+  }, [searchTerm]);
+
+  const handleShowMore = () => {
+    fetchEventTypes(page + 1, searchTerm, true);
+  };
+
+  const canSubmit = eventName.trim().length > 0;
+const resetDraft = () => {
+    setEventName("");
+    setEventType(null);
+    setEventDate("");
+    setPriority("Med");
+    setVenue(null);
+    setSearchTerm("");
+  };
+
+ const handleCreateWorkspace = () => {
+  setSearchTerm(""); // local search input only — safe, doesn't touch the shared draft
+  navigate("/creteEvent");
+};
+  
+
+  const hasMore = page + 1 < totalPages;
 
   return (
     <div
@@ -124,49 +182,106 @@ export default function CreateEventName() {
           </div>
 
           {/* Event type */}
-          <label className="block text-[12px] font-bold tracking-wider text-[#8A6A70] mb-2">
-            EVENT TYPE
-          </label>
-          <div className="grid grid-cols-3 gap-2.5 mb-7">
-            {EVENT_TYPES.map(({ id, label, icon: Icon }) => {
-              const active = eventType === id;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setEventType(id)}
-                  aria-pressed={active}
-                  className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border py-3.5 text-[12px] font-medium transition-all ${active
-                      ? "border-rose-300 bg-rose-50 shadow-sm"
-                      : "border-[#EFE3E5] hover:border-rose-200 hover:bg-rose-50/40"
-                    }`}
-                >
-                  <Icon
-                    className={`w-[18px] h-[18px] ${active ? "text-rose-700" : "text-rose-300"
-                      }`}
-                  />
-                  <span
-                    className={active ? "text-[#350D1B]" : "text-[#7A5F64]"}
-                  >
-                    {label}
-                  </span>
-                </button>
-              );
-            })}
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-[12px] font-bold tracking-wider text-[#8A6A70]">
+              EVENT TYPE
+            </label>
           </div>
 
-          {/* Date */}
-          <label className="block text-[12px] font-bold tracking-wider text-[#8A6A70] mb-2">
-            EVENT DATE
-          </label>
-          <div className="relative mb-7">
-            <Calendar className="w-4 h-4 text-rose-300 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          {/* Search */}
+          <div className="relative mb-3">
+            <Search className="w-4 h-4 text-rose-300 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
-              type="date"
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search event type..."
+              className="w-full border border-rose-100 bg-rose-50/30 rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#350D1B] placeholder:text-[#B99299] outline-none transition-shadow focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
+            />
+          </div>
+
+          {loadingTypes ? (
+            <div className="flex items-center justify-center py-8 mb-7">
+              <Loader2 className="w-5 h-5 animate-spin text-rose-400" />
+            </div>
+          ) : eventTypes.length === 0 ? (
+            <div className="text-center py-8 mb-7 text-sm text-[#8A6A70]">
+              No event types found.
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-3 gap-2.5 mb-3 max-h-[340px] overflow-y-auto pr-1">
+                {eventTypes.map((type) => {
+                  const active = eventType?.id === type.id;
+                  return (
+                   <button
+  key={type.id}
+  type="button"
+  onClick={() =>
+    setEventType({ value: type.id, label: type.nameEnglish, ...type })
+  }
+  aria-pressed={active}
+  className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border py-3.5 px-1.5 text-[12px] font-medium transition-all ${
+    active
+      ? "border-rose-300 bg-rose-50 shadow-sm"
+      : "border-[#EFE3E5] hover:border-rose-200 hover:bg-rose-50/40"
+  }`}
+>
+                      {type.imgPath ? (
+                        <img
+                          src={type.imgPath}
+                          alt={type.nameEnglish}
+                          className="w-[22px] h-[22px] object-contain rounded"
+                        />
+                      ) : (
+                        <Sparkles
+                          className={`w-[18px] h-[18px] ${
+                            active ? "text-rose-700" : "text-rose-300"
+                          }`}
+                        />
+                      )}
+                      <span
+                        className={`text-center truncate w-full ${
+                          active ? "text-[#350D1B]" : "text-[#7A5F64]"
+                        }`}
+                      >
+                        {type.nameEnglish}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {hasMore && (
+                <div className="flex justify-center mb-7">
+                  <button
+                    type="button"
+                    onClick={handleShowMore}
+                    disabled={loadingMore}
+                    className="text-xs font-semibold text-rose-700 hover:underline disabled:opacity-60 flex items-center gap-1.5"
+                  >
+                    {loadingMore ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        Loading...
+                      </>
+                    ) : (
+                      "Show More"
+                    )}
+                  </button>
+                </div>
+              )}
+              {!hasMore && <div className="mb-7" />}
+            </>
+          )}
+
+          {/* Date */}
+        <div className="mb-7">
+            <DateField
+              label="EVENT DATE"
               value={eventDate}
-              onChange={(e) => setEventDate(e.target.value)}
-              onClick={(e) => e.target.showPicker?.()}
-              className="w-full border border-rose-100 bg-rose-50/30 rounded-xl pl-10 pr-4 py-3 text-sm text-[#350D1B] outline-none cursor-pointer transition-shadow focus:ring-2 focus:ring-rose-200 focus:border-rose-300"
+              onChange={setEventDate}
+              placeholder="DD/MM/YYYY"
             />
           </div>
 

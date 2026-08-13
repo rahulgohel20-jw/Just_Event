@@ -10,10 +10,11 @@ const TableComponent = ({
   onFetchData,
   data,
 }) => {
+  const gridData = serverSide ? data : tableData ?? data ?? [];
   return (
     <DataGrid
       columns={columns}
-      data={serverSide ? data : tableData}
+      data={gridData}
       pagination={{ size: paginationSize }}
       sorting={defaultSorting}
       toolbar={toolbar}

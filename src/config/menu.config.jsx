@@ -228,6 +228,11 @@ export const MENU_SIDEBAR = [
         title: "Event List",
         path: "/creteEvent",
       },
+      {
+        title:"event table",
+        path:"/event",
+      }
+      
     ],
   },
 
@@ -288,27 +293,26 @@ export const MENU_SIDEBAR = [
         path: '/rolemaster'
       },
       {
-        title :"Plan Master ",
+        title :"Plan Master",
         path:"/planmaster",
       },
       {
-        title:"Theme",
-        path:"",
+        title :"Event Type Master",
+        path:"/eventtypemaster",
       },
-      {
-        tite:"Theme Type",
-        path:"",
-      },
-      {
-        title:"All Theme",
-        path:"",
+     {
+      title:"Report configuration  ",
+      path:"",
+     },
+     {
+      title:"Theme Master " ,
+      path:"",
 
-      },
-      {
-        title:"Report Configuration",
-        path :"",
-      },
-     
+     },
+     {
+      title:"Template Master ",
+      path:""
+     }
     ],
   },
   {

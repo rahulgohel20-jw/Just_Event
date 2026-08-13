@@ -7,19 +7,8 @@ dayjs.extend(customParseFormat);
 const DATE_FORMAT = "DD/MM/YYYY";
 
 /**
- * Single date component to use everywhere in the app.
- * Stores/emits the date as a "DD/MM/YYYY" string.
- *
  * Props:
- * - label: string
- * - value: "DD/MM/YYYY" string (or "")
- * - onChange: (value: "DD/MM/YYYY" string | "") => void
- * - required: boolean
- * - error: string
- * - placeholder: string
- * - disabled: boolean
- * - disableFuture: boolean  -> blocks picking dates after today
- * - disablePast: boolean    -> blocks picking dates before today
+ * - size: "small" | "middle" | "large" (antd native size, matches PaginatedSearchSelect)
  */
 const DateField = ({
   label,
@@ -31,6 +20,8 @@ const DateField = ({
   disabled = false,
   disableFuture = false,
   disablePast = false,
+  size = "large",
+  className = "",
 }) => {
   const parsedValue =
     value && dayjs(value, DATE_FORMAT, true).isValid()
@@ -51,10 +42,10 @@ const DateField = ({
   return (
     <div>
       {label && (
-        <label className="text-xs font-medium text-[#7A2E45] mb-1 block">
+        <p className="text-[13px] font-medium text-dark mb-2">
           {label}
           {required && <span className="text-danger ml-0.5">*</span>}
-        </label>
+        </p>
       )}
       <DatePicker
         value={parsedValue}
@@ -63,7 +54,8 @@ const DateField = ({
         placeholder={placeholder}
         disabled={disabled}
         disabledDate={disabledDate}
-        className="w-full !h-[42px] !rounded-lg [&_.ant-picker-input>input]:!text-sm"
+        size={size}
+        className={`w-full !rounded-lg [&_.ant-picker-input>input]:!text-sm ${className}`}
       />
       {error && <p className="mt-1 text-xs text-danger">{error}</p>}
     </div>

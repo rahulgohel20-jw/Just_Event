@@ -58,7 +58,7 @@ const VenueMaster = () => {
   createdAt: v.createdAt || "",
   images: v.images ?? [],
   coverImage: v.images?.[0]?.path || "/placeholder-venue.png",
-  raw: v, // safety net for any field not explicitly mapped above
+  raw: v, 
 });
 
   const fetchVenues = async () => {
@@ -83,14 +83,12 @@ const VenueMaster = () => {
 
   useEffect(() => {
     fetchVenues();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 const handleToggleStatus = async (record) => {
-    const newIsActive = record.status !== "active"; // toggling TO this value
+    const newIsActive = record.status !== "active"; 
     const previousStatus = record.status;
 
-    // Optimistic update
     setTableData((prev) =>
       prev.map((row) =>
         row.id === record.id

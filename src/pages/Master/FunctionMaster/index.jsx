@@ -132,8 +132,6 @@ const userId = Number(localStorage.getItem("userId"));
   const toolbar = (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl mb-3">
       <DataGridSearchBox columnId="functionName" placeholder="Search Function Name..." />
-
-   
     </div>
   );
 

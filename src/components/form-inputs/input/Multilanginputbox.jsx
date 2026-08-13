@@ -13,6 +13,9 @@ import { Mic, Loader2 } from "lucide-react";
  * value shape: { english: '', gujarati: '', hindi: '' }
  * onChange(name, updatedValue)
  * onTranslate(englishText) => Promise<{ hindi?: string, gujarati?: string } | null>
+ *
+ * multiline: boolean — renders a <textarea> instead of <input> in all three columns (e.g. notes/remarks)
+ * rows: number — textarea row count when multiline is true (default 3)
  */
 
 const LANGS = [
@@ -33,6 +36,8 @@ const MultiLangInputBox = ({
   required = false,
   disabled = false,
   debounceMs = 500,
+  multiline = false,
+  rows = 3,
 }) => {
   const [localValue, setLocalValue] = useState(value);
   const [translating, setTranslating] = useState(false);
@@ -172,6 +177,10 @@ const MultiLangInputBox = ({
     recognition.start();
   };
 
+  const fieldClassName =
+    "w-full pl-4 pr-12 rounded-lg border border-gray-300 text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 text-sm" +
+    (multiline ? " py-2.5 resize-none" : " py-2.5");
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {LANGS.map(({ key, label: langLabel, speechLang }) => (
@@ -183,21 +192,37 @@ const MultiLangInputBox = ({
             )}
           </label>
           <div className="relative">
-            <input
-              type="text"
-              value={localValue[key] || ""}
-              onChange={key === "english" ? handleEnglishChange : handleManualChange(key)}
-              placeholder={`${label} (${langLabel})`}
-              disabled={disabled}
-              className="w-full pl-4 pr-12 py-2.5 rounded-lg border border-gray-300 text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 text-sm"
-              style={{ "--tw-ring-color": PRIMARY }}
-              onFocus={(e) => (e.target.style.borderColor = PRIMARY)}
-              onBlur={(e) => (e.target.style.borderColor = "")}
-            />
+            {multiline ? (
+              <textarea
+                value={localValue[key] || ""}
+                onChange={key === "english" ? handleEnglishChange : handleManualChange(key)}
+                placeholder={`${label} (${langLabel})`}
+                disabled={disabled}
+                rows={rows}
+                className={fieldClassName}
+                style={{ "--tw-ring-color": PRIMARY }}
+                onFocus={(e) => (e.target.style.borderColor = PRIMARY)}
+                onBlur={(e) => (e.target.style.borderColor = "")}
+              />
+            ) : (
+              <input
+                type="text"
+                value={localValue[key] || ""}
+                onChange={key === "english" ? handleEnglishChange : handleManualChange(key)}
+                placeholder={`${label} (${langLabel})`}
+                disabled={disabled}
+                className={fieldClassName}
+                style={{ "--tw-ring-color": PRIMARY }}
+                onFocus={(e) => (e.target.style.borderColor = PRIMARY)}
+                onBlur={(e) => (e.target.style.borderColor = "")}
+              />
+            )}
             {key === "english" && translating && (
               <Loader2
                 size={16}
-                className="animate-spin absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+                className={`animate-spin absolute right-4 text-gray-400 ${
+                  multiline ? "top-4" : "top-1/2 -translate-y-1/2"
+                }`}
               />
             )}
           </div>
