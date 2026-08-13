@@ -357,6 +357,16 @@ export const MENU_CREATE_EVENT_SIDEBAR = [
     icon: "ki-filled ki-file-sheet text-primary",
     path: "/quotation"
   },
+  {
+    title: "Execution",
+    icon: "ki-filled ki-file-sheet text-primary",
+    path: "/execution"
+  },
+  {
+    title: "Event Flower",
+    icon: "ki-filled ki-file-sheet text-primary",
+    path: "/flower"
+  },
 ];
 
 export const MENU_INVENTORY_SIDEBAR = [

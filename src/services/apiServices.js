@@ -85,6 +85,11 @@ export const addupadteeventtypemaster = (data) => {
     return POST(`/event-type/add-update`, data);
 };
 
+export const deleteEventTypeMaster = (id) => {
+    return DELETE(`/event-type/delete?id=${id}`);
+};
+
+
 // cat
 export const addupdatecategorymaster = (data) => {
     return POST(`/category-master/add-update`, data);

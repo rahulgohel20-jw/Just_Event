@@ -10,6 +10,7 @@ import { AddEventTypeModal } from "./AddEventTypeModal";
 import {
   getAllEventTypemaster,
   deletecategorytypemaster,
+  deleteEventTypeMaster,
 } from "../../../services/apiServices";
 import {
   confirmDelete,
@@ -88,7 +89,7 @@ const EventTypeMaster = () => {
     if (!confirmed) return;
 
     try {
-      const res = await deletecategorytypemaster(record.id);
+      const res = await deleteEventTypeMaster(record.id);
       showApiResult(res, {
         successTitle: "Category Deleted",
         onSuccess: fetchEventTypeList,

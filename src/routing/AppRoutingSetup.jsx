@@ -160,6 +160,7 @@ import RoleMaster from "../pages/Master/RoleMaster";
 import ExecutionPage from "../pages/execution/ExecutionPage";
 import PlanMaster from "../pages/Master/Plan Master";
 import EventTypeMaster from "../pages/Master/EventTypeMaster";
+import EventFlower from "../pages/Event/EventFlower/EventFlower";
 import ReportKeyMaster from "../pages/Master/Theme_Template_Master/Report_configuration";
 import TemplateNameMaster from "../pages/Master/Theme_Template_Master/TemplateMaster";
 import { TemplateTypePage } from "../pages/Master/Theme_Template_Master/Theme_Type_Master";
@@ -201,6 +202,7 @@ const AppRoutingSetup = () => {
           {/* Quotation */}
           <Route path="/quotation" element={<QuotationDashboard/>}/>
           <Route path="/execution" element={<ExecutionPage />}/>
+          <Route path="/flower" element={<EventFlower />}/>
 
             <Route path="/rolemaster" element={<RoleMaster />} />
 
