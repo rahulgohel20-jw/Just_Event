@@ -1,12 +1,13 @@
 import { SidebarMenu } from './';
-const SidebarContent = ({
-  height = 0
-}) => {
-  return <div className="sidebar-content flex grow shrink-0 py-5 pe-2">
-      <div className="scrollable-y-hover grow shrink-0 flex ps-2 lg:ps-5 pe-1 lg:pe-3" 
-    >
+
+const SidebarContent = () => {
+  return (
+    <div className="sidebar-content flex grow min-h-0 py-5 pe-2">
+      <div className="scrollable-y-hover grow min-h-0 overflow-y-auto flex ps-2 lg:ps-5 pe-1 lg:pe-3">
         <SidebarMenu />
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export { SidebarContent };

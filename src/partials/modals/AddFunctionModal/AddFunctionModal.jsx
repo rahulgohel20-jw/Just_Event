@@ -6,6 +6,7 @@ import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox"
 import { Translateapi } from "@/services/apiServices";
 import { showApiResult, showApiError } from "@/utils/swalHelpers";
 import { addupadtefunctionmaster } from "@/services/apiServices";
+import TimeInput12h from "../../../components/form-inputs/Time/Timeinput12h";
 const functionTypeOptions = [
   { value: "bride", label: "Bride" },
   { value: "groom", label: "Groom" },
@@ -13,12 +14,12 @@ const functionTypeOptions = [
 ];
 
 const initialFormState = {
-  functionName: { english: "", hindi: "", gujarati: "" }, // was: ""
+  functionName: { english: "", hindi: "", gujarati: "" }, 
   functionType: null,
   timeFrom: "",
   timeTo: "",
   price: "",
-   coverImageFiles: [],     // was: coverImageFile: null
+   coverImageFiles: [],     
   coverImagePreviews: [], 
 };
 const MAX_FILE_SIZE_MB = 5;
@@ -30,7 +31,9 @@ const AddFunctionModal = ({ open, onClose, onSave, initialData }) => {
   const fileInputRef = useRef(null);
   const isEditMode = Boolean(initialData);
   const [saving, setSaving] = useState(false);
+  const [existingImages, setExistingImages] = useState([]);
 const userId = Number(localStorage.getItem("userId"));
+
 
 useEffect(() => {
   if (open && initialData) {
@@ -45,10 +48,12 @@ useEffect(() => {
       timeTo: initialData.timeTo || "",
       price: String(initialData.price ?? ""),
       coverImageFiles: [],
-      coverImagePreviews: initialData.coverImages || [], // adjust key to match your API's response field
+      coverImagePreviews: [],
     });
+    setExistingImages(initialData.images || []); 
   } else if (open && !initialData) {
     setForm(initialFormState);
+    setExistingImages([]);
   }
   setFileError("");
 }, [open, initialData]);
@@ -274,28 +279,24 @@ form.coverImageFiles.forEach((file) => {
           </Section>
 
           {/* Schedule Details */}
-          <Section title="Schedule Details">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Time From</label>
-                <input
-                  type="time"
-                  value={form.timeFrom}
-                  onChange={(e) => updateField("timeFrom", e.target.value)}
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Time To</label>
-                <input
-                  type="time"
-                  value={form.timeTo}
-                  onChange={(e) => updateField("timeTo", e.target.value)}
-                  className={inputClass}
-                />
-              </div>
-            </div>
-          </Section>
+         <Section title="Schedule Details">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label className="text-xs text-gray-500 mb-1 block">Time From</label>
+      <TimeInput12h
+        value={form.timeFrom}
+        onChange={(val) => updateField("timeFrom", val)}
+      />
+    </div>
+    <div>
+      <label className="text-xs text-gray-500 mb-1 block">Time To</label>
+      <TimeInput12h
+        value={form.timeTo}
+        onChange={(val) => updateField("timeTo", val)}
+      />
+    </div>
+  </div>
+</Section>
 
           {/* Media */}
          <Section title="Media">

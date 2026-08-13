@@ -340,7 +340,8 @@ formData.append(
       });
 
       if (success) {
-        await onSave?.();
+        const body = res?.data ?? res;
+        await onSave?.(body?.data ?? body);
         handleReset();
       }
     } catch (err) {

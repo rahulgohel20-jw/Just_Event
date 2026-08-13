@@ -25,7 +25,6 @@ const CategoryMaster = () => {
   const [size, setSize] = useState(DEFAULT_PAGINATION_SIZE || 10);
 const userId = Number(localStorage.getItem("userId"));
 
-  // Normalize an API row into the shape the table/columns expect
   const normalizeRow = (row, index) => ({
     id: row.id,
     srNo: String(index + 1).padStart(2, "0"),

@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import {  User2} from "lucide-react";
+import DateField from "../../../../components/form-inputs/DatePicker/Datefield";
 
-// Each entry is a self-contained sub-phase of "Other Information".
-// Only "Photographer's Details" is fully built out below — the rest are
-// scaffolded the same way so they're quick to fill in later.
+
 const SUB_PHASES = [
   { key: "photographer", label: "Photographer's Details" },
   { key: "caterer", label: "Caterer Details" },
@@ -161,7 +160,7 @@ function PersonColumn({ icon: Icon, title, person, onFieldChange }) {
           onChange={onFieldChange("fatherName")}
           className="w-full bg-light border-2 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
         />
-        <div className="grid grid-cols-2 gap-3">
+      
           <input
             type="tel"
             placeholder="Contact Number"
@@ -169,14 +168,8 @@ function PersonColumn({ icon: Icon, title, person, onFieldChange }) {
             onChange={onFieldChange("contactNumber")}
             className="w-full bg-light border-2 mt-4 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
           />
-          <input
-            type="text"
-            placeholder="Occupation"
-            value={person.occupation || ""}
-            onChange={onFieldChange("occupation")}
-            className="w-full bg-light border-2 mt-4 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
-          />
-        </div>
+        
+       
         <input
           type="text"
           placeholder="Insta ID"
@@ -185,12 +178,31 @@ function PersonColumn({ icon: Icon, title, person, onFieldChange }) {
           className="w-full bg-light border-2 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
         />
         <div>
-           <FloatField
-            label="Birthdate"
-            type="date"
-             value={person.birthdate || ""}
-            onChange={onFieldChange("birthdate")}
+          
+  <DateField
+    label="Birthdate"
+    value={person.birthdate || ""}
+    onChange={(val) => onFieldChange("birthdate")({ target: { value: val } })}
+    disableFuture
+  />
+           <div className="grid grid-cols-2 gap-3">
+            <input
+            type="tel"
+            placeholder="Photographer Name "
+            value={person.contactNumber || ""}
+            onChange={onFieldChange("contactNumber")}
+            className="w-full bg-light border-2 mt-4 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
           />
+           <input
+            type="tel"
+            placeholder="Contact Number"
+            value={person.contactNumber || ""}
+            onChange={onFieldChange("contactNumber")}
+            className="w-full bg-light border-2 mt-4 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
+          />
+        
+          </div>
+        
         </div>
       </div>
     </div>

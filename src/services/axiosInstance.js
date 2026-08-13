@@ -125,3 +125,12 @@ export const GET = (url, params) => axiosInstance.get(url, { params });
 export const DELETE = (url) => axiosInstance.delete(url);
 
 export default axiosInstance;
+
+export const PATCH = (url, data) => {
+  if (data instanceof FormData) {
+    return axiosInstance.patch(url, data, {
+      headers: { "Content-Type": undefined },
+    });
+  }
+  return axiosInstance.patch(url, data);
+};

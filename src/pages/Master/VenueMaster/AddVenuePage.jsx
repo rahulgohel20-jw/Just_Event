@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Select } from "antd";
 import {
   Info,
@@ -7,116 +7,245 @@ import {
   X,
   MapPin,
   Phone,
-  User,
   Mail,
   Globe,
   Instagram,
-  Image as ImageIcon,
-  FileText,
   Save,
+  Loader2,
+  Upload,
+  Image as ImageIcon,
 } from "lucide-react";
-
+import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox";
+import LocationPicker from "@/components/LocationPicker/LocationPicker";
+import {
+  Translateapi,
+  addupadtevenuemaster,
+  getstatebycountry,
+  getbycitiesbystate,
+  getbyvenuid,
+} from "@/services/apiServices";
+import { showApiResult, showApiError } from "@/utils/swalHelpers";
+import { ProgressBarLoader } from "../../../components/loaders/ProgressBarLoader";
+// Matches schema enum: venueType [ RESORT, HALL ]
 const venueTypeOptions = [
-  { value: "hotel", label: "Hotel" },
-  { value: "resort", label: "Resort" },
-  { value: "banquet", label: "Banquet" },
-  { value: "farmhouse", label: "Farmhouse" },
+  { value: "RESORT", label: "Resort" },
+  { value: "HALL", label: "Hall" },
 ];
 
+// TODO: schema says subVenueType is an Enum with 6 values — replace with the real list
 const subVenueTypeOptions = [
-  { value: "internal", label: "Internal" },
-  { value: "external", label: "External" },
+  { value: "RESORT_LAWN", label: "Resort Lawn" },
+  { value: "RESORT_BANQUET_HALL", label: "Resort Banquet Hall" },
+  { value: "RESORT_POOL_SIDE", label: "Resort Pool Side" },
+  { value: "CONFERENCE_HALL", label: "Conference Hall" },
+  { value: "BANQUET_HALL", label: "Banquet Hall" },
+  { value: "PARTY_HALL", label: "Party Hall" },
 ];
 
-const stateOptions = [
-  { value: "gujarat", label: "Gujarat" },
-  { value: "rajasthan", label: "Rajasthan" },
-  { value: "maharashtra", label: "Maharashtra" },
-];
+// TODO: replace with real country master API (e.g. getalllistcountry)
+const countryOptions = [{ value: 1, label: "India" }];
 
 const createEmptySubVenue = () => ({
-  id: Date.now() + Math.random(),
-  name: "",
+  id: null,
+  name: { english: "", hindi: "", gujarati: "" },
   shortName: "",
   capacity: "",
-  type: "internal",
+  subVenueType: "",
   parking: "",
+  isActive: true,
 });
 
 const initialFormState = {
-  venueName: "",
+  id: null,
+  venueName: { english: "", hindi: "", gujarati: "" },
   venueType: null,
-  overallCapacity: "",
+  capacity: "",
   subVenues: [createEmptySubVenue()],
-  contactPerson: "",
-  phoneNumber: "",
-  emailAddress: "",
+  contactNo: "",
+  mobileNo: "",
+  email: "",
   website: "",
-  instagramHandle: "",
-  fullAddress: "",
-  city: "",
-  state: null,
+  instagram: "",
+  address: { english: "", hindi: "", gujarati: "" },
+  countryId: null,
+  stateId: null,
+  cityId: null,
   pincode: "",
-  galleryFiles: [],
-  additionalRemarks: "",
+  latitude: "",
+  longitude: "",
+  remarks: "",
+  isActive: true,
+  galleryFiles: [], // newly added File objects: [{ file, preview }]
+  existingImages: [], // images already on server: [{ id, path }]
 };
 
 const MAX_REMARKS_LENGTH = 500;
 
-const AddVenuePage = ({ onSaveDraft, onSaveVenue }) => {
+const AddVenuePage = ({ onSaveDraft, onClose, onSave, initialData: initialDataProp }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const venueId = location.state?.venueId;
+
   const [form, setForm] = useState(initialFormState);
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef(null);
+  const [saving, setSaving] = useState(false);
+  const [fetchingVenue, setFetchingVenue] = useState(false);
+  const [initialData, setInitialData] = useState(initialDataProp || null);
+  const [stateOptions, setStateOptions] = useState([]);
+  const [cityOptions, setCityOptions] = useState([]);
+  const [statesLoading, setStatesLoading] = useState(false);
+  const [citiesLoading, setCitiesLoading] = useState(false);
+  const isEditMode = Boolean(venueId || initialData);
+  const userId = Number(localStorage.getItem("userId"));
+
+  // Fetch venue detail when arriving via navigate state { venueId }
+  useEffect(() => {
+    if (!venueId) return;
+    const fetchVenue = async () => {
+      setFetchingVenue(true);
+      try {
+        const res = await getbyvenuid(venueId);
+        const body = res?.data ?? res;
+        const venue = body?.data ?? body;
+        setInitialData(venue);
+      } catch (err) {
+        console.error("Failed to fetch venue for edit:", err);
+        showApiError(err, { title: "Failed to load venue" });
+      } finally {
+        setFetchingVenue(false);
+      }
+    };
+    fetchVenue();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [venueId]);
+
+  // Fetch states whenever country changes
+  useEffect(() => {
+    if (!form.countryId) {
+      setStateOptions([]);
+      return;
+    }
+    const fetchStates = async () => {
+      setStatesLoading(true);
+      try {
+        const res = await getstatebycountry({ countryId: form.countryId });
+        const body = res?.data ?? res;
+        const records = body?.data?.content ?? body?.data ?? [];
+        setStateOptions(
+          records.map((s) => ({ value: s.id, label: s.nameEnglish ?? s.name }))
+        );
+      } catch (err) {
+        console.error("Failed to fetch states:", err);
+        setStateOptions([]);
+      } finally {
+        setStatesLoading(false);
+      }
+    };
+    fetchStates();
+  }, [form.countryId]);
+
+  // Fetch cities whenever state changes
+  useEffect(() => {
+    if (!form.stateId) {
+      setCityOptions([]);
+      return;
+    }
+    const fetchCities = async () => {
+      setCitiesLoading(true);
+      try {
+        const res = await getbycitiesbystate({ stateId: form.stateId });
+        const body = res?.data ?? res;
+        const records = body?.data?.content ?? body?.data ?? [];
+        setCityOptions(
+          records.map((c) => ({ value: c.id, label: c.nameEnglish ?? c.name }))
+        );
+      } catch (err) {
+        console.error("Failed to fetch cities:", err);
+        setCityOptions([]);
+      } finally {
+        setCitiesLoading(false);
+      }
+    };
+    fetchCities();
+  }, [form.stateId]);
+
+
+
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        id: initialData.id ?? null,
+        venueName: {
+          english: initialData.nameEnglish || "",
+          hindi: initialData.nameHindi || "",
+          gujarati: initialData.nameGujarati || "",
+        },
+        venueType: initialData.venueType || null,
+        capacity: String(initialData.capacity ?? ""),
+        subVenues:
+          initialData.subVenues?.length
+            ? initialData.subVenues.map((sv) => ({
+                id: sv.id ?? null,
+                name: {
+                  english: sv.nameEnglish || "",
+                  hindi: sv.nameHindi || "",
+                  gujarati: sv.nameGujarati || "",
+                },
+                shortName: sv.shortName || "",
+                capacity: String(sv.capacity ?? ""),
+                subVenueType: sv.subVenueType || "INTERNAL",
+                parking: String(sv.parking ?? ""),
+                isActive: sv.isActive ?? true,
+              }))
+            : [createEmptySubVenue()],
+        contactNo: initialData.contactNo || "",
+        mobileNo: initialData.mobileNo || "",
+        email: initialData.email || "",
+        website: initialData.website || "",
+        instagram: initialData.instagram || "",
+        address: {
+          english: initialData.addressEnglish || "",
+          hindi: initialData.addressHindi || "",
+          gujarati: initialData.addressGujarati || "",
+        },
+        countryId: initialData.countryId ?? null,
+        stateId: initialData.stateId ?? null,
+        cityId: initialData.cityId ?? null,
+        pincode: initialData.pincode || "",
+        latitude: initialData.latitude || "",
+        longitude: initialData.longitude || "",
+        remarks: initialData.remarks || "",
+        isActive: initialData.isActive ?? true,
+        galleryFiles: [],
+        existingImages: initialData.images || [],
+      });
+    } else {
+      setForm(initialFormState);
+    }
+  }, [initialData]);
 
   const updateField = (field, value) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
-  const handleCancel = () => navigate("/venues");
+  const handleCountryChange = (val) =>
+    setForm((prev) => ({ ...prev, countryId: val, stateId: null, cityId: null }));
 
-  // ---- Sub-venues ----
-  const addSubVenue = () =>
-    setForm((prev) => ({
-      ...prev,
-      subVenues: [...prev.subVenues, createEmptySubVenue()],
-    }));
+  const handleStateChange = (val) =>
+    setForm((prev) => ({ ...prev, stateId: val, cityId: null }));
 
-  const removeSubVenue = (id) =>
-    setForm((prev) => ({
-      ...prev,
-      subVenues: prev.subVenues.filter((sv) => sv.id !== id),
-    }));
+  const handleVenueNameChange = (_name, updatedValue) =>
+    setForm((prev) => ({ ...prev, venueName: updatedValue }));
 
-  const updateSubVenue = (id, field, value) =>
-    setForm((prev) => ({
-      ...prev,
-      subVenues: prev.subVenues.map((sv) =>
-        sv.id === id ? { ...sv, [field]: value } : sv
-      ),
-    }));
+  const handleAddressChange = (_name, updatedValue) =>
+    setForm((prev) => ({ ...prev, address: updatedValue }));
 
-  // ---- Gallery ----
-  const processFiles = (fileList) => {
-    const files = Array.from(fileList || []);
-    const valid = files.filter((file) => {
-      const isValidType = ["image/jpeg", "image/png", "image/webp"].includes(file.type);
-      const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB
-      return isValidType && isValidSize;
-    });
-    const withPreviews = valid.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-    }));
-    setForm((prev) => ({
-      ...prev,
-      galleryFiles: [...prev.galleryFiles, ...withPreviews],
-    }));
-  };
+  const handleLocationChange = (lat, lng) =>
+    setForm((prev) => ({ ...prev, latitude: String(lat), longitude: String(lng) }));
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    processFiles(e.dataTransfer.files);
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files || []);
+    const newImages = files.map((file) => ({ file, preview: URL.createObjectURL(file) }));
+    setForm((prev) => ({ ...prev, galleryFiles: [...prev.galleryFiles, ...newImages] }));
+    e.target.value = "";
   };
 
   const removeGalleryImage = (index) =>
@@ -125,27 +254,141 @@ const AddVenuePage = ({ onSaveDraft, onSaveVenue }) => {
       galleryFiles: prev.galleryFiles.filter((_, i) => i !== index),
     }));
 
-  // ---- Save actions ----
-  const handleSaveDraft = () => {
-    onSaveDraft?.(form);
+  const removeExistingImage = (id) =>
+    setForm((prev) => ({
+      ...prev,
+      existingImages: prev.existingImages.filter((img) => img.id !== id),
+    }));
+
+  const handleTranslate = async (englishText) => {
+    try {
+      const res = await Translateapi(englishText);
+      const data = res?.data ?? res;
+      return { hindi: data?.hindi, gujarati: data?.gujarati };
+    } catch (err) {
+      console.error("Translation failed:", err);
+      return null;
+    }
   };
 
-  const handleSaveVenue = () => {
-    if (!form.venueName.trim()) return;
-    onSaveVenue?.({
-      ...form,
-      venueType: venueTypeOptions.find((o) => o.value === form.venueType) || null,
-      state: stateOptions.find((o) => o.value === form.state) || null,
+  const handleCancel = () => {
+    if (onClose) return onClose();
+    navigate("/master/venuemaster");
+  };
+
+  // ---- Sub-venues ----
+  const addSubVenue = () =>
+    setForm((prev) => ({ ...prev, subVenues: [...prev.subVenues, createEmptySubVenue()] }));
+
+  const removeSubVenue = (index) =>
+    setForm((prev) => ({ ...prev, subVenues: prev.subVenues.filter((_, i) => i !== index) }));
+
+  const updateSubVenue = (index, field, value) =>
+    setForm((prev) => ({
+      ...prev,
+      subVenues: prev.subVenues.map((sv, i) => (i === index ? { ...sv, [field]: value } : sv)),
+    }));
+
+  const updateSubVenueName = (index, _name, updatedValue) =>
+    setForm((prev) => ({
+      ...prev,
+      subVenues: prev.subVenues.map((sv, i) => (i === index ? { ...sv, name: updatedValue } : sv)),
+    }));
+
+  const handleSubVenueTranslate = () => async (englishText) => handleTranslate(englishText);
+
+  // ---- Save ----
+  const handleSaveDraft = () => onSaveDraft?.(form);
+
+  const buildPayload = () => ({
+    id: form.id,
+    nameEnglish: form.venueName.english,
+    nameHindi: form.venueName.hindi,
+    nameGujarati: form.venueName.gujarati,
+    venueType: form.venueType,
+    capacity: form.capacity ? Number(form.capacity) : null,
+      subVenues: form.subVenues
+    .filter((sv) => sv.name.english?.trim()) // only keep sub-venues the user actually named
+    .map((sv) => ({
+      id: sv.id,
+      nameEnglish: sv.name.english,
+      nameHindi: sv.name.hindi,
+      nameGujarati: sv.name.gujarati,
+      shortName: sv.shortName,
+      capacity: sv.capacity ? Number(sv.capacity) : null,
+      subVenueType: sv.subVenueType,
+      parking: sv.parking ? Number(sv.parking) : null,
+      isActive: sv.isActive,
+    })),
+    contactNo: form.contactNo,
+    mobileNo: form.mobileNo,
+    email: form.email,
+    website: form.website,
+    instagram: form.instagram,
+    addressEnglish: form.address.english,
+    addressHindi: form.address.hindi,
+    addressGujarati: form.address.gujarati,
+    countryId: form.countryId,
+    stateId: form.stateId,
+    cityId: form.cityId,
+    pincode: form.pincode,
+    latitude: form.latitude,
+    longitude: form.longitude,
+    remarks: form.remarks,
+// in buildPayload
+isActive: Boolean(form.isActive),
+    userId,
+  });
+
+  const handleSaveVenue = async () => {
+    if (!form.venueName.english.trim()) return;
+
+    const payload = buildPayload();
+
+    const formData = new FormData();
+    const dataBlob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+    formData.append("data", dataBlob);
+
+    form.galleryFiles.forEach((img) => {
+      if (img.file instanceof File) {
+        formData.append("images", img.file);
+      }
     });
-    navigate("/venues");
+
+    setSaving(true);
+    try {
+      const res = await addupadtevenuemaster(formData);
+
+      const success = showApiResult(res, {
+        successTitle: isEditMode ? "Venue Updated" : "Venue Saved",
+        fallbackSuccess: "Operation completed successfully.",
+        errorTitle: "Failed",
+        onSuccess: () => {
+          const body = res?.data ?? res;
+          onSave?.(body?.data ?? body);
+          setForm(initialFormState);
+          navigate("/master/venuemaster");
+        },
+      });
+
+      if (!success) return;
+    } catch (err) {
+      console.error("Failed to save venue:", err);
+      showApiError(err, { title: "Failed" });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-white">
+      {fetchingVenue && <ProgressBarLoader />}
       {/* Sticky top bar */}
       <div className="sticky top-0 z-10 flex items-center justify-between border-b border-rose-100 bg-white px-6 py-4">
         <div>
-          <h1 className="text-lg font-semibold text-[#7A2E45]">Add New Venue</h1>
+          <h1 className="text-lg font-semibold text-[#7A2E45]">
+            {isEditMode ? "Edit Venue" : "Add New Venue"}
+          </h1>
           <p className="text-xs text-gray-500 mt-0.5">
             Configure your premier location, sub-spaces, and logistical details.
           </p>
@@ -153,20 +396,18 @@ const AddVenuePage = ({ onSaveDraft, onSaveVenue }) => {
         <div className="flex items-center gap-3">
           <button
             onClick={handleCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700"
+            disabled={saving}
+            className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 disabled:opacity-60"
           >
             Cancel
           </button>
-          <button
-            onClick={handleSaveDraft}
-            className="px-4 py-2 rounded-lg bg-[#F7E5EA] text-sm font-medium text-[#7A2E45] hover:bg-[#f0d3dc] transition-colors"
-          >
-            Save Draft
-          </button>
+        
           <button
             onClick={handleSaveVenue}
-            className="px-4 py-2 rounded-lg bg-[#7A2E45] text-sm font-medium text-white hover:bg-[#66253a] transition-colors"
+            disabled={saving}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#7A2E45] text-sm font-medium text-white hover:bg-[#66253a] transition-colors disabled:opacity-60"
           >
+            {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
             Save Venue
           </button>
         </div>
@@ -175,28 +416,53 @@ const AddVenuePage = ({ onSaveDraft, onSaveVenue }) => {
       <div className="max-w-1xl mx-auto px-6 py-6 space-y-6">
         {/* Venue Details */}
         <Section icon={<Info size={13} />} title="Venue Details">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input
-              type="text"
+          <div className="space-y-4">
+            <MultiLangInputBox
+              label="Venue Name"
+              name="venueName"
               value={form.venueName}
-              onChange={(e) => updateField("venueName", e.target.value)}
-              placeholder="Venue Name"
-              className={inputClass}
+              onChange={handleVenueNameChange}
+              onTranslate={handleTranslate}
+              required
             />
-            <Select
-              value={form.venueType}
-              onChange={(val) => updateField("venueType", val)}
-              placeholder="Venue Type"
-              className="w-full [&_.ant-select-selector]:!h-[42px] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!items-center"
-              options={venueTypeOptions}
-            />
-            <input
-              type="number"
-              value={form.overallCapacity}
-              onChange={(e) => updateField("overallCapacity", e.target.value)}
-              placeholder="Overall Capacity"
-              className={inputClass}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+  <label className="block mb-2 text-sm font-medium text-gray-700">
+    Venue Type
+  </label>
+
+  <Select
+    value={form.venueType}
+    onChange={(val) => updateField("venueType", val)}
+    placeholder="Venue Type"
+    className="w-full [&_.ant-select-selector]:!h-[42px] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!items-center"
+    options={venueTypeOptions}
+  />
+</div>
+
+<div>
+  <label className="block mb-2 text-sm font-medium text-gray-700">
+    Overall Capacity
+  </label>
+
+  <input
+    type="number"
+    value={form.capacity}
+    onChange={(e) => updateField("capacity", e.target.value)}
+    placeholder="Overall Capacity"
+    className={inputClass}
+  />
+</div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">
+                  {form.isActive ? "Active" : "Inactive"}
+                </span>
+                <ToggleSwitch
+                  checked={form.isActive}
+                  onChange={() => updateField("isActive", !form.isActive)}
+                />
+              </div>
+            </div>
           </div>
         </Section>
 
@@ -214,203 +480,348 @@ const AddVenuePage = ({ onSaveDraft, onSaveVenue }) => {
             </button>
           }
         >
-          <div className="space-y-3">
+          <div className="space-y-4">
             {form.subVenues.map((sv, index) => (
               <div
-                key={sv.id}
-                className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr_1fr_1fr_1fr_auto] gap-3 items-center"
+                key={index}
+                className="rounded-lg border border-rose-100 p-4 space-y-3"
               >
-                <input
-                  type="text"
-                  value={sv.name}
-                  onChange={(e) => updateSubVenue(sv.id, "name", e.target.value)}
-                  placeholder="Sub-Venue Name"
-                  className={inputClass}
-                />
-                <input
-                  type="text"
-                  value={sv.shortName}
-                  onChange={(e) => updateSubVenue(sv.id, "shortName", e.target.value)}
-                  placeholder="Short Name"
-                  className={inputClass}
-                />
-                <input
-                  type="number"
-                  value={sv.capacity}
-                  onChange={(e) => updateSubVenue(sv.id, "capacity", e.target.value)}
-                  placeholder="Capacity"
-                  className={inputClass}
-                />
-                <Select
-                  value={sv.type}
-                  onChange={(val) => updateSubVenue(sv.id, "type", val)}
-                  className="w-full [&_.ant-select-selector]:!h-[42px] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!items-center"
-                  options={subVenueTypeOptions}
-                />
-                <input
-                  type="text"
-                  value={sv.parking}
-                  onChange={(e) => updateSubVenue(sv.id, "parking", e.target.value)}
-                  placeholder="Parking"
-                  className={inputClass}
-                />
-                {form.subVenues.length > 1 && (
-                  <button
-                    onClick={() => removeSubVenue(sv.id)}
-                    className="flex h-9 w-9 items-center justify-center text-gray-400 hover:text-red-600"
-                  >
-                    <X size={16} />
-                  </button>
-                )}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <MultiLangInputBox
+                      label="Sub-Venue Name"
+                      name={`subVenueName-${index}`}
+                      value={sv.name}
+                      onChange={(name, val) => updateSubVenueName(index, name, val)}
+                      onTranslate={handleSubVenueTranslate(index)}
+                    />
+                  </div>
+                  {form.subVenues.length > 1 && (
+                    <button
+                      onClick={() => removeSubVenue(index)}
+                      className="mt-8 flex h-9 w-9 shrink-0 items-center justify-center text-gray-400 hover:text-red-600"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+
+             <div className="space-y-4">
+
+  {/* Names */}
+ 
+
+  {/* Details */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-end">
+
+    {/* Short Name */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">
+        Short Name
+      </label>
+
+      <input
+        type="text"
+        value={sv.shortName}
+        onChange={(e) =>
+          updateSubVenue(index, "shortName", e.target.value)
+        }
+        placeholder="Short Name"
+        className={inputClass}
+      />
+    </div>
+
+    {/* Capacity */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">
+        Capacity
+      </label>
+
+      <input
+        type="number"
+        value={sv.capacity}
+        onChange={(e) =>
+          updateSubVenue(index, "capacity", e.target.value)
+        }
+        placeholder="Capacity"
+        className={inputClass}
+      />
+    </div>
+
+    {/* Sub Venue Type */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">
+        Sub Venue Type
+      </label>
+
+      <Select
+        value={sv.subVenueType}
+        onChange={(val) =>
+          updateSubVenue(index, "subVenueType", val)
+        }
+        className="w-full [&_.ant-select-selector]:!h-[42px]
+                   [&_.ant-select-selector]:!rounded-lg
+                   [&_.ant-select-selector]:!items-center"
+        options={subVenueTypeOptions}
+      />
+    </div>
+
+    {/* Parking */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">
+        Parking
+      </label>
+
+      <input
+        type="number"
+        value={sv.parking}
+        onChange={(e) =>
+          updateSubVenue(index, "parking", e.target.value)
+        }
+        placeholder="Parking"
+        className={inputClass}
+      />
+    </div>
+
+    {/* Status */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">
+        Status
+      </label>
+
+      <div className="h-[42px] flex items-center gap-3">
+        <span className="text-sm text-gray-600">
+          {sv.isActive ? "Active" : "Inactive"}
+        </span>
+
+        <ToggleSwitch
+          checked={sv.isActive}
+          onChange={() =>
+            updateSubVenue(
+              index,
+              "isActive",
+              !sv.isActive
+            )
+          }
+        />
+      </div>
+    </div>
+
+  </div>
+</div>
               </div>
             ))}
           </div>
         </Section>
 
         {/* Contact Details */}
-        <Section icon={<Phone size={13} />} title="Contact Details">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <IconInput
-              icon={<User size={15} />}
-              value={form.contactPerson}
-              onChange={(v) => updateField("contactPerson", v)}
-              placeholder="Contact Person"
-            />
-            <IconInput
-              icon={<Phone size={15} />}
-              value={form.phoneNumber}
-              onChange={(v) => updateField("phoneNumber", v)}
-              placeholder="Phone Number"
-            />
-            <IconInput
-              icon={<Mail size={15} />}
-              value={form.emailAddress}
-              onChange={(v) => updateField("emailAddress", v)}
-              placeholder="Email Address"
-              type="email"
-            />
-            <IconInput
-              icon={<Globe size={15} />}
-              value={form.website}
-              onChange={(v) => updateField("website", v)}
-              placeholder="Website"
-            />
-            <IconInput
-              icon={<Instagram size={15} />}
-              value={form.instagramHandle}
-              onChange={(v) => updateField("instagramHandle", v)}
-              placeholder="Instagram Handle"
-            />
-          </div>
-        </Section>
+      <Section icon={<Phone size={13} />} title="Contact Details">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    
+    {/* Contact No */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">
+        Contact No
+      </label>
+      <IconInput
+        icon={<Phone size={15} />}
+        value={form.contactNo}
+        onChange={(v) => updateField("contactNo", v)}
+        placeholder="Contact No"
+      />
+    </div>
+
+    {/* Mobile No */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">
+        Mobile No
+      </label>
+      <IconInput
+        icon={<Phone size={15} />}
+        value={form.mobileNo}
+        onChange={(v) => updateField("mobileNo", v)}
+        placeholder="Mobile No"
+      />
+    </div>
+
+    {/* Email */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">
+        Email Address
+      </label>
+      <IconInput
+        icon={<Mail size={15} />}
+        value={form.email}
+        onChange={(v) => updateField("email", v)}
+        placeholder="Email Address"
+        type="email"
+      />
+    </div>
+
+    {/* Website */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">
+        Website
+      </label>
+      <IconInput
+        icon={<Globe size={15} />}
+        value={form.website}
+        onChange={(v) => updateField("website", v)}
+        placeholder="Website"
+      />
+    </div>
+
+    {/* Instagram */}
+    <div>
+      <label className="block mb-2 text-sm font-medium text-gray-700">
+        Instagram Handle
+      </label>
+      <IconInput
+        icon={<Instagram size={15} />}
+        value={form.instagram}
+        onChange={(v) => updateField("instagram", v)}
+        placeholder="Instagram Handle"
+      />
+    </div>
+
+  </div>
+</Section>
 
         {/* Location */}
         <Section icon={<MapPin size={13} />} title="Location">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <textarea
-                value={form.fullAddress}
-                onChange={(e) => updateField("fullAddress", e.target.value)}
-                placeholder="Full Address"
-                rows={3}
-                className={`${inputClass} resize-none`}
+          <div className="space-y-4">
+            <MultiLangInputBox
+              label="Address"
+              name="address"
+              value={form.address}
+              onChange={handleAddressChange}
+              onTranslate={handleTranslate}
+            />
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Select
+                value={form.countryId}
+                onChange={handleCountryChange}
+                placeholder="Country"
+                className="w-full [&_.ant-select-selector]:!h-[42px] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!items-center"
+                options={countryOptions}
               />
-              <div className="grid grid-cols-3 gap-3">
-                <input
-                  type="text"
-                  value={form.city}
-                  onChange={(e) => updateField("city", e.target.value)}
-                  placeholder="City"
-                  className={inputClass}
-                />
-                <Select
-                  value={form.state}
-                  onChange={(val) => updateField("state", val)}
-                  placeholder="State"
-                  className="w-full [&_.ant-select-selector]:!h-[42px] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!items-center"
-                  options={stateOptions}
-                />
-                <input
-                  type="text"
-                  value={form.pincode}
-                  onChange={(e) => updateField("pincode", e.target.value)}
-                  placeholder="Pincode"
-                  className={inputClass}
-                />
-              </div>
+              <Select
+                value={form.stateId}
+                onChange={handleStateChange}
+                placeholder={statesLoading ? "Loading states..." : "State"}
+                className="w-full [&_.ant-select-selector]:!h-[42px] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!items-center"
+                options={stateOptions}
+                loading={statesLoading}
+                disabled={!form.countryId}
+                showSearch
+                optionFilterProp="label"
+              />
+              <Select
+                value={form.cityId}
+                onChange={(val) => updateField("cityId", val)}
+                placeholder={citiesLoading ? "Loading cities..." : "City"}
+                className="w-full [&_.ant-select-selector]:!h-[42px] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!items-center"
+                options={cityOptions}
+                loading={citiesLoading}
+                disabled={!form.stateId}
+                showSearch
+                optionFilterProp="label"
+              />
+              <input
+                type="text"
+                value={form.pincode}
+                onChange={(e) => updateField("pincode", e.target.value)}
+                placeholder="Pincode"
+                className={inputClass}
+              />
             </div>
 
-            {/* Map placeholder — wire to your maps provider */}
-            <div className="relative rounded-lg overflow-hidden bg-gray-100 min-h-[160px] flex items-center justify-center">
-              <div className="absolute inset-0 bg-gradient-to-br from-rose-50 to-rose-100" />
-              <div className="relative flex flex-col items-center gap-1 text-[#7A2E45]">
-                <MapPin size={24} />
-                <span className="text-xs font-medium">Pin Location</span>
-              </div>
+            <LocationPicker
+              latitude={form.latitude}
+              longitude={form.longitude}
+              onChange={handleLocationChange}
+            />
+
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                type="text"
+                value={form.latitude}
+                onChange={(e) => updateField("latitude", e.target.value)}
+                placeholder="Latitude"
+                className={inputClass}
+              />
+              <input
+                type="text"
+                value={form.longitude}
+                onChange={(e) => updateField("longitude", e.target.value)}
+                placeholder="Longitude"
+                className={inputClass}
+              />
             </div>
           </div>
         </Section>
 
         {/* Gallery */}
         <Section icon={<ImageIcon size={13} />} title="Gallery">
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsDragging(true);
-            }}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-            className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-colors ${
-              isDragging
-                ? "border-[#7A2E45] bg-[#FBF1F3]"
-                : "border-gray-400 bg-[#FDF9FA] hover:bg-[#FBF1F3]"
-            }`}
-          >
-            <FileText size={20} className="text-gray-400" />
-            <p className="text-sm text-gray-600">Drop high-res images here</p>
-            <p className="text-xs text-gray-400">PNG, JPG or WEBP up to 10MB each</p>
-            <span className="mt-1 px-4 py-1.5 rounded-lg bg-[#7A2E45] text-white text-xs font-medium">
-              Browse Files
-            </span>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/png, image/jpeg, image/webp"
-              multiple
-              onChange={(e) => processFiles(e.target.files)}
-              className="hidden"
-            />
-          </div>
+          <div className="flex gap-3 flex-wrap">
+            <label className="w-24 h-24 border-2 border-dashed border-[#7A2E45] rounded-xl cursor-pointer flex flex-col justify-center items-center shrink-0">
+              <Upload size={20} className="text-[#7A2E45]" />
+              <span className="text-xs mt-1">Upload</span>
+              <input
+                type="file"
+                hidden
+                multiple
+                accept="image/*"
+                onChange={handleImageUpload}
+              />
+            </label>
 
-          {form.galleryFiles.length > 0 && (
-            <div className="grid grid-cols-4 gap-3 mt-4">
-              {form.galleryFiles.map((img, index) => (
-                <div key={index} className="relative group h-24 rounded-lg overflow-hidden">
-                  <img
-                    src={img.preview}
-                    alt={`Gallery ${index + 1}`}
-                    className="h-full w-full object-cover"
-                  />
-                  <button
-                    onClick={() => removeGalleryImage(index)}
-                    className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X size={12} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+            {form.existingImages.map((img) => (
+              <div
+                key={img.id}
+                className="relative group w-24 h-24 rounded-xl overflow-hidden shrink-0"
+              >
+                <img src={img.path} alt="Venue" className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeExistingImage(img.id)}
+                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white shadow"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+
+            {form.galleryFiles.map((img, index) => (
+              <div
+                key={`new-${index}`}
+                className="relative group w-24 h-24 rounded-xl overflow-hidden shrink-0"
+              >
+                <img
+                  src={img.preview}
+                  alt={`Gallery ${index + 1}`}
+                  className="h-full w-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeGalleryImage(index)}
+                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white shadow"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
         </Section>
 
         {/* Additional Remarks */}
         <Section title="Additional Remarks">
           <textarea
-            value={form.additionalRemarks}
+            value={form.remarks}
             onChange={(e) => {
               if (e.target.value.length <= MAX_REMARKS_LENGTH) {
-                updateField("additionalRemarks", e.target.value);
+                updateField("remarks", e.target.value);
               }
             }}
             placeholder="Internal Notes or Special Instructions"
@@ -418,7 +829,7 @@ const AddVenuePage = ({ onSaveDraft, onSaveVenue }) => {
             className={`${inputClass} resize-none bg-[#FBF1F3]`}
           />
           <p className="text-right text-xs text-gray-400 mt-1">
-            {form.additionalRemarks.length}/{MAX_REMARKS_LENGTH}
+            {form.remarks.length}/{MAX_REMARKS_LENGTH}
           </p>
         </Section>
       </div>
@@ -427,9 +838,10 @@ const AddVenuePage = ({ onSaveDraft, onSaveVenue }) => {
       <div className="sticky bottom-0 border-t border-rose-100 bg-white px-6 py-4 flex justify-end">
         <button
           onClick={handleSaveVenue}
-          className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#7A2E45] text-white font-medium hover:bg-[#66253a] transition-colors"
+          disabled={saving}
+          className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#7A2E45] text-white font-medium hover:bg-[#66253a] transition-colors disabled:opacity-60"
         >
-          <Save size={16} />
+          {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
           Confirm and Save Venue
         </button>
       </div>
@@ -471,6 +883,22 @@ const IconInput = ({ icon, value, onChange, placeholder, type = "text" }) => (
       className={`${inputClass} pl-9`}
     />
   </div>
+);
+
+const ToggleSwitch = ({ checked, onChange }) => (
+  <button
+    type="button"
+    onClick={onChange}
+    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+      checked ? "bg-[#7A2E45]" : "bg-gray-300"
+    }`}
+  >
+    <span
+      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+        checked ? "translate-x-6" : "translate-x-1"
+      }`}
+    />
+  </button>
 );
 
 export default AddVenuePage;
