@@ -4,7 +4,7 @@ export const PAGE_HEADER = {
   title: "Venue Master",
   description:
     "Manage your premium venue network, sub-spaces, and logistical capacities across all operational regions.",
-  addButtonLabel: "Add Vendor",
+  addButtonLabel: "Add Venue",
 };
 
 export const STATS_CARDS = [
@@ -108,37 +108,35 @@ export const getVenueColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =>
       </span>
     ),
   },
-  {
-    accessorKey: "venueName",
-    header: "Venue Details",
-    cell: ({ row }) => {
-      const { venueName, venueType, coverImage } = row.original;
-      return (
-        <div className="flex items-center gap-3">
-          <img
-            src={coverImage}
-            alt={venueName}
-            className="h-11 w-11 rounded-lg object-cover"
-          />
-          <div>
-            <p className="text-sm font-medium text-gray-800">{venueName}</p>
-            <span
-              className={`inline-block mt-0.5 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                venueTypeBadgeStyles[venueType] || "bg-gray-100 text-gray-700"
-              }`}
-            >
-              {venueType}
-            </span>
-          </div>
-        </div>
-      );
-    },
+ {
+  accessorKey: "coverImage",
+  header: "Image",
+  cell: ({ row }) => {
+    const { venueName, coverImage } = row.original;
+
+    return (
+      <img
+        src={coverImage}
+        alt={venueName}
+        className="h-11 w-11 rounded-lg object-cover"
+      />
+    );
   },
+},
+{
+  accessorKey: "venueName",
+  header: "Venue Name",
+  cell: ({ getValue }) => (
+    <span className="text-sm font-medium text-gray-800">
+      {getValue()}
+    </span>
+  ),
+},
   {
     accessorKey: "subVenueCount",
     header: "Sub-Venues",
     cell: ({ getValue }) => (
-      <span className="rounded-full bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700">
+      <span className="">
         {getValue()} Sub Venues
       </span>
     ),
@@ -191,30 +189,30 @@ export const getVenueColumns = ({ onView, onEdit, onDelete, onToggleStatus }) =>
     ),
   },
   {
-    accessorKey: "location",
-    header: "Location",
+    accessorKey: "addressEnglish",
+    header: "Address",
     cell: ({ row }) => (
       <div>
         <p >{row.original.city}</p>
-        <p className="text-xs text-gray-500">{row.original.state}</p>
+      
       </div>
     ),
   },
-  {
-    accessorKey: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-       <div className="flex items-center justify-start gap-2 text-rose-700">
-         <button onClick={() => onView(row.original)} className="btn btn-sm btn-icon btn-clear">
-          <i className="ki-filled ki-eye  text-primary"></i>
-        </button>
-          <button className="btn btn-sm btn-icon btn-clear" type="button" onClick={() => onEdit?.(record)} >
-            <i className="ki-filled ki-notepad-edit text-third"></i>
-          </button>
-          <button  className=" tn btn-sm btn-icon btn-clear text-danger" type="button" onClick={() => onDelete?.(record)} >
-            <Trash2 size={16} />
-          </button>
-        </div>
-    ),
-  },
+ {
+  accessorKey: "actions",
+  header: "Actions",
+  cell: ({ row }) => (
+    <div className="flex items-center justify-start gap-2 text-rose-700">
+      <button onClick={() => onView(row.original)} className="btn btn-sm btn-icon btn-clear">
+        <i className="ki-filled ki-eye text-primary"></i>
+      </button>
+      <button className="btn btn-sm btn-icon btn-clear" type="button" onClick={() => onEdit?.(row.original)}>
+        <i className="ki-filled ki-notepad-edit text-third"></i>
+      </button>
+      <button className="btn btn-sm btn-icon btn-clear text-danger" type="button" onClick={() => onDelete?.(row.original)}>
+        <Trash2 size={16} />
+      </button>
+    </div>
+  ),
+},
 ];

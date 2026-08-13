@@ -1,4 +1,4 @@
-import axiosInstance, { POST, GET, PUT, DELETE } from "./axiosInstance";
+import axiosInstance, { POST, GET, PUT, DELETE , PATCH } from "./axiosInstance";
 import { data } from "autoprefixer";
 
 // Sign Up Login 
@@ -75,6 +75,8 @@ export const deletecategorytypemaster = (id) => {
 export const getAllCategoryTypemaster = (data) => {
     return POST(`/category-type/list`, data);
 };
+
+//eventtype
 export const getAllEventTypemaster = (data) => {
     return POST(`/event-type/list`, data);
 };
@@ -259,4 +261,66 @@ export const deleteplan = (id) => {
 
 export const getbyidplan = (id) => {
     return GET(`/paln/get?id=${id}`);
+  };
+
+  //venu
+  export const addupadtevenuemaster = (data) => {
+    return POST(`/venue/add-update` , data);
+  };
+  
+  export const getallvenuemmmaster = (data) => {
+return POST(`/venue/list`,data);
+  };
+
+  export const getbyvenuid = (id) => {
+    return GET(`/venue/get?id=${id}`);
+  };
+  export const deletevenu = (id) =>{
+    return DELETE(`/venue/delete?id=${id}`);
+  };
+
+export const updatestatus = (id, isActive) => {
+  return PATCH(`/venue/status?id=${id}&isActive=${isActive}`);
 };
+
+
+//createevent 
+export const addupadtevent = (data) =>{
+    return POST(`/event/add-update`, data) ;
+};
+
+export const getallevent = (data) =>{
+    return POST(`/event/list`,data);
+};
+
+export const getbyeventid = (id) =>{
+    return GET(`/event/get?id=${id}`);
+};
+
+export const deleteeventbyid = (id) =>{
+    return DELETE(`/event/delete?id=${id}`);
+};
+
+//report
+//reportkeyadd 
+export const addupadtereportkey = (data) =>{
+    return POST(`/report-key-master/add-update`,data);
+};
+export const getallreportkey = () =>{
+    return GET(`/report-key-master/list`);
+};
+
+//theme name
+export const addupdatethemname = (data ) =>{
+    return POST(`/template-module/add-update`, data);
+};
+
+export const getalltheme = (data) => {
+    return POST(`/template-module/list`, data) ;
+};
+export const deletetheme = (id ) =>{
+    return DELETE(`/template-module/delete?id=${id}`);
+};
+
+
+//theme type master 

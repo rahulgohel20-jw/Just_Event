@@ -52,9 +52,9 @@ const AddVendorModal = ({ open, onClose, onSave, initialData }) => {
   ]);
   const isEditMode = Boolean(initialData);
   const nextKycIdRef = useRef(1); // 0 is used by the first row created above
+  const userId = Number(localStorage.getItem("userId"));
 
   const fetchUniqueCode = useCallback(async () => {
-    const userId = Number(localStorage.getItem("userId"));
     setCodeLoading(true);
     try {
       const res = await generateUniqueCodeforvendor(userId);
@@ -83,7 +83,7 @@ const AddVendorModal = ({ open, onClose, onSave, initialData }) => {
         size: 1000,
         sortBy: "id",
         sortDirection: "DESC",
-        userId: 1,
+        userId,
       });
       const body = res?.data ?? res;
       const content = body?.data?.content ?? [];
@@ -161,21 +161,20 @@ const AddVendorModal = ({ open, onClose, onSave, initialData }) => {
         aadharCardNo: initialData.aadharCardNo || "",
       });
 
-      // TODO: confirm shape of initialData.kycDetails from API before wiring this up
       const existingDocs = initialData.kycDetails || [];
-      setKycDocuments(
-        existingDocs.length
-          ? existingDocs.map((doc, index) => ({
-              id: index,
-              docId: doc.id ?? "",
-              type: doc.kycType ?? null,
-              number: doc.docNumber ?? "",
-              file: null,
-              fileName: doc.documentName ?? "",
-              documentUrl: doc.document ?? "",
-            }))
-          : [{ id: 0, docId: "", type: null, number: "", file: null }]
-      );
+setKycDocuments(
+  existingDocs.length
+    ? existingDocs.map((doc, index) => ({
+        id: index,
+        docId: doc.id ?? "",
+        type: doc.kycType ?? null,
+        number: doc.docNumber ?? "",
+        file: null,
+        fileName: doc.documentPath ? doc.documentPath.split("/").pop() : "",
+        documentUrl: doc.documentPath ?? "",
+      }))
+    : [{ id: 0, docId: "", type: null, number: "", file: null }]
+);
       nextKycIdRef.current = existingDocs.length || 1;
     } else {
       setForm(initialFormState);
@@ -537,34 +536,64 @@ const AddVendorModal = ({ open, onClose, onSave, initialData }) => {
                     />
                   </div>
 
-                  <div className="md:col-span-4 col-span-6">
-                    {doc.file instanceof File || doc.fileName ? (
-                      <div className="border border-primary-clarity rounded-lg h-[42px] px-3 flex items-center justify-between">
-                        <span className="truncate text-sm">
-                          {doc.file instanceof File ? doc.file.name : doc.fileName}
-                        </span>
-                        <button type="button" onClick={() => removeUploadedFile(doc.id)}>
-                          <X size={16} className="text-danger hover:text-red-700" />
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <label
-                          htmlFor={`upload-${doc.id}`}
-                          className="border border-dashed border-primary-lighter rounded-lg h-[42px] flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-50"
-                        >
-                          <Upload size={18} />
-                          Upload Document
-                        </label>
-                        <input
-                          id={`upload-${doc.id}`}
-                          type="file"
-                          hidden
-                          onChange={(e) => uploadDocument(doc.id, e.target.files?.[0])}
-                        />
-                      </>
-                    )}
-                  </div>
+                 <div className="md:col-span-4 col-span-6">
+  {doc.file instanceof File ? (
+    // Newly selected file — not uploaded yet, no URL to preview
+    <div className="border border-primary-clarity rounded-lg h-[42px] px-3 flex items-center justify-between">
+      <span className="truncate text-sm">{doc.file.name}</span>
+      <button type="button" onClick={() => removeUploadedFile(doc.id)}>
+        <X size={16} className="text-danger hover:text-red-700" />
+      </button>
+    </div>
+  ) : doc.documentUrl ? (
+    // Existing document from server — link opens it in a new tab
+    <div className="border border-primary-clarity rounded-lg h-[42px] px-3 flex items-center justify-between gap-2">
+      <a
+        href={doc.documentUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="truncate text-sm text-primary underline hover:opacity-80"
+        title={doc.fileName}
+      >
+        {doc.fileName || "View Document"}
+      </a>
+      <div className="flex items-center gap-2 shrink-0">
+        <label
+          htmlFor={`upload-${doc.id}`}
+          className="text-xs text-gray-500 hover:text-primary cursor-pointer"
+          title="Replace document"
+        >
+          <Upload size={16} />
+        </label>
+        <input
+          id={`upload-${doc.id}`}
+          type="file"
+          hidden
+          onChange={(e) => uploadDocument(doc.id, e.target.files?.[0])}
+        />
+        <button type="button" onClick={() => removeUploadedFile(doc.id)}>
+          <X size={16} className="text-danger hover:text-red-700" />
+        </button>
+      </div>
+    </div>
+  ) : (
+    <>
+      <label
+        htmlFor={`upload-${doc.id}`}
+        className="border border-dashed border-primary-lighter rounded-lg h-[42px] flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-50"
+      >
+        <Upload size={18} />
+        Upload Document
+      </label>
+      <input
+        id={`upload-${doc.id}`}
+        type="file"
+        hidden
+        onChange={(e) => uploadDocument(doc.id, e.target.files?.[0])}
+      />
+    </>
+  )}
+</div>
 
                   <div className="md:col-span-3 col-span-6">
                     <input

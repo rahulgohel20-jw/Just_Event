@@ -1,7 +1,10 @@
-import React from "react";
-import { UserPlus, Users } from "lucide-react";
+import React, { useState } from "react";
+import { UserPlus, Users, Plus } from "lucide-react";
+import { getAllClientMaster } from "@/services/apiServices";
+import PaginatedSearchSelect from "../../../../components/form-inputs/select/PaginatedSearchSelect";
+import { AddClientModal } from "../../../../partials/modals/AddClientModal/AddClientModal"; // adjust path to your actual location
 
-const TITLES = ["Mr.", "Mrs.", "Ms.", "Dr."];
+const TITLES = ["Mr.", "Mrs."];
 const LEAD_SOURCES = [
   "Referral",
   "Website",
@@ -13,6 +16,7 @@ const LEAD_SOURCES = [
 function emptyClient(clientType) {
   return {
     id: crypto.randomUUID(),
+    clientMasterId: null,
     title: "Mr.",
     name: "",
     mobile: "",
@@ -26,6 +30,13 @@ function emptyClient(clientType) {
 export default function ClientDetails({ data, onChange }) {
   const addBrideGroom = !!data.addBrideGroom;
   const clients = data.clients?.length ? data.clients : [emptyClient("groom")];
+
+  // Newly-created clients pushed here so PaginatedSearchSelect shows them
+  // immediately, without a refetch.
+  const [extraClients, setExtraClients] = useState([]);
+  const [addClientOpen, setAddClientOpen] = useState(false);
+  // which row's "+" was clicked, so we know which client to auto-select on save
+  const [addClientTargetId, setAddClientTargetId] = useState(null);
 
   const toggleBrideGroom = () => {
     const next = !addBrideGroom;
@@ -42,58 +53,79 @@ export default function ClientDetails({ data, onChange }) {
     });
   };
 
+  const updateClientFields = (id, patch) => {
+    onChange({
+      clients: clients.map((c) => (c.id === id ? { ...c, ...patch } : c)),
+    });
+  };
+
+  const openAddClient = (clientId) => {
+    setAddClientTargetId(clientId);
+    setAddClientOpen(true);
+  };
+
+  const handleClientCreated = (created) => {
+    if (!created) return;
+    const option = {
+      value: created.id,
+      label: created.nameEnglish,
+      mobileNo: created.mobileNo,
+      address: created.address,
+    };
+    setExtraClients((prev) => [option, ...prev]);
+
+    if (addClientTargetId) {
+      updateClientFields(addClientTargetId, {
+        clientMasterId: option.value,
+        name: option.label,
+        mobile: option.mobileNo || "",
+        address: option.address || "",
+      });
+    }
+    setAddClientOpen(false);
+    setAddClientTargetId(null);
+  };
+
   const visibleClients = addBrideGroom
     ? clients.slice(0, 2)
     : clients.slice(0, 1);
 
   return (
     <div className="space-y-6">
-      {/* Bride & Groom toggle */}
-      <div className="flex items-center justify-between bg-primary-inverse rounded-xl p-4">
-        <div className="flex items-center gap-3 px-2">
-          <div className="w-9 h-9 flex items-center justify-center shrink-0">
-            <Users className="w-7 h-7 text-primary" />
-          </div>
-          <div>
-            <h5 className="text-sm font-bold text-dark">
-              Add Bride &amp; Groom
-            </h5>
-            <h4 className="text-sm text-primary font-bold">
-              Enable for wedding event specifics
-            </h4>
-          </div>
-        </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={addBrideGroom}
-          onClick={toggleBrideGroom}
-          className={`w-11 h-6 rounded-full relative transition-colors shrink-0 ${
-            addBrideGroom ? "bg-primary" : "bg-primary-clarity"
-          }`}
-        >
-          <span
-            className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
-              addBrideGroom ? "translate-x-5" : "translate-x-0"
-            }`}
-          />
-        </button>
-      </div>
-
       {visibleClients.map((client, i) => (
         <ClientCard
           key={client.id}
           index={i}
           client={client}
           showTypeToggle={addBrideGroom}
+          extraClients={extraClients}
           onChange={(field, value) => updateClient(client.id, field, value)}
+          onSelectClient={(patch) => updateClientFields(client.id, patch)}
+          onAddNew={() => openAddClient(client.id)}
         />
       ))}
+
+      <AddClientModal
+        open={addClientOpen}
+        onClose={() => {
+          setAddClientOpen(false);
+          setAddClientTargetId(null);
+        }}
+        onSave={handleClientCreated}
+      />
     </div>
   );
 }
 
-function ClientCard({ index, client, showTypeToggle, onChange }) {
+function ClientCard({
+  index,
+  client,
+  showTypeToggle,
+  extraClients,
+  onChange,
+  onSelectClient,
+  onAddNew,
+}) {
   const isBride = client.clientType === "bride";
   const label = showTypeToggle
     ? index == 0
@@ -121,11 +153,20 @@ function ClientCard({ index, client, showTypeToggle, onChange }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
         <div className="col-span-2">
-          <label className="block text-[13px] font-medium text-dark-light mb-1.5">
-            1. Client's Name
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-[13px] font-medium text-dark-light">
+              1. Client's Name<span className="text-danger ml-0.5">*</span>
+            </label>
+            <button
+              type="button"
+              onClick={onAddNew}
+              className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+            >
+              <Plus size={14} /> Add New
+            </button>
+          </div>
           <div className="flex gap-3 w-full items-center">
-            <p className="bg-light w-40 border border-primary-clarity rounded-lg px-4 py-3 m-auto flex items-center  text-sm text-dark ">
+            <p className="bg-light w-40 h-10 border border-primary-clarity rounded-lg px-4 m-auto flex items-center  text-sm text-dark ">
               <select
                 value={client.title}
                 onChange={(e) => onChange("title", e.target.value)}
@@ -136,13 +177,41 @@ function ClientCard({ index, client, showTypeToggle, onChange }) {
                 ))}
               </select>
             </p>
-            <input
-              type="text"
-              placeholder="Full legal name"
-              value={client.name}
-              onChange={(e) => onChange("name", e.target.value)}
-              className="flex-1 bg-light border border-primary-clarity rounded-lg px-4 py-3 text-sm text-dark placeholder:text-dark-light outline-none focus:ring-2 focus:ring-primary-clarity"
-            />
+            <div className="flex-1">
+              <PaginatedSearchSelect
+                fetchFn={getAllClientMaster}
+                extraParams={{ sortBy: "id", sortDirection: "DESC" }}
+                labelKey="nameEnglish"
+                valueKey="id"
+                searchParamName="nameEnglish"
+                sizeParamName="size"
+                mapOption={(r) => ({
+                  value: r.id,
+                  label: r.nameEnglish,
+                  mobileNo: r.mobileNo,
+                  address: r.address,
+                })}
+                initialOption={
+                  client.clientMasterId
+                    ? { value: client.clientMasterId, label: client.name }
+                    : undefined
+                }
+                extraOptions={extraClients}
+                value={client.clientMasterId || undefined}
+                onChange={() => {}}
+                onSelectOption={(opt) =>
+                  onSelectClient({
+                    clientMasterId: opt?.value ?? null,
+                    name: opt?.label || "",
+                    mobile: opt?.mobileNo || "",
+                    address: opt?.address || "",
+                  })
+                }
+                placeholder="Search full legal name..."
+                size="large"
+                className="h-14-select"
+              />
+            </div>
           </div>
         </div>
         <div>
@@ -151,10 +220,9 @@ function ClientCard({ index, client, showTypeToggle, onChange }) {
           </label>
           <input
             type="tel"
-            placeholder="+1 (555) 000-0000"
             value={client.mobile}
             onChange={(e) => onChange("mobile", e.target.value)}
-            className="flex-1 bg-light w-full border border-primary-clarity rounded-lg px-4 py-3 text-sm text-dark placeholder:text-dark-light outline-none focus:ring-2 focus:ring-primary-clarity"
+            className="flex-1 bg-light w-full border border-primary-clarity rounded-lg px-2 py-2 text-sm text-dark placeholder:text-dark-light outline-none focus:ring-2 focus:ring-primary-clarity"
           />
         </div>
       </div>
@@ -167,7 +235,6 @@ function ClientCard({ index, client, showTypeToggle, onChange }) {
             Address
           </label>
           <textarea
-            placeholder="Street, Building, Suite, City, State, ZIP..."
             value={client.address}
             onChange={(e) => onChange("address", e.target.value)}
             rows={3}
@@ -233,22 +300,6 @@ function ClientCard({ index, client, showTypeToggle, onChange }) {
             </div>
           </div>
         )}
-        <div>
-          <label className="block text-[13px] font-medium text-dark-light mb-1.5">
-            Lead Source:
-          </label>
-          <p className="bg-light border border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark">
-            <select
-              value={client.leadSource}
-              onChange={(e) => onChange("leadSource", e.target.value)}
-              className="w-full outline-none"
-            >
-              {LEAD_SOURCES.map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
-          </p>
-        </div>
       </div>
     </div>
   );

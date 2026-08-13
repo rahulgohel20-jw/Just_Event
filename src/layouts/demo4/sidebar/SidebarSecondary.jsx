@@ -1,26 +1,16 @@
-import { useViewport } from '@/hooks';
-import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import { SidebarMenuDashboard, SidebarMenuDefault } from '.';
+
 const SidebarSecondary = () => {
-  const {
-    pathname
-  } = useLocation();
-  const [viewportHeight] = useViewport();
-  const offset = 0;
-  const [scrollableHeight, setScrollableHeight] = useState(0);
-  useEffect(() => {
-    const availableHeight = viewportHeight - offset;
-    setScrollableHeight(availableHeight);
-  }, [viewportHeight]);
-  return <div className="flex items-stretch grow shrink-0 justify-center ps-1.5 my-5 me-1.5">
-      <div className="scrollable-y-auto grow" style={{
-      ...(scrollableHeight > 0 && {
-        height: `${scrollableHeight}px`
-      })
-    }}>
+  const { pathname } = useLocation();
+
+  return (
+    <div className="flex flex-col items-stretch grow shrink-0 ps-1.5 my-5 me-1.5 h-full min-h-0 overflow-hidden">
+      <div className="grow min-h-0 overflow-y-auto">
         {pathname === '/' ? <SidebarMenuDashboard /> : <SidebarMenuDefault />}
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export { SidebarSecondary };

@@ -40,14 +40,14 @@ const CustomModal = ({ open, onClose, children, footer,centered, title, ...rest 
   }, [open]);
   return (
     <Modal
-      maskClosable={false} //  disables closing on backdrop click
-      keyboard={false} //disables closing on Esc
+      maskClosable={false} 
+      keyboard={false} 
       closable={false} 
        centered={centered}
       title={
         title ? (
           <div>
-            <div className="flex justify-between items-center pb-2">
+            <div className="flex justify-between items-center p-2">
               <span className="text-base font-medium">{title}</span>
               <button
                 type="text"

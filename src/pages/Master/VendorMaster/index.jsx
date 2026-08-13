@@ -125,7 +125,7 @@ const VendorMaster = () => {
 
     try {
       const payload = {
-        categoryId: categoryFilter ? Number(categoryFilter) : null,
+        categoryId: categoryFilter ? Number(categoryFilter) : -1,
         isActive: statusFilter === "" ? null : statusFilter === "active",
 
         nameEnglish: searchText,

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Select, Spin } from "antd";
 
 const DEBOUNCE_MS = 400;
@@ -19,8 +19,13 @@ const PaginatedSearchSelect = ({
   placeholder = "Select",
   initialOption,
   disabled = false,
+  size = "large",       // antd size prop — pass "middle" if you don't need the h-14 look
+  className = "",        // extra class(es) merged onto the Select, e.g. "h-14-select"
 }) => {
-  const [options, setOptions] = useState(initialOption ? [initialOption] : []);
+  // Only holds items that came from the API (fetched pages). extraOptions and
+  // initialOption are merged in at render time below, not stored here, so
+  // they're reflected the instant they change — no effect-timing lag.
+  const [options, setOptions] = useState([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -31,13 +36,6 @@ const PaginatedSearchSelect = ({
     (r) => (mapOption ? mapOption(r) : { value: r[valueKey], label: r[labelKey] }),
     [mapOption, valueKey, labelKey]
   );
-
-  const mergeOptions = (prev, incoming, append) => {
-    const base = append ? prev : [...(initialOption ? [initialOption] : []), ...extraOptions];
-    const combined = [...base, ...incoming];
-    const map = new Map(combined.map((o) => [o.value, o]));
-    return Array.from(map.values());
-  };
 
   const loadOptions = useCallback(
     async (pageToLoad, searchText, append) => {
@@ -53,11 +51,15 @@ const PaginatedSearchSelect = ({
         const records = data?.content ?? [];
         const mapped = records.map(doMapOption);
 
-        setOptions((prev) => mergeOptions(prev, mapped, append));
+        setOptions((prev) => {
+          const combined = append ? [...prev, ...mapped] : mapped;
+          const map = new Map(combined.map((o) => [o.value, o]));
+          return Array.from(map.values());
+        });
         setHasMore(data ? !data.last : false);
       } catch (err) {
         console.error("Failed to load options:", err);
-        if (!append) setOptions([...(initialOption ? [initialOption] : []), ...extraOptions]);
+        if (!append) setOptions([]);
         setHasMore(false);
       } finally {
         setLoading(false);
@@ -72,12 +74,19 @@ const PaginatedSearchSelect = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // keep locally-added options (e.g. just-created vendor) visible without a refetch
-  useEffect(() => {
-    if (!extraOptions.length) return;
-    setOptions((prev) => mergeOptions(prev, [], true));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [extraOptions]);
+  // Options actually rendered: fetched options + extraOptions + initialOption,
+  // deduped by value. Computed fresh every render so a just-created item
+  // (extraOptions) or a preselected item (initialOption) shows up and matches
+  // `value` immediately, with no separate effect/render cycle needed.
+  const displayOptions = useMemo(() => {
+    const combined = [
+      ...(initialOption ? [initialOption] : []),
+      ...extraOptions,
+      ...options,
+    ];
+    const map = new Map(combined.map((o) => [o.value, o]));
+    return Array.from(map.values());
+  }, [options, extraOptions, initialOption]);
 
   const handleSearch = (text) => {
     setSearch(text);
@@ -101,7 +110,7 @@ const PaginatedSearchSelect = ({
   const handleChange = (val) => {
     onChange?.(val);
     if (onSelectOption) {
-      const full = options.find((o) => o.value === val);
+      const full = displayOptions.find((o) => o.value === val);
       onSelectOption(full);
     }
   };
@@ -115,10 +124,10 @@ const PaginatedSearchSelect = ({
       onSearch={handleSearch}
       onPopupScroll={handlePopupScroll}
       filterOption={false}
-      options={options}
+      options={displayOptions}
       placeholder={placeholder}
-      size="large"
-      className="w-full custom-category-select"
+      size={size}
+      className={`w-full custom-category-select ${className}`}
       disabled={disabled}
       loading={loading}
       notFoundContent={loading ? <Spin size="small" /> : "No results"}

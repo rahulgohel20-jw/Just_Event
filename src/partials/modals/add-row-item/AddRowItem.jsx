@@ -137,13 +137,13 @@ const AddRowItem = ({ open, onClose, onSave, initialData }) => {
         // ⚠️ assumes initialData.suppliers items look like
         // { id, supplierId, supplierName, rate, isDefault } — adjust field
         // names below (esp. supplierName / rate) once confirmed.
-        suppliers: (initialData.suppliers || []).map((s) => ({
-          id: s.id ?? null,
-          supplierId: s.supplierId,
-          supplierName: s.supplierName ?? s.name ?? "",
-          price: s.rate ?? "",
-          isDefault: s.isDefault ?? false,
-        })),
+       suppliers: (initialData.suppliers || []).map((s) => ({
+  id: s.id ?? null,
+  supplierId: s.supplierId,
+  supplierName: s.supplierNameEnglish || "",
+  price: s.rate ?? "",
+  isDefault: s.isDefault ?? false,
+})),
       });
     } else {
       setForm(initialFormState);
@@ -524,16 +524,20 @@ const AddRowItem = ({ open, onClose, onSave, initialData }) => {
 
                       <td className="px-4 py-3">₹ {supplier.price}</td>
 
-                      <td className="px-4 py-3">
-                        <button
-                          type="button"
-                          onClick={() => toggleDefaultSupplier(supplier)}
-                          className={`h-4 w-4 rounded-full border ${
-                            supplier.isDefault ? "bg-primary border-primary" : "border-gray-300"
-                          }`}
-                        />
-                      </td>
-
+                     <td className="px-4 py-3">
+  <button
+    type="button"
+    onClick={() => toggleDefaultSupplier(supplier)}
+    className="flex items-center gap-2"
+  >
+    <span
+   
+    />
+    <span className={`text-xs font-medium ${supplier.isDefault ? "text-primary" : "text-gray-400"}`}>
+      {supplier.isDefault ? "Yes" : "No"}
+    </span>
+  </button>
+</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <button
