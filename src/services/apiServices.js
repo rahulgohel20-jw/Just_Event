@@ -324,3 +324,13 @@ export const deletetheme = (id ) =>{
 
 
 //theme type master 
+export const addupadtethemtype = (data) =>{
+    return POST(`/template-mapping/add-update`,data) ;
+};
+export const getallthemetypemaster =  (data) =>{
+    return POST(`/template-mapping/list`,data);
+};
+
+export const deletethemetype = (id) => {
+  return DELETE(`/template-mapping/delete?id=${id}`);
+};
