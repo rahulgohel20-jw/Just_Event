@@ -190,7 +190,7 @@ export const getFunctionColumns = ({ onView, onEdit, onDelete, onToggleStatus })
           <button className="btn btn-sm btn-icon btn-clear" type="button" onClick={() => onEdit?.(record)} >
             <i className="ki-filled ki-notepad-edit text-third"></i>
           </button>
-          <button  className=" tn btn-sm btn-icon btn-clear text-danger" type="button" onClick={() => onDelete?.(record)} >
+          <button  className=" btn btn-sm btn-icon btn-clear text-danger" type="button" onClick={() => onDelete?.(record)} >
             <Trash2 size={16} />
           </button>
         </div>

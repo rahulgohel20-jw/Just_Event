@@ -175,6 +175,11 @@ import EventOutsourceAgency from "../pages/Event/EventOutsourceAgency/EventOutso
 import EventNewMaking from "../pages/Event/EventNewMaking/EventNewMaking";
 import EventGodown from "../pages/Event/EventGodown/EventGodown";
 import EventLabourAgency from "../pages/Event/EventLabourAgency/EventLabourAgency";
+import { CashaccountPage } from "../pages/Master/CashAccount";
+import { BankDetailsMasterPage } from "../pages/Master/BankAccount";
+import { Menuitemcattypemaster } from "../pages/Master/MenuItemMaster/MenuItemCategoryType";
+import { MenuItemCategoryMaster } from "../pages/Master/MenuItemMaster/Menuitemcategory";
+import { MenuItemMaster } from "../pages/Master/MenuItemMaster/menuitemmaster";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -183,6 +188,11 @@ const AppRoutingSetup = () => {
 
           <Route element={<Demo1Layout />}>
             {/* project routs */}
+            <Route path="/menuitemmaster" element={<MenuItemMaster/>}/>
+            <Route path="/menucatmaster" element={<MenuItemCategoryMaster/>}/>
+         <Route path="/menucattypemaster" element={<Menuitemcattypemaster/>}/>
+            <Route path="/bankaccount" element={<BankDetailsMasterPage/>}/>
+            <Route path="/cashaccount" element={<CashaccountPage/>}/>
             <Route path="/templatetypemaster" element={<TemplateTypePage/>}/>
             <Route path="/templatenamemaster" element={<TemplateNameMaster/>}/>
             <Route path="/reporkeymaster" element={<ReportKeyMaster/>}/>

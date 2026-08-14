@@ -9,30 +9,45 @@ export const getTemplateTypeColumns = ({ onEdit, onDelete }) => [
   },
   {
     header: <FormattedMessage id="TEMPLATE_TYPE.NAME" defaultMessage="Name" />,
-    accessorKey: "name",
+    accessorKey: "nameEnglish",
     cell: ({ row }) => (
-      <span className="text-primary cursor-pointer">{row.original.name}</span>
+      <span
+        className="text-primary cursor-pointer"
+        onClick={() => onEdit(row.original)}
+      >
+        {row.original.nameEnglish}
+      </span>
     ),
   },
   {
     header: <FormattedMessage id="TEMPLATE_TYPE.THEME" defaultMessage="Theme" />,
-    accessorKey: "theme",
-    cell: ({ row }) => row.original.theme || "-",
+    accessorKey: "templateModuleName",
+    cell: ({ row }) => row.original.templateModuleName || "-",
   },
   {
     header: (
       <FormattedMessage
-        id="TEMPLATE_TYPE.NAME_PLATE_TYPE"
-        defaultMessage="Name Plate Type"
+        id="TEMPLATE_TYPE.AUTO_ASSIGN"
+        defaultMessage="Auto Assign"
       />
     ),
-    accessorKey: "namePlateType",
-    cell: ({ row }) => row.original.namePlateType || "-",
+    accessorKey: "isAutoAssign",
+    cell: ({ row }) => (
+      <span
+        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+          row.original.isAutoAssign
+            ? "bg-green-100 text-green-700"
+            : "bg-gray-100 text-gray-600"
+        }`}
+      >
+        {row.original.isAutoAssign ? "Yes" : "No"}
+      </span>
+    ),
   },
   {
-    header: <FormattedMessage id="TEMPLATE_TYPE.DATE_TYPE" defaultMessage="Date Type" />,
-    accessorKey: "dateType",
-    cell: ({ row }) => row.original.dateType || "-",
+    header: <FormattedMessage id="TEMPLATE_TYPE.CREATED_AT" defaultMessage="Created At" />,
+    accessorKey: "createdAt",
+    cell: ({ row }) => row.original.createdAt || "-",
   },
   {
     header: <FormattedMessage id="COMMON.ACTION" defaultMessage="Action" />,
@@ -45,8 +60,7 @@ export const getTemplateTypeColumns = ({ onEdit, onDelete }) => [
           onClick={() => onEdit(row.original)}
           className="text-blue-500 hover:text-blue-700"
         >
-          <i className="ki-filled ki-pencil text-lg"></i>
-        </button>
+ <i className="ki-filled ki-notepad-edit text-lg"></i>        </button>
         <button
           type="button"
           onClick={() => onDelete(row.original)}

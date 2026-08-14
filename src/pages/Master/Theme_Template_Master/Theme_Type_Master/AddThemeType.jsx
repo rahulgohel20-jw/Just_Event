@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
-import { Save, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Save, Loader2, Search } from "lucide-react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox";
 import {
-  addupdatethemname,
+  addupadtethemtype,
   Translateapi,
   getallreportkey,
+  getalltheme,
 } from "@/services/apiServices";
 import { showApiResult, showApiError } from "@/utils/swalHelpers";
 
@@ -13,12 +14,16 @@ const initialFormState = {
   themeName: { english: "", hindi: "", gujarati: "" },
   isAutoAssign: true,
   reportKeyIds: [],
+  templateModuleId: null,
 };
 
 const AddThemeType = ({ open, onClose, onSave, initialData }) => {
   const [form, setForm] = useState(initialFormState);
   const [saving, setSaving] = useState(false);
   const [reportKeyOptions, setReportKeyOptions] = useState([]);
+  const [reportKeySearch, setReportKeySearch] = useState("");
+  const [templateModuleOptions, setTemplateModuleOptions] = useState([]);
+  const [templateModuleLoading, setTemplateModuleLoading] = useState(false);
   const isEditMode = Boolean(initialData);
 
   useEffect(() => {
@@ -27,20 +32,47 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
     const loadReportKeys = async () => {
       try {
         const res = await getallreportkey();
-        const list = res?.data ?? res ?? [];
+        // response shape: { msg, data: [{ id, name, defaultValue, createdAt }], success }
+        const body = res?.data ?? res;
+        const list = body?.data ?? [];
         setReportKeyOptions(
           list.map((item) => ({
-            label: item.name || item.reportKeyName || item.label,
-            value: item.id ?? item.value,
+            label: item.name,
+            value: item.id,
+            defaultValue: item.defaultValue,
           }))
         );
       } catch (err) {
         console.error("Failed to load report keys:", err);
+        setReportKeyOptions([]);
       }
     };
-    loadReportKeys();
 
-    if (initialData) {
+    const loadTemplateModules = async () => {
+      setTemplateModuleLoading(true);
+      try {
+        const res = await getalltheme({ page: 0, size: 100 });
+        const body = res?.data ?? res;
+        const content = body?.data?.content ?? body?.content ?? [];
+        setTemplateModuleOptions(
+          content.map((item) => ({
+            label: item.nameEnglish,
+            value: item.id,
+          }))
+        );
+      } catch (err) {
+        console.error("Failed to load template modules:", err);
+        setTemplateModuleOptions([]);
+      } finally {
+        setTemplateModuleLoading(false);
+      }
+    };
+
+    loadReportKeys();
+    loadTemplateModules();
+    setReportKeySearch("");
+
+   if (initialData) {
       setForm({
         themeName: {
           english: initialData.nameEnglish || "",
@@ -48,14 +80,28 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
           gujarati: initialData.nameGujarati || "",
         },
         isAutoAssign: initialData.isAutoAssign ?? true,
-        reportKeyIds: (initialData.reportKeys || [])
-          .filter((rk) => rk.isAssigned)
+        // "keys" (not "reportKeys") is the array name from the list API.
+        // isAssigned comes back null on the list endpoint, so fall back to defaultValue.
+        reportKeyIds: (initialData.keys || [])
+          .filter((rk) => (rk.isAssigned ?? rk.defaultValue) === true)
           .map((rk) => rk.reportKeyId),
+        // templateModuleId comes back as a string ("2") from the list API
+        templateModuleId: initialData.templateModuleId
+          ? Number(initialData.templateModuleId)
+          : null,
       });
     } else {
       setForm(initialFormState);
     }
   }, [open, initialData]);
+
+  const filteredReportKeyOptions = useMemo(() => {
+    const query = reportKeySearch.trim().toLowerCase();
+    if (!query) return reportKeyOptions;
+    return reportKeyOptions.filter((opt) =>
+      opt.label?.toLowerCase().includes(query)
+    );
+  }, [reportKeyOptions, reportKeySearch]);
 
   const handleThemeNameChange = (name, updatedValue) => {
     setForm((prev) => ({ ...prev, [name]: updatedValue }));
@@ -87,22 +133,30 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
     });
   };
 
+  const handleTemplateModuleChange = (e) => {
+    const value = e.target.value ? Number(e.target.value) : null;
+    setForm((prev) => ({ ...prev, templateModuleId: value }));
+  };
+
   const handleReset = () => {
     setForm(initialFormState);
+    setReportKeySearch("");
     onClose();
   };
 
-  const handleSave = async () => {
+ const handleSave = async () => {
+    // matches the exact payload shape required by /template-mapping/add-update
     const payload = {
-      id: initialData?.id ?? 0,
+      id: initialData?.id ?? null,
       isAutoAssign: form.isAutoAssign,
       nameEnglish: form.themeName.english,
       nameGujarati: form.themeName.gujarati,
       nameHindi: form.themeName.hindi,
+      templateModuleId: form.templateModuleId ?? 0,
       reportKeys: reportKeyOptions.map((opt) => ({
         id:
-          initialData?.reportKeys?.find((rk) => rk.reportKeyId === opt.value)
-            ?.id || 0,
+          initialData?.keys?.find((rk) => rk.reportKeyId === opt.value)
+            ?.id || null,
         reportKeyId: opt.value,
         isAssigned: form.reportKeyIds.includes(opt.value),
       })),
@@ -110,7 +164,7 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
 
     setSaving(true);
     try {
-      const res = await addupdatethemname(payload);
+      const res = await addupadtethemtype(payload);
 
       const success = showApiResult(res, {
         successTitle: isEditMode ? "Theme Type Updated" : "Theme Type Saved",
@@ -188,6 +242,27 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
         </div>
 
         <div className="mb-5">
+          <label className="text-sm font-medium text-gray-700 mb-2 block">
+            Template Module
+          </label>
+          <select
+            value={form.templateModuleId ?? ""}
+            onChange={handleTemplateModuleChange}
+            disabled={templateModuleLoading}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-60"
+          >
+            <option value="">
+              {templateModuleLoading ? "Loading..." : "Select Template Module"}
+            </option>
+            {templateModuleOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-5">
           <MultiLangInputBox
             label="Theme Type Name"
             name="themeName"
@@ -222,13 +297,35 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
           </button>
         </div>
 
-        {reportKeyOptions.length > 0 && (
-          <div className="mb-2">
-            <label className="text-sm font-medium text-gray-700 mb-2 block">
-              Report Keys
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {reportKeyOptions.map((opt) => (
+        {/* Report Keys: search + checkbox list */}
+        <div className="mb-2">
+          <label className="text-sm font-medium text-gray-700 mb-2 block">
+            Report Keys
+          </label>
+
+          <div className="relative mb-3">
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
+            <input
+              type="text"
+              value={reportKeySearch}
+              onChange={(e) => setReportKeySearch(e.target.value)}
+              placeholder="Search report keys..."
+              className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+          </div>
+
+          {reportKeyOptions.length === 0 ? (
+            <p className="text-xs text-gray-400">No report keys available.</p>
+          ) : filteredReportKeyOptions.length === 0 ? (
+            <p className="text-xs text-gray-400">
+              No report keys match "{reportKeySearch}".
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+              {filteredReportKeyOptions.map((opt) => (
                 <label
                   key={opt.value}
                   className="flex items-center gap-2 text-sm text-gray-600"
@@ -243,8 +340,8 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
                 </label>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </CustomModal>
   );

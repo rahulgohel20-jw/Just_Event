@@ -7,6 +7,7 @@ const TableComponent = ({
   defaultSorting,
   toolbar,
   serverSide,
+  totalCount,
   onFetchData,
   data,
 }) => {
@@ -15,7 +16,7 @@ const TableComponent = ({
     <DataGrid
       columns={columns}
       data={gridData}
-      pagination={{ size: paginationSize }}
+      pagination={{ size: paginationSize , total: totalCount}}
       sorting={defaultSorting}
       toolbar={toolbar}
       layout={{ card: true }}
