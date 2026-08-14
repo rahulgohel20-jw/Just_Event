@@ -323,4 +323,22 @@ export const deletetheme = (id ) =>{
 };
 
 
+
+export const AddEstimate = (data) => {
+    return POST(`/event-estimate/add-update`, data) ;
+};
+
+export const STATUS_TYPE_MAP = {
+  Completed: "COMPLETED",
+  Pending: "PENDING",
+  Cancelled: "CANCELLED",
+};
+
+export const PAYMENT_MODE_MAP = {
+  "Bank Transfer": "BANK_TRANSFER",
+  Cash: "CASH",
+  Cheque: "CHEQUE",
+  UPI: "UPI",
+  "Credit Card": "CREDIT_CARD",
+};
 //theme type master 

@@ -77,8 +77,8 @@ const AddRowItem = ({ open, onClose, onSave, initialData }) => {
       setLoadingUnits(true);
       try {
         const res = await getAllUnitMaster({ page: 0, pageSize: 100, isActive: true, userId });
-        const records = res?.data?.data?.content ?? [];
-        setUnitOptions(records.map((r) => ({ value: r.id, label: r.nameEnglish })));
+const records = res?.data?.data?.content ?? [];
+setUnitOptions(records.map((r) => ({ value: r.id, label: r.unitNameEnglish })));
       } catch (err) {
         console.error("Failed to fetch units:", err);
         setUnitOptions([]);
@@ -332,38 +332,42 @@ const AddRowItem = ({ open, onClose, onSave, initialData }) => {
        {/* Row 1 */}
 <div className="grid grid-cols-1 gap-5 mb-5 sm:grid-cols-2">
   <div>
-    <label className="text-sm font-medium mb-2 block">Item Main Category</label>
-    <PaginatedSearchSelect
-      key={`cat-${initialData?.id ?? "new"}`}
-      fetchFn={getAllRawCategoryMaster}
-      extraParams={{ isActive: true, userId }}
-      value={form.mainCategory}
-      onChange={(value) => updateField("mainCategory", value)}
-      placeholder="Select Main Category"
-      initialOption={
-        initialData?.rawCategoryId
-          ? { value: initialData.rawCategoryId, label: initialData.rawCategoryNameEnglish }
-          : undefined
-      }
-    />
-  </div>
+  <label className="text-sm font-medium mb-2 block">Item Main Category</label>
+  <PaginatedSearchSelect
+    key={`maincat-${initialData?.id ?? "new"}`}
+    fetchFn={getAllRawCategoryMaster}
+    extraParams={{ isActive: true, userId }}
+    value={form.mainCategory}
+    onChange={(value) => updateField("mainCategory", value)}
+    placeholder="Select Main Category"
+    labelKey="nameEnglish"
+    searchParamName="nameEnglish"
+    initialOption={
+      initialData?.rawCategoryId
+        ? { value: initialData.rawCategoryId, label: initialData.rawCategoryNameEnglish }
+        : undefined
+    }
+  />
+</div>
 
-  <div>
-    <label className="text-sm font-medium mb-2 block">Sub Category</label>
-    <PaginatedSearchSelect
-      key={`subcat-${initialData?.id ?? "new"}`}
-      fetchFn={getAllRawSubCategoryMaster}
-      extraParams={{ isActive: true, userId }}
-      value={form.subCategory}
-      onChange={(value) => updateField("subCategory", value)}
-      placeholder="Select Sub Category"
-      initialOption={
-        initialData?.rawSubCategoryId
-          ? { value: initialData.rawSubCategoryId, label: initialData.rawSubCategoryNameEnglish }
-          : undefined
-      }
-    />
-  </div>
+<div>
+  <label className="text-sm font-medium mb-2 block">Sub Category</label>
+  <PaginatedSearchSelect
+    key={`subcat-${initialData?.id ?? "new"}`}
+    fetchFn={getAllRawSubCategoryMaster}
+    extraParams={{ isActive: true, userId }}
+    value={form.subCategory}
+    onChange={(value) => updateField("subCategory", value)}
+    placeholder="Select Sub Category"
+    labelKey="nameEnglish"
+    searchParamName="nameEnglish"
+    initialOption={
+      initialData?.rawSubCategoryId
+        ? { value: initialData.rawSubCategoryId, label: initialData.rawSubCategoryNameEnglish }
+        : undefined
+    }
+  />
+</div>
 </div>
 
         {/* Row 2 */}
@@ -399,18 +403,20 @@ const AddRowItem = ({ open, onClose, onSave, initialData }) => {
 <div>
   <label className="text-sm font-medium mb-2 block">Unit Type</label>
   <PaginatedSearchSelect
-    key={`unit-${initialData?.id ?? "new"}`}
-    fetchFn={getAllUnitMaster}
-    extraParams={{ isActive: true, userId }}
-    value={form.unitType}
-    onChange={(value) => updateField("unitType", value)}
-    placeholder="Select Unit"
-    initialOption={
-      initialData?.unitId
-        ? { value: initialData.unitId, label: initialData.unitNameEnglish }
-        : undefined
-    }
-  />
+  key={`unit-${initialData?.id ?? "new"}`}
+  fetchFn={getAllUnitMaster}
+  extraParams={{ isActive: true, userId }}
+  value={form.unitType}
+  onChange={(value) => updateField("unitType", value)}
+  placeholder="Select Unit"
+  labelKey="unitNameEnglish"
+  searchParamName="unitNameEnglish"
+  initialOption={
+    initialData?.unitId
+      ? { value: initialData.unitId, label: initialData.unitNameEnglish }
+      : undefined
+  }
+/>
 </div>
 
          <div>

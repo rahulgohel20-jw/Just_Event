@@ -200,7 +200,7 @@ const AppRoutingSetup = () => {
             <Route path="/overview" element={<OverviewPage />} />
 
           {/* Quotation */}
-          <Route path="/quotation" element={<QuotationDashboard/>}/>
+          <Route path="/quotation/:eventId" element={<QuotationDashboard />} />
           <Route path="/execution" element={<ExecutionPage />}/>
           <Route path="/flower" element={<EventFlower />}/>
 
@@ -253,7 +253,7 @@ const AppRoutingSetup = () => {
               element={<OrderBookingReportsPage />}
             />
             <Route path="/dish-costing" element={<DishCostingPage />} />
-            <Route path="/quotation" element={<QuotationPage />} />
+            <Route path="/quotations" element={<QuotationPage />} />
             <Route path="/event-invoice" element={<EventInvoicePage />} />
             <Route path="/add-invoice" element={<AddInvoicePage />} />
             <Route path="/view-invoice" element={<InvoiceViewPage />} />
