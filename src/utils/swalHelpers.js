@@ -156,3 +156,19 @@ export const showApiError = (
     confirmButtonColor: primaryColor,
   });
 };
+/**
+ * Simple validation/warning toast (e.g. required-field checks).
+ * Keeps callers from reaching for Swal directly.
+ */
+export const showWarning = (
+  message,
+  { title = "Required", icon = "warning" } = {}
+) => {
+  const primaryColor = getPrimaryColor();
+  Swal.fire({
+    icon,
+    title,
+    text: message,
+    confirmButtonColor: primaryColor,
+  });
+};

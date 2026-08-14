@@ -301,18 +301,26 @@ export const MENU_SIDEBAR = [
         path:"/eventtypemaster",
       },
      {
-      title:"Report configuration  ",
-      path:"",
+      title :"Cash Account",
+      path:"/cashaccount",
      },
      {
-      title:"Theme Master " ,
-      path:"",
-
+      title:"Bank Account" , 
+      path:"/bankaccount",
      },
      {
-      title:"Template Master ",
-      path:""
-     }
+      title:"Menu item Category Type ",
+      path:"/menucattypemaster",
+     },
+     {
+      title:"Menu Item Category",
+      path:"/menucatmaster",
+     },
+     {
+      title:"Menu Item ",
+      path:"/menuitemmaster",
+     },
+    
     ],
   },
   // {
@@ -427,6 +435,9 @@ export const superAdminMenuItems = [
     children: [
       { title: "Plan Master", path: "/planmaster" },
       { title: "Role Master", path: "/rolemaster" },
+      {title:"Report Key " , path: "/reporkeymaster"},
+      {title: "Theme Name" , path:"/templatenamemaster"},
+      {title:"Theme Type " , path :"/templatetypemaster"},
     ],
   },
 ];

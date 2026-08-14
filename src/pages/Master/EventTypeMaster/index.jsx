@@ -26,7 +26,7 @@ const EventTypeMaster = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(DEFAULT_PAGINATION_SIZE || 10);
+  const [size, setSize] = useState(DEFAULT_PAGINATION_SIZE || 100);
 
   const normalizeRow = (row, index) => ({
     id: row.id,

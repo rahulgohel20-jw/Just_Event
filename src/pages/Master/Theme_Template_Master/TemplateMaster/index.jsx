@@ -1,9 +1,10 @@
 import { useCallback, useState } from "react";
 import { getalltheme, deletetheme } from "@/services/apiServices";
-import { confirmDelete, showApiResult, showApiError } from "../../../../utils/swalHelpers"; // adjust path
+import { confirmDelete, showApiResult, showApiError } from "../../../../utils/swalHelpers"; 
 import { AddThemeName } from "./AddThemeName";
 import { getThemeColumns, DEFAULT_LIST_PAYLOAD } from "./constant";
 import { TableComponent } from "../../../../components/table/TableComponent";
+import { Plus } from "lucide-react";
 
 const TemplateNameMaster = () => {
   const [search, setSearch] = useState("");
@@ -12,7 +13,7 @@ const TemplateNameMaster = () => {
   const [listPayload, setListPayload] = useState(DEFAULT_LIST_PAYLOAD);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Called by DataGrid itself — must return { data, total }
+ 
   const fetchThemes = useCallback(
     async ({ pageIndex, pageSize, sortBy, sortDirection } = {}) => {
       const payload = {
@@ -77,21 +78,20 @@ const TemplateNameMaster = () => {
 
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-semibold">Template Name Master</h1>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span>Dashboard</span>
-          <span>{">"}</span>
-          <span>Template Name Master</span>
-          <button
-            type="button"
-            onClick={handleAdd}
-            className="ml-4 flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm"
-          >
-            + Create New
-          </button>
-        </div>
-      </div>
+   
+      <div className="flex items-start justify-between mb-6">
+              <div>
+                <h2 className="text-2xl  text-primary">Theme Name </h2>
+                
+              </div>
+              <button
+                type="button"
+                onClick={handleAdd}
+                className="flex items-center gap-1.5 bg-primary text-light text-sm font-semibold rounded-xl px-4 py-2.5 hover:opacity-90"
+              >
+                <Plus className="w-4 h-4" /> Add Template Name
+              </button>
+            </div>
 
       <div className="flex justify-between items-center mb-4">
         <input
@@ -101,13 +101,7 @@ const TemplateNameMaster = () => {
           onChange={(e) => handleSearchChange(e.target.value)}
           className="w-72 rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500"
         />
-        <button
-          type="button"
-          onClick={handleAdd}
-          className="flex items-center gap-1 bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md text-sm"
-        >
-          + Add Template Name
-        </button>
+       
       </div>
 
       <TableComponent

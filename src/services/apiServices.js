@@ -322,8 +322,19 @@ export const deletetheme = (id ) =>{
     return DELETE(`/template-module/delete?id=${id}`);
 };
 
+//theme type master 
+export const addupadtethemtype = (data) =>{
+    return POST(`/template-mapping/add-update`,data) ;
+};
+export const getallthemetypemaster =  (data) =>{
+    return POST(`/template-mapping/list`,data);
+};
 
+export const deletethemetype = (id) => {
+  return DELETE(`/template-mapping/delete?id=${id}`);
+};
 
+//qutation 
 export const AddEstimate = (data) => {
     return POST(`/event-estimate/add-update`, data) ;
 };
@@ -341,4 +352,71 @@ export const PAYMENT_MODE_MAP = {
   UPI: "UPI",
   "Credit Card": "CREDIT_CARD",
 };
-//theme type master 
+
+//cash
+
+export const addupadtecashaccount = (data) => {
+  return POST(`/cash-account/add-update`, data);
+};
+
+export const getallcashaccount = (data) => {
+  return POST(`/cash-account/list`, data);
+};
+
+export const deletecashaccount = (id) =>{
+    return DELETE (`/cash-account/delete?id=${id}`);
+};
+
+//bank 
+export const addupadtebankaccount = (data) => {
+    return POST(`/bank/add-update`, data);
+};
+export const deletebankaccount = (id) => {
+    return DELETE (`/bank/delete?id=${id}`);
+};
+
+export const getallbankaccount = (data) => {
+    return POST(`/bank/list`,data) ;
+};
+
+//menuitem cat type 
+export const addupdatemenutype  = (data) => {
+    return POST(`/menu-category-type/add-update`,data);
+} ;
+
+export const getallmenuitemcattype = (data) =>{
+    return POST(`/menu-category-type/list`,data);
+};
+
+export const deletemenuitemtype = (id) =>{
+    return DELETE(`/menu-category-type/delete?id=${id}`);
+};
+
+//menu item cat 
+export const addupadtemenuitemcat = (data) => {
+    return POST(`/menu-category/add-update`,data);
+};
+
+export const getallmenuitemcat = (data) => {
+    return POST(`/menu-category/list`,data);
+};
+export const deletemenuitemcat = (id) =>{
+    return DELETE(`/menu-category/delete?id=${id}`);
+};
+
+export const addupadtemenuitem = (data) =>{
+    return POST(`/menu-item/add-update`,data);
+};
+
+export const getallmenuitem = (data) => {
+    return POST(`/menu-item/list`,data);
+};
+
+export const getbyidmenuitem = (id) => {
+    return GET(`/menu-item/get?id${id}`);
+};
+
+export const deletemenutiem = (id) =>{
+    return DELETE(`/menu-item/delete?id=${id}`);
+};
+

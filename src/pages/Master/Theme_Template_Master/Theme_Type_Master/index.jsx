@@ -2,14 +2,22 @@ import { useEffect, useMemo, useState } from "react";
 import { Input, Button } from "antd";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 import { getTemplateTypeColumns } from "./constant";
 import { AddThemeType } from "./AddThemeType";
 import { TableComponent } from "../../../../components/table/TableComponent";
+import {
+  getallthemetypemaster,
+  deletethemetype,
+} from "@/services/apiServices";
+import { showApiError } from "@/utils/swalHelpers";
+import { Plus } from "lucide-react";
 
 const TemplateTypePage = () => {
   const intl = useIntl();
   const [search, setSearch] = useState("");
   const [tableData, setTableData] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [editingTheme, setEditingTheme] = useState(null);
 
@@ -18,9 +26,26 @@ const TemplateTypePage = () => {
   }, []);
 
   const fetchTemplateTypes = async (searchValue = "") => {
-    // TODO: replace with actual API call
-    // const res = await api.get("/template-type", { params: { search: searchValue } });
-    // setTableData(res.data);
+    setLoading(true);
+    try {
+      const res = await getallthemetypemaster({
+        isAutoAssign: null,
+        nameEnglish: searchValue,
+        page: 0,
+        size: 100,
+        sortBy: "id",
+        sortDirection: "ASC",
+        templateModuleId: null,
+      });
+      const body = res?.data ?? res;
+      const content = body?.data?.content ?? body?.data ?? [];
+      setTableData(content);
+    } catch (err) {
+      console.error("Failed to fetch template types:", err);
+      setTableData([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSearchChange = (e) => {
@@ -35,9 +60,31 @@ const TemplateTypePage = () => {
   };
 
   const handleDelete = async (record) => {
-    // TODO: replace with actual delete API call
-    // await api.delete(`/template-type/${record.id}`);
-    fetchTemplateTypes(search);
+    const result = await Swal.fire({
+      title: "Delete Template Type?",
+      text: `This will permanently delete "${record.nameEnglish || record.name}".`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      confirmButtonColor: "#d33",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await deletethemetype(record.id);
+      Swal.fire({
+        title: "Deleted",
+        text: "Template type deleted successfully.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      fetchTemplateTypes(search);
+    } catch (err) {
+      console.error("Failed to delete template type:", err);
+      showApiError(err, { title: "Failed to delete" });
+    }
   };
 
   const handleCreateTheme = () => {
@@ -50,7 +97,7 @@ const TemplateTypePage = () => {
     setEditingTheme(null);
   };
 
-  const handleSaveTheme = (savedTheme) => {
+  const handleSaveTheme = () => {
     // AddThemeType already calls the save API and shows success/error toasts internally,
     // so this just needs to refresh the list
     fetchTemplateTypes(search);
@@ -65,22 +112,17 @@ const TemplateTypePage = () => {
     <div className="p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold">
+        <h1 className="text-2xl text-primary">
           <FormattedMessage id="TEMPLATE_TYPE.TITLE" defaultMessage="Template Type" />
         </h1>
-        <div className="flex items-center gap-2 text-sm">
-          <Link to="/dashboard" className="text-primary">
-            <FormattedMessage id="COMMON.DASHBOARD" defaultMessage="Dashboard" />
-          </Link>
-          <span className="text-gray-400">›</span>
-          <span>
-            <FormattedMessage id="TEMPLATE_TYPE.TITLE" defaultMessage="Template Type" />
-          </span>
-          <Button type="primary" className="!bg-green-600 ml-3">
-            <i className="ki-filled ki-plus"></i>
-            <FormattedMessage id="COMMON.CREATE_NEW" defaultMessage="Create New" />
-          </Button>
-        </div>
+           <button
+                type="button"
+                onClick={handleCreateTheme}
+                className="flex items-center gap-1.5 bg-primary text-light text-sm font-semibold rounded-xl px-4 py-2.5 hover:opacity-90"
+              >
+                <Plus className="w-4 h-4" /> Create Theme Type
+              </button>
+      
       </div>
 
       {/* Search + Create Theme */}
@@ -94,10 +136,7 @@ const TemplateTypePage = () => {
           onChange={handleSearchChange}
           className="max-w-xs"
         />
-        <Button type="primary" onClick={handleCreateTheme}>
-          <i className="ki-filled ki-plus"></i>
-          <FormattedMessage id="THEME.CREATE" defaultMessage="Create Theme" />
-        </Button>
+       
       </div>
 
       {/* Table */}
@@ -108,6 +147,7 @@ const TemplateTypePage = () => {
         defaultSorting={[]}
         toolbar={false}
         serverSide={false}
+        loading={loading}
       />
 
       {/* Create/Edit Theme Modal */}

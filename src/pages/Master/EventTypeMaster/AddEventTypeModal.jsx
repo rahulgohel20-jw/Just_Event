@@ -113,7 +113,7 @@ const AddEventTypeModal = ({ open, onClose, onSave, initialData }) => {
         const dataBlob = new Blob([JSON.stringify(payload)], { type: "application/json" });
         formData.append("data", dataBlob);
         if (typeImageFile) {
-            formData.append("images", typeImageFile);
+            formData.append("image", typeImageFile);
         }
 
         setSaving(true);

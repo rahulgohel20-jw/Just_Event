@@ -104,8 +104,8 @@ export default function ReportKeyMaster() {
     <div className="m-5">
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h2 className="text-2xl  text-primary">Report Key Master</h2>
-          <p className="text-sm text-dark-light mt-1">
+          <h2 className="text-2xl text-primary">Report Key Master</h2>
+          <p className="text-sm text-gray-500  mt-1">
             Central repository for all report keys used across operations.
           </p>
         </div>
