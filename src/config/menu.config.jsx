@@ -315,17 +315,17 @@ export const MENU_SIDEBAR = [
      }
     ],
   },
-  {
-    title: "Quotation",
-    icon: "ki-filled ki-file-sheet text-primary",
-    path: "/quotation"
-  },
+  // {
+  //   title: "Quotation",
+  //   icon: "ki-filled ki-file-sheet text-primary",
+  //   path: "/quotation"
+  // },
 
-  {
-    title: "Inventory",
-  icon: "ki-filled ki-archive text-primary",
-    path: "/inventory-dashboard",
-  },
+  // {
+  //   title: "Inventory",
+  // icon: "ki-filled ki-archive text-primary",
+  //   path: "/inventory-dashboard",
+  // },
   {
     title: "Event Invoice",
     icon: "ki-filled ki-cheque text-primary",
@@ -345,6 +345,8 @@ export const MENU_SIDEBAR = [
     ],
   },
 ];
+
+
 
 export const MENU_CREATE_EVENT_SIDEBAR = [
   {
@@ -403,6 +405,32 @@ export const MENU_INVENTORY_SIDEBAR = [
   },
   
 ];
+
+
+export const superAdminMenuItems = [
+  {
+    title: "Dashboard",
+    icon: "element-11 text-primary",
+    path: "/superadmin/dashboard",
+  },
+  {
+    title: "Clients",
+    icon: "ki-filled ki-users text-primary",
+    children: [
+      { title: "All Clients", path: "/superadmin/clients" },
+      { title: "Client Plans", path: "/superadmin/client-plans" },
+    ],
+  },
+  {
+    title: "System Masters",
+    icon: "ki-filled ki-abstract-26 text-primary",
+    children: [
+      { title: "Plan Master", path: "/planmaster" },
+      { title: "Role Master", path: "/rolemaster" },
+    ],
+  },
+];
+
 
 
 export const MENU_MEGA = [

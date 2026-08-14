@@ -4,6 +4,8 @@ import { Menu, MenuArrow, MenuBadge, MenuBullet, MenuHeading, MenuIcon, MenuItem
 import { useMenus } from '@/providers';
 import { usePathname } from '@/providers';
 import { MENU_CREATE_EVENT_SIDEBAR, MENU_INVENTORY_SIDEBAR } from '@/config/menu.config';
+import { useMenu } from '../../../hooks/useMenu';
+
 
 const SidebarMenu = () => {
   const linkPl = 'ps-[10px]';
@@ -158,12 +160,7 @@ const SidebarMenu = () => {
       </MenuBadge>;
   };
 
-  const { getMenuConfig } = useMenus();
-  const { pathname } = usePathname();
-
-  // Whenever the current route is inside Inventory, swap the whole
-  // rendered sidebar list to MENU_INVENTORY_SIDEBAR instead of MENU_SIDEBAR.
-  const isInventoryRoute = pathname.startsWith('/inventory');
+  
 
   const backItem = {
     title: 'Back to Main Menu',
@@ -171,15 +168,22 @@ const SidebarMenu = () => {
     path: '/',
   };
 
-  const isCreateEvent = pathname.startsWith('/creteEvent');
+ 
+ const { menu } = useMenu();
+  const { getMenuConfig } = useMenus();
+  const { pathname } = usePathname();
+
+  const isInventoryRoute = pathname.startsWith('/inventory');
+  const CREATE_EVENT_ROUTES = ['/creteEvent', '/quotation', '/execution', '/flower'];
+  const isCreateEvent = CREATE_EVENT_ROUTES.some(route => pathname.startsWith(route));
 
   const menuConfig = isInventoryRoute
     ? [backItem, ...MENU_INVENTORY_SIDEBAR]
     : isCreateEvent
     ? MENU_CREATE_EVENT_SIDEBAR
-    : getMenuConfig('primary');
+    : menu;
 
-  return <Menu highlight={true} multipleExpand={false} className={clsx('flex flex-col grow', itemsGap)}>
+  return <Menu highlight={true} multipleExpand={false} className={clsx('flex flex-col grow min-h-0 overflow-y-auto', itemsGap)}>
       {menuConfig && buildMenu(menuConfig)}
     </Menu>;
 };

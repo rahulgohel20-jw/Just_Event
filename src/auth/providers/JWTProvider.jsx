@@ -44,8 +44,6 @@ const saveAuth = (authData) => {
   }
 };
 
-  // No separate "get current user" endpoint — the login response IS the user,
-  // so verify() just checks the stored token's expiry rather than calling an API.
   const verify = async () => {
     const storedAuth = authHelper.getAuth();
     const storedUserRaw = localStorage.getItem('userData');

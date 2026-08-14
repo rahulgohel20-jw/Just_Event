@@ -61,7 +61,7 @@ const EventListPage = () => {
     customer: item.partyNameEnglish || "",
     event_type: item.eventNameEnglish || item.projectName || "",
     proforma_invoice: (
-      <Link to="/proforma-invoice">
+      <Link to={`/proforma-invoice?eventId=${item.id}`}>
         <Tooltip className="cursor-pointer" title="Proforma Invoice">
           <div className="flex justify-center items-center w-full">
             <FileText className="w-5 h-5 text-primary" />
@@ -70,7 +70,7 @@ const EventListPage = () => {
       </Link>
     ),
     invoice: (
-      <Link to="/event-invoice">
+      <Link to={`/event-invoice?eventId=${item.id}`}>
         <Tooltip className="cursor-pointer" title="Invoice">
           <div className="flex justify-center items-center w-full">
             <Receipt className="w-5 h-5 text-success" />
@@ -79,14 +79,14 @@ const EventListPage = () => {
       </Link>
     ),
     quotation: (
-      <Link to="/quotation">
-        <Tooltip className="cursor-pointer" title="Quotation">
-          <div className="flex justify-center items-center w-full">
-            <BadgeDollarSign className="w-5 h-5 text-blue-600" />
-          </div>
-        </Tooltip>
-      </Link>
-    ),
+  <Link to={`/quotation/${item.id}`}>
+    <Tooltip className="cursor-pointer" title="Quotation">
+      <div className="flex justify-center items-center w-full">
+        <BadgeDollarSign className="w-5 h-5 text-blue-600" />
+      </div>
+    </Tooltip>
+  </Link>
+),
     delete: (
       <Tooltip
         className="cursor-pointer"
