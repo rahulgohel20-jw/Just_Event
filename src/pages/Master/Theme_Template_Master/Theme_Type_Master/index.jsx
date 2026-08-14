@@ -11,6 +11,7 @@ import {
   deletethemetype,
 } from "@/services/apiServices";
 import { showApiError } from "@/utils/swalHelpers";
+import { Plus } from "lucide-react";
 
 const TemplateTypePage = () => {
   const intl = useIntl();
@@ -111,18 +112,17 @@ const TemplateTypePage = () => {
     <div className="p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold">
+        <h1 className="text-2xl text-primary">
           <FormattedMessage id="TEMPLATE_TYPE.TITLE" defaultMessage="Template Type" />
         </h1>
-        <div className="flex items-center gap-2 text-sm">
-          <Link to="/dashboard" className="text-primary">
-            <FormattedMessage id="COMMON.DASHBOARD" defaultMessage="Dashboard" />
-          </Link>
-          <span className="text-gray-400">›</span>
-          <span>
-            <FormattedMessage id="TEMPLATE_TYPE.TITLE" defaultMessage="Template Type" />
-          </span>
-        </div>
+           <button
+                type="button"
+                onClick={handleCreateTheme}
+                className="flex items-center gap-1.5 bg-primary text-light text-sm font-semibold rounded-xl px-4 py-2.5 hover:opacity-90"
+              >
+                <Plus className="w-4 h-4" /> Create Theme Type
+              </button>
+      
       </div>
 
       {/* Search + Create Theme */}
@@ -136,10 +136,7 @@ const TemplateTypePage = () => {
           onChange={handleSearchChange}
           className="max-w-xs"
         />
-        <Button type="primary" onClick={handleCreateTheme}>
-          <i className="ki-filled ki-plus"></i>
-          <FormattedMessage id="THEME.CREATE" defaultMessage="Create Theme" />
-        </Button>
+       
       </div>
 
       {/* Table */}

@@ -60,8 +60,7 @@ export const getTemplateTypeColumns = ({ onEdit, onDelete }) => [
           onClick={() => onEdit(row.original)}
           className="text-blue-500 hover:text-blue-700"
         >
-          <i className="ki-filled ki-pencil text-lg"></i>
-        </button>
+ <i className="ki-filled ki-notepad-edit text-lg"></i>        </button>
         <button
           type="button"
           onClick={() => onDelete(row.original)}

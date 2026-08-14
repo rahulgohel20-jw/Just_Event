@@ -164,6 +164,11 @@ import EventFlower from "../pages/Event/EventFlower/EventFlower";
 import ReportKeyMaster from "../pages/Master/Theme_Template_Master/Report_configuration";
 import TemplateNameMaster from "../pages/Master/Theme_Template_Master/TemplateMaster";
 import { TemplateTypePage } from "../pages/Master/Theme_Template_Master/Theme_Type_Master";
+import { CashaccountPage } from "../pages/Master/CashAccount";
+import { BankDetailsMasterPage } from "../pages/Master/BankAccount";
+import { Menuitemcattypemaster } from "../pages/Master/MenuItemMaster/MenuItemCategoryType";
+import { MenuItemCategoryMaster } from "../pages/Master/MenuItemMaster/Menuitemcategory";
+import { MenuItemMaster } from "../pages/Master/MenuItemMaster/menuitemmaster";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -172,6 +177,11 @@ const AppRoutingSetup = () => {
 
           <Route element={<Demo1Layout />}>
             {/* project routs */}
+            <Route path="/menuitemmaster" element={<MenuItemMaster/>}/>
+            <Route path="/menucatmaster" element={<MenuItemCategoryMaster/>}/>
+         <Route path="/menucattypemaster" element={<Menuitemcattypemaster/>}/>
+            <Route path="/bankaccount" element={<BankDetailsMasterPage/>}/>
+            <Route path="/cashaccount" element={<CashaccountPage/>}/>
             <Route path="/templatetypemaster" element={<TemplateTypePage/>}/>
             <Route path="/templatenamemaster" element={<TemplateNameMaster/>}/>
             <Route path="/reporkeymaster" element={<ReportKeyMaster/>}/>
