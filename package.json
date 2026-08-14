@@ -85,7 +85,7 @@
     "tippy.js": "^6.3.7",
     "vite-plugin-windicss": "^1.9.3",
     "yup": "^1.4.0",
-    "zustand": "^5.0.14"
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",

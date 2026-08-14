@@ -104,7 +104,7 @@ const Signup = () => {
           lastName: values.lastName,
           officeNo: "",
           password: values.password,
-          roleId: 1,
+          roleId: 2,
           stateId: Number(values.state),
         };
 
