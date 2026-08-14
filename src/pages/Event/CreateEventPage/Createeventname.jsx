@@ -6,9 +6,10 @@ import {
   Search,
   Loader2,
 } from "lucide-react";
+import dayjs from "dayjs";
 
 import illustrationImg from "../../../assets/create-event-img.png";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { getAllEventTypemaster } from "@/services/apiServices";
 import DateField from "../../../components/form-inputs/DatePicker/Datefield";
 import { useEventDraftStore } from "@/stores/useEventDraftStore";
@@ -18,6 +19,7 @@ const PRIORITIES = ["High", "Med", "Low"];
 
 export default function CreateEventName() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     eventName, setEventName,
@@ -26,6 +28,20 @@ export default function CreateEventName() {
     priority, setPriority,
      venue, setVenue,
   } = useEventDraftStore();
+
+
+  useEffect(() => {
+  const incomingDate = location.state?.eventDate;
+  if (!incomingDate) return;
+
+  const parsed = dayjs(incomingDate, "YYYY-MM-DD", true);
+  if (parsed.isValid()) {
+    setEventDate(parsed.format("DD/MM/YYYY"));
+  }
+ 
+}, [location.state?.eventDate]);
+
+
 
   // ---- Event Type list (local — not shared state) ----
   const [eventTypes, setEventTypes] = useState([]);

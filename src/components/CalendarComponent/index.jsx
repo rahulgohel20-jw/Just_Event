@@ -6,35 +6,25 @@ import interactionPlugin from "@fullcalendar/interaction";
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import useStyles from "./style";
-import { Button } from "@mui/material"; // or your preferred button component
-import { Link } from "react-router-dom"; // assuming you're using React Router
-import AddEvent from "@/partials/modals/add-event/AddEvent";
-import { useState } from "react";
 
-const CalendarComponent = ({ data, openEvent, handleDateClick }) => {
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editData, setEditData] = useState(null);
-
-  
+// Event creation now happens on the /creteevnetname route (see CalendarPage),
+// so this component no longer owns an AddEvent modal — it just surfaces the
+// date click and the Add Event button click to the parent.
+const CalendarComponent = ({ data, openEvent, handleDateClick, onAddEventClick, loading }) => {
   const classes = useStyles();
-const handleModalOpen = () => {
-    setIsModalOpen(true);
-  };
+
   return (
     <div className={`${classes.fullCalendar} fullCalendarCommon`}>
-
       {/* Add Event Button */}
       <div style={{ marginBottom: "10px", textAlign: "right" }}>
-        
-          <button
-              className="btn bg-primary text-white "
-              onClick={handleModalOpen}
-              title="Add Contact"
-            >
-              <i className="ki-filled ki-plus"></i> Add Event
-            </button>
-        
+        <button
+          className="btn bg-primary text-white"
+          onClick={onAddEventClick}
+          title="Add Event"
+          disabled={loading}
+        >
+          <i className="ki-filled ki-plus"></i> Add Event
+        </button>
       </div>
 
       <FullCalendar
@@ -79,14 +69,7 @@ const handleModalOpen = () => {
             theme: 'light',
           });
         }}
-    />
-   
-            <AddEvent
-              isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        editData={editData}
-            />
-         
+      />
     </div>
   );
 };

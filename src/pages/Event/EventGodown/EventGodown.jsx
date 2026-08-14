@@ -339,7 +339,7 @@ const initialItems = [
 
 const currency = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 
-const EventFlower = () => {
+const EventGodown = () => {
   const userId = Number(localStorage.getItem('userId'));
 
   const [eventInfo, setEventInfo] = useState({
@@ -480,7 +480,7 @@ const EventFlower = () => {
       <div className="mx-auto max-w-7xl space-y-6">
         {/* ---------------- Header card ---------------- */}
         <EventHeaderCard
-          title="Event Flower"
+          title="Event Godown"
           eventInfo={eventInfo}
           onEventNoClick={() => setIsEventModalOpen(true)}
           reference={reference}
@@ -686,15 +686,7 @@ const EventFlower = () => {
                               onChange={(v) => updateItem(item.id, 'rate', v ?? 0)}
                             />
                           </div>
-                          <div>
-                            <Text type="secondary" className="block !text-xs font-semibold uppercase mb-2">Total Qty</Text>
-                            <InputNumber
-                              style={{ width: '100%' }}
-                              min={0}
-                              value={item.qty}
-                              onChange={(v) => updateItem(item.id, 'qty', v ?? 0)}
-                            />
-                          </div>
+                          
                         </div>
                         <div>
                           <Text type="secondary" className="block !text-xs font-semibold uppercase mb-2">Note</Text>
@@ -744,11 +736,16 @@ const EventFlower = () => {
                               </div>
                             ))}
                           </div>
-                          <div className="mt-3 flex items-center justify-between border-t border-primary-clarity pt-3">
-                            <span className="text-sm font-bold text-gray-900">
-                              Allocated Total: <span className="font-bold">{allocatedTotal} {item.unit}</span>
-                            </span>
-                            <span className="text-sm font-bold text-primary">Total: {currency(total)}</span>
+                          <div className="mt-3 flex flex-col gap-1 border-t border-primary-clarity pt-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-bold text-gray-900">
+                                Allocated Total: <span className="font-bold">{allocatedTotal} {item.unit}</span>
+                              </span>
+                              <span className="text-sm font-bold text-primary">Total Quantity: {currency(total)}</span>
+                            </div>
+                            <div className="flex justify-end">
+                              <span className="text-sm font-bold text-primary">Total Price: {currency(total)}</span>
+                            </div>
                           </div>
                         </div>
 
@@ -791,4 +788,4 @@ const EventFlower = () => {
   );
 };
 
-export default EventFlower;
+export default EventGodown;

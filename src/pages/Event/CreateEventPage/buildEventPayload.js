@@ -37,8 +37,7 @@ export function buildEventPayload({ formData, draftStore, existingId = 0 }) {
 
   const primaryClient = clientDetails.clients?.[0] || {};
 
-  // userId isn't in Zustand draft state — pulled straight from localStorage,
-  // matching the pattern used elsewhere in the app (mainId/assignId etc.)
+
 const userId = Number(localStorage.getItem("userId"));
 
   return {
@@ -58,7 +57,7 @@ const userId = Number(localStorage.getItem("userId"));
     eventStartTime: eventDetails.eventStartTime || "",
     eventEndDate: eventDetails.eventEndDate || "",
     eventEndTime: eventDetails.eventEndTime || "",
-    budgetAmount: eventDetails.budgetAmount || 0,
+    budgetAmount: eventDetails.budgetAmount ? Number(eventDetails.budgetAmount) : 0,
     remarks: eventDetails.remarks || "",
 
     // Client details (single party — extend here if addBrideGroom adds a second)
