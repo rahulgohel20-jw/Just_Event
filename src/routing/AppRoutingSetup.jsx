@@ -164,6 +164,17 @@ import EventFlower from "../pages/Event/EventFlower/EventFlower";
 import ReportKeyMaster from "../pages/Master/Theme_Template_Master/Report_configuration";
 import TemplateNameMaster from "../pages/Master/Theme_Template_Master/TemplateMaster";
 import { TemplateTypePage } from "../pages/Master/Theme_Template_Master/Theme_Type_Master";
+import EventLighting from "../pages/Event/EventLightning/EventLighting";
+import EventLED from "../pages/Event/EventLed/EventLED";
+import EventSound from "../pages/Event/EventSound/EventSound";
+import EventMandap from "../pages/Event/EventMandap/EventMandap";
+import EventFurniture from "../pages/Event/EventFurniture/EventFurniture";
+import ArtistsManagement from "../pages/Event/ArtistsManagement/ArtistsManagement";
+import EventPrinting from "../pages/Event/EventPrinting/EventPrinting";
+import EventOutsourceAgency from "../pages/Event/EventOutsourceAgency/EventOutsourceAgency";
+import EventNewMaking from "../pages/Event/EventNewMaking/EventNewMaking";
+import EventGodown from "../pages/Event/EventGodown/EventGodown";
+import EventLabourAgency from "../pages/Event/EventLabourAgency/EventLabourAgency";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -203,6 +214,18 @@ const AppRoutingSetup = () => {
           <Route path="/quotation/:eventId" element={<QuotationDashboard />} />
           <Route path="/execution" element={<ExecutionPage />}/>
           <Route path="/flower" element={<EventFlower />}/>
+          <Route path="/lighting" element={<EventLighting />}/>
+          <Route path="/ledwall" element={<EventLED />}/>
+          <Route path="/sound" element={<EventSound />}/>
+          <Route path="/mandap" element={<EventMandap />}/>
+          <Route path="/furniture" element={<EventFurniture />}/>
+          <Route path="/artist-entertainment" element={<ArtistsManagement />}/>
+          <Route path="/printing" element={<EventPrinting />}/>
+           <Route path="/outsource-agency" element={<EventOutsourceAgency />}/>
+           <Route path="/new-making" element={<EventNewMaking />}/>
+           <Route path="/godown" element={<EventGodown />}/>
+              <Route path="/labour-agency" element={<EventLabourAgency />}/>
+
 
             <Route path="/rolemaster" element={<RoleMaster />} />
 

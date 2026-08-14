@@ -174,7 +174,7 @@ const SidebarMenu = () => {
   const { pathname } = usePathname();
 
   const isInventoryRoute = pathname.startsWith('/inventory');
-  const CREATE_EVENT_ROUTES = ['/creteEvent', '/quotation', '/execution', '/flower'];
+  const CREATE_EVENT_ROUTES = ['/creteEvent', '/quotation', '/execution', '/flower','/lighting','/ledwall','/sound','/mandap','/furniture', '/artist-entertainment','/printing','/outsource-agency','/new-making','/godown','/labour-agency'];
   const isCreateEvent = CREATE_EVENT_ROUTES.some(route => pathname.startsWith(route));
 
   const menuConfig = isInventoryRoute
