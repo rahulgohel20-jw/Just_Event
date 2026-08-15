@@ -16,7 +16,6 @@ import {
 import {
   SearchOutlined,
   PlusOutlined,
-  ThunderboltOutlined,
   EditOutlined,
   DeleteOutlined,
   InfoCircleOutlined,
@@ -33,7 +32,6 @@ import DateField from '../../../components/form-inputs/DatePicker/Datefield';
 import TimeInput12h from '../../../components/form-inputs/Time/Timeinput12h';
 
 const { Text, Title } = Typography;
-
 
 const AsyncSearchSelect = ({ fetcher, value, onChange, placeholder, className, debounceMs = 300 }) => {
   const [options, setOptions] = useState([]);
@@ -263,16 +261,16 @@ const PlacementInstructionsModal = ({ open, onClose, placement }) => (
 /* ------------------------------------------------------------------ */
 /* Main component                                                      */
 /* ------------------------------------------------------------------ */
-// Production Incharge and the decor/lighting/catering catalog search are still
+// Production Incharge and the decor/lighting catalog search are still
 // static/mock — not part of this integration. Function Name and Vendor below
 // are wired to the real list APIs (see fetchFunctionOptions / fetchVendorOptions).
 const CATALOG_OPTIONS = [
-  'Flowers & Props',
   'Decorative Lighting',
-  'Floral Centerpieces',
-  'Balloon Arch',
-  'Fabric Draping',
-  'Candle Stands',
+  'LED Uplighting',
+  'Chandelier',
+  'Spotlights',
+  'Fairy Lights',
+  'Stage Wash Lights',
 ].map((o) => ({ value: o, label: o }));
 
 const INCHARGE_OPTIONS = ['Rakesh Sharma', 'Priya Mehta', 'Anil Kumar', 'Sunita Rao'];
@@ -280,25 +278,6 @@ const INCHARGE_OPTIONS = ['Rakesh Sharma', 'Priya Mehta', 'Anil Kumar', 'Sunita 
 const initialItems = [
   {
     id: 1,
-    name: 'Flowers & Props',
-    vendor: { id: null, label: 'Vishal Bhai' },
-    qty: 100,
-    rate: 12,
-    description: '',
-    unit: 'Pieces',
-    date: '',
-    time: '',
-    note: '',
-    placements: [
-      { label: 'Welcome Board', qty: 0 },
-      { label: 'Entry Gate', qty: 0 },
-      { label: 'Props', qty: 0 },
-      { label: 'Artiste Stage Platform', qty: 0 },
-    ],
-    expanded: false,
-  },
-  {
-    id: 2,
     name: 'Decorative Lighting',
     vendor: { id: null, label: 'Lumina Events' },
     qty: 50,
@@ -317,11 +296,30 @@ const initialItems = [
     expanded: true,
   },
   {
+    id: 2,
+    name: 'LED Uplighting',
+    vendor: { id: null, label: 'Bright Spark Rentals' },
+    qty: 40,
+    rate: 300,
+    description: '',
+    unit: 'Pieces',
+    date: '',
+    time: '',
+    note: '',
+    placements: [
+      { label: 'Welcome Board', qty: 0 },
+      { label: 'Entry Gate', qty: 0 },
+      { label: 'Props', qty: 0 },
+      { label: 'Artiste Stage Platform', qty: 0 },
+    ],
+    expanded: false,
+  },
+  {
     id: 3,
-    name: 'Floral Centerpieces',
-    vendor: { id: null, label: 'Vishal Bhai' },
-    qty: 25,
-    rate: 800,
+    name: 'Chandelier',
+    vendor: { id: null, label: 'Lumina Events' },
+    qty: 4,
+    rate: 4500,
     description: '',
     unit: 'Pieces',
     date: '',
@@ -339,7 +337,8 @@ const initialItems = [
 
 const currency = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 
-const EventFlower = () => {
+const EventOutsourceAgency
+ = () => {
   const userId = Number(localStorage.getItem('userId'));
 
   const [eventInfo, setEventInfo] = useState({
@@ -360,7 +359,7 @@ const EventFlower = () => {
   const [dismantleDate, setDismantleDate] = useState('');
   const [dismantleTime, setDismantleTime] = useState('');
   const [selectedFunction, setSelectedFunction] = useState({ id: null, label: 'Gala Dinner' });
-  const [functionOptions, setFunctionOptions] = useState([]); 
+  const [functionOptions, setFunctionOptions] = useState([]);
 
   const [catalogPick, setCatalogPick] = useState('');
   const [items, setItems] = useState(initialItems);
@@ -480,7 +479,7 @@ const EventFlower = () => {
       <div className="mx-auto max-w-7xl space-y-6">
         {/* ---------------- Header card ---------------- */}
         <EventHeaderCard
-          title="Event Flower"
+          title="Event Outsource Agency"
           eventInfo={eventInfo}
           onEventNoClick={() => setIsEventModalOpen(true)}
           reference={reference}
@@ -502,83 +501,71 @@ const EventFlower = () => {
 
         {/* ---------------- Function card ---------------- */}
         <div className="rounded-2xl border border-primary-clarity bg-white p-6 shadow-sm">
-  <div className="flex flex-wrap items-center gap-3 pb-4 border-b border-gray-100">
-    <Title level={4} className="!mb-0 !text-gray-900">Function Name</Title>
-    <Select
-      showSearch
-      labelInValue
-      allowClear
-      value={selectedFunction?.id ? { value: selectedFunction.id, label: selectedFunction.label } : undefined}
-      onChange={(opt) => setSelectedFunction(opt ? { id: opt.value, label: opt.label } : { id: null, label: '' })}
-      onSearch={(q) => fetchFunctionOptions(q).then((res) =>
-        setFunctionOptions(res.map((o) => ({ value: o.id, label: o.label })))
-      )}
-      onFocus={() => {
-        if (functionOptions.length === 0) {
-          fetchFunctionOptions('').then((res) =>
-            setFunctionOptions(res.map((o) => ({ value: o.id, label: o.label })))
-          );
-        }
-      }}
-      filterOption={false}
-      placeholder="Select function"
-      popupMatchSelectWidth={false}
-      suffixIcon={<DownOutlined className="text-gray-400" />}
-      options={functionOptions}
-      className="min-w-[160px] [&_.ant-select-selector]:!rounded-full [&_.ant-select-selector]:!border-primary-clarity"
-    />
-  </div>
+          <div className="flex flex-wrap items-center gap-3 pb-4 border-b border-gray-100">
+            <Title level={4} className="!mb-0 !text-gray-900">Function Name</Title>
+            <Select
+              showSearch
+              labelInValue
+              allowClear
+              value={selectedFunction?.id ? { value: selectedFunction.id, label: selectedFunction.label } : undefined}
+              onChange={(opt) => setSelectedFunction(opt ? { id: opt.value, label: opt.label } : { id: null, label: '' })}
+              onSearch={(q) => fetchFunctionOptions(q).then((res) =>
+                setFunctionOptions(res.map((o) => ({ value: o.id, label: o.label })))
+              )}
+              onFocus={() => {
+                if (functionOptions.length === 0) {
+                  fetchFunctionOptions('').then((res) =>
+                    setFunctionOptions(res.map((o) => ({ value: o.id, label: o.label })))
+                  );
+                }
+              }}
+              filterOption={false}
+              placeholder="Select function"
+              popupMatchSelectWidth={false}
+              suffixIcon={<DownOutlined className="text-gray-400" />}
+              options={functionOptions}
+              className="min-w-[160px] [&_.ant-select-selector]:!border-primary-clarity"
+            />
+          </div>
 
-  {/* Search / add row — light tint container matching the reference */}
-  <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-primary-lighest p-3 sm:flex-row sm:items-center">
-    <div className="relative flex-1">
-      <SearchOutlined className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-gray-400" />
-      <Select
-  showSearch
-  labelInValue
-  allowClear
-  value={selectedFunction?.id ? { value: selectedFunction.id, label: selectedFunction.label } : undefined}
-  onChange={(opt) => setSelectedFunction(opt ? { id: opt.value, label: opt.label } : { id: null, label: '' })}
-  onSearch={(q) => fetchFunctionOptions(q).then((res) =>
-    setFunctionOptions(res.map((o) => ({ value: o.id, label: o.label })))
-  )}
-  onFocus={() => {
-    if (functionOptions.length === 0) {
-      fetchFunctionOptions('').then((res) =>
-        setFunctionOptions(res.map((o) => ({ value: o.id, label: o.label })))
-      );
-    }
-  }}
-  filterOption={false}
-  placeholder="Select function"
-  popupMatchSelectWidth={false}
-  suffixIcon={<DownOutlined className="text-gray-400" />}
-  options={functionOptions}
-  className="w-full [&_.ant-select-selector]:!bg-white [&_.ant-select-selector]:!border-dashed [&_.ant-select-selector]:!border-gray-300 [&_.ant-select-selector]:!pl-9"
-/>
-    </div>
-    <Button icon={<PlusOutlined />} onClick={addItem} className="shrink-0 !bg-white rounded-lg">
-  Add
-</Button>
-<Button
-  type="primary"
-  icon={<Sparkles size={16} />}
-  onClick={addItem}
-  className="shrink-0 rounded-lg"
->
-  Add Item
-</Button>
-  </div>
+          {/* Search / add row — light tint container matching the reference */}
+          <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-primary-lighest p-3 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
+              <SearchOutlined className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-gray-400" />
+              <Select
+                showSearch
+                allowClear
+                value={catalogPick || undefined}
+                onChange={setCatalogPick}
+                placeholder="Search decor, lighting, catering…"
+                optionFilterProp="label"
+                options={CATALOG_OPTIONS}
+                suffixIcon={<DownOutlined className="text-gray-400" />}
+                className="w-full [&_.ant-select-selector]:!bg-white [&_.ant-select-selector]:!border-dashed [&_.ant-select-selector]:!border-gray-300 [&_.ant-select-selector]:!pl-9"
+              />
+            </div>
+            <Button icon={<PlusOutlined />} onClick={addItem} className="shrink-0 !bg-white rounded-lg">
+              Add
+            </Button>
+            <Button
+              type="primary"
+              icon={<Sparkles size={16} />}
+              onClick={addItem}
+              className="shrink-0 rounded-lg"
+            >
+              Add Item
+            </Button>
+          </div>
 
-  {/* Table header */}
-  <div className="mt-6 hidden grid-cols-[2fr_1.4fr_0.8fr_0.8fr_1fr_auto] gap-3 px-4 pb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 sm:grid">
-    <span>Item Name</span>
-    <span>Vendor</span>
-    <span className="text-center">Qty</span>
-    <span className="text-center">Rate</span>
-    <span className="text-right">Total Amount</span>
-    <span />
-  </div>
+          {/* Table header */}
+          <div className="mt-6 hidden grid-cols-[2fr_1.4fr_0.8fr_0.8fr_1fr_auto] gap-3 px-4 pb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 sm:grid">
+            <span>Item Name</span>
+            <span>Vendor</span>
+            <span className="text-center">Qty</span>
+            <span className="text-center">Rate</span>
+            <span className="text-right">Total Amount</span>
+            <span />
+          </div>
 
           {/* Item rows */}
           <div className="mt-2 space-y-3">
@@ -625,7 +612,7 @@ const EventFlower = () => {
                     <div className="grid grid-cols-1 gap-6 border-t border-primary-clarity bg-white p-5 lg:grid-cols-2">
                       {/* Item details */}
                       <div className="space-y-4">
-                        <Text strong className="text-primary !text-xs uppercase tracking-wide">Item Details</Text>
+                        <Text strong className="text-primary text-md  uppercase tracking-wide">Item Details</Text>
                         <div>
                           <Text type="secondary" className="block !text-xs font-semibold uppercase mb-2">Item Name</Text>
                           <Input
@@ -670,7 +657,7 @@ const EventFlower = () => {
                           </div>
                           <div>
                             <Text type="secondary" className="block !text-xs font-semibold uppercase mb-2">Time</Text>
-                           <TimeInput12h
+                            <TimeInput12h
                               value={item.time}
                               onChange={(val) => updateItem(item.id, 'time', val)}
                             />
@@ -678,7 +665,7 @@ const EventFlower = () => {
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <Text type="secondary" className="block !text-xs font-semibold uppercase mb-2">Base Price (₹)</Text>
+                            <Text type="secondary" className="block !text-xs font-semibold uppercase mb-2">Price (₹)</Text>
                             <InputNumber
                               style={{ width: '100%' }}
                               min={0}
@@ -686,7 +673,7 @@ const EventFlower = () => {
                               onChange={(v) => updateItem(item.id, 'rate', v ?? 0)}
                             />
                           </div>
-                          <div>
+                          {/* <div>
                             <Text type="secondary" className="block !text-xs font-semibold uppercase mb-2">Total Qty</Text>
                             <InputNumber
                               style={{ width: '100%' }}
@@ -694,9 +681,9 @@ const EventFlower = () => {
                               value={item.qty}
                               onChange={(v) => updateItem(item.id, 'qty', v ?? 0)}
                             />
-                          </div>
+                          </div> */}
                         </div>
-                        <div>
+                        {/* <div>
                           <Text type="secondary" className="block !text-xs font-semibold uppercase mb-2">Note</Text>
                           <Input.TextArea
                             rows={2}
@@ -704,12 +691,12 @@ const EventFlower = () => {
                             onChange={(e) => updateItem(item.id, 'note', e.target.value)}
                             placeholder="Add any special instructions…"
                           />
-                        </div>
+                        </div> */}
                       </div>
 
                       {/* Allocation & media */}
                       <div className="space-y-4">
-                        <Text strong className="text-primary !text-xs uppercase tracking-wide">Allocation &amp; Media</Text>
+                        <Text strong className="text-primary text-md font-medium uppercase tracking-wide">Allocation &amp; Media</Text>
 
                         <div className="rounded-xl border border-primary-clarity bg-primary-lighest p-4">
                           <div className="flex items-center justify-between pb-2">
@@ -744,11 +731,16 @@ const EventFlower = () => {
                               </div>
                             ))}
                           </div>
-                          <div className="mt-3 flex items-center justify-between border-t border-primary-clarity pt-3">
-                            <span className="text-sm font-bold text-gray-900">
-                              Allocated Total: <span className="font-bold">{allocatedTotal} {item.unit}</span>
-                            </span>
-                            <span className="text-sm font-bold text-primary">Total: {currency(total)}</span>
+                          <div className="mt-3 flex flex-col gap-1 border-t border-primary-clarity pt-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-bold text-gray-900">
+                                Allocated Total: <span className="font-bold">{allocatedTotal} {item.unit}</span>
+                              </span>
+                              <span className="text-sm font-bold text-primary">Total Quantity: {currency(total)}</span>
+                            </div>
+                            <div className="flex justify-end">
+                              <span className="text-sm font-bold text-primary">Total Price: {currency(total)}</span>
+                            </div>
                           </div>
                         </div>
 
@@ -791,4 +783,5 @@ const EventFlower = () => {
   );
 };
 
-export default EventFlower;
+export default EventOutsourceAgency
+;

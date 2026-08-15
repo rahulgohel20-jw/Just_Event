@@ -34,6 +34,7 @@ export function buildEventPayload({ formData, draftStore, existingId = 0 }) {
 
   const primaryClient = clientDetails.clients?.[0] || {};
 
+
 const userId = Number(localStorage.getItem("userId"));
 
   return {
@@ -51,7 +52,7 @@ const userId = Number(localStorage.getItem("userId"));
     eventStartTime: eventDetails.eventStartTime || "",
     eventEndDate: eventDetails.eventEndDate || "",
     eventEndTime: eventDetails.eventEndTime || "",
-    budgetAmount: eventDetails.budgetAmount || 0,
+    budgetAmount: eventDetails.budgetAmount ? Number(eventDetails.budgetAmount) : 0,
     remarks: eventDetails.remarks || "",
 
     partyId: primaryClient.clientMasterId ?? null,

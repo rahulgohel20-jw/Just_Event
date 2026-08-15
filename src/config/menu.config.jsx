@@ -224,12 +224,9 @@ export const MENU_SIDEBAR = [
         path: "/calendar",
       },
       
-       {
-        title: "Event List",
-        path: "/creteEvent",
-      },
+       
       {
-        title:"event table",
+        title:"Event List",
         path:"/event",
       }
       
@@ -380,18 +377,75 @@ export const MENU_CREATE_EVENT_SIDEBAR = [
   },
   {
     title: "Quotation",
-    icon: "ki-filled ki-file-sheet text-primary",
+    icon: "ki-filled ki-bill text-primary",
     path: "/quotation"
   },
   {
     title: "Execution",
-    icon: "ki-filled ki-file-sheet text-primary",
+    icon: "ki-filled ki-abstract-26 text-primary",
     path: "/execution"
   },
   {
     title: "Event Flower",
-    icon: "ki-filled ki-file-sheet text-primary",
+    icon: "ki-filled ki-abstract-14 text-primary",
     path: "/flower"
+  },
+  {
+    title: "Event Lighting",
+    icon: "ki-filled ki-electricity text-primary",
+    path: "/lighting"
+  },
+  {
+    title: "Event LED Wall",
+    icon: "ki-filled ki-screen text-primary",
+    path: "/ledwall"
+  },
+ 
+
+{
+    title: "Event Sound",
+    icon: "ki-filled ki-microphone-2 text-primary",
+    path: "/sound"
+  },
+  {
+    title: "Event Mandap",
+    icon: "ki-filled ki-home-2 text-primary",
+    path: "/mandap"
+  },
+   {
+    title: "Event Furniture",
+    icon: "ki-filled ki-home-2 text-primary",
+    path: "/furniture"
+  },
+  {
+    title: "Event Artist Entertainment",
+    icon: "ki-filled ki-user-square text-primary",
+    path: "/artist-entertainment"
+  },
+   {
+    title: "Event Printing",
+    icon: "ki-filled ki-printer text-primary",
+    path: "/printing"
+  },
+  {
+    title: "Event Outsource Agency",
+    icon: "ki-filled ki-briefcase text-primary",
+    path: "/outsource-agency"
+  },
+ {
+    title: "Event New Making",
+    icon: "ki-filled ki-plus-squared text-primary",
+    path: "/new-making"
+  },
+{
+    title: "Event Godown",
+    icon: "ki-filled ki-home-3 text-primary",
+    path: "/godown"
+  },
+ {
+    title: "Event Labour Agency",
+    icon: "ki-filled ki-people text-primary",
+    path: "/labour-agency"
   },
 ];
 
