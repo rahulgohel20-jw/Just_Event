@@ -508,6 +508,7 @@ export const superAdminMenuItems = [
       {title:"Report Key " , path: "/reporkeymaster"},
       {title: "Theme Name" , path:"/templatenamemaster"},
       {title:"Theme Type " , path :"/templatetypemaster"},
+      {title:"All Theme " , path:"/alltheme"},
     ],
   },
 ];

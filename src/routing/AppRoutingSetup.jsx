@@ -181,6 +181,7 @@ import { Menuitemcattypemaster } from "../pages/Master/MenuItemMaster/MenuItemCa
 import { MenuItemCategoryMaster } from "../pages/Master/MenuItemMaster/Menuitemcategory";
 import { MenuItemMaster } from "../pages/Master/MenuItemMaster/menuitemmaster";
 import { UserReportKeyPage } from "../pages/setting/UserReportKey/UserReportKeyPage";
+import { MenuReportThemesPage } from "../pages/Master/Theme_Template_Master/All_Theme";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -189,6 +190,7 @@ const AppRoutingSetup = () => {
 
           <Route element={<Demo1Layout />}>
             {/* project routs */} 
+            <Route path="/alltheme" element={<MenuReportThemesPage/>}/>
             <Route path="/userwisereportkey" element={<UserReportKeyPage/>}/>
             <Route path="/menuitemmaster" element={<MenuItemMaster/>}/>
             <Route path="/menucatmaster" element={<MenuItemCategoryMaster/>}/>

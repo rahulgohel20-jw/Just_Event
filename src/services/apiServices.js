@@ -430,3 +430,8 @@ export const updatereportkey = (data, userId) => {
 export const getalluserwisereportkey = (data) => {
     return POST(`/user-report-key/list`,data);
 };
+
+export const addupdatetheme = (data) => {
+    return POST(`/template-master/add-update`,data);
+};
+
