@@ -169,6 +169,7 @@ import { BankDetailsMasterPage } from "../pages/Master/BankAccount";
 import { Menuitemcattypemaster } from "../pages/Master/MenuItemMaster/MenuItemCategoryType";
 import { MenuItemCategoryMaster } from "../pages/Master/MenuItemMaster/Menuitemcategory";
 import { MenuItemMaster } from "../pages/Master/MenuItemMaster/menuitemmaster";
+import { UserReportKeyPage } from "../pages/setting/UserReportKey/UserReportKeyPage";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -176,7 +177,8 @@ const AppRoutingSetup = () => {
         <Route>
 
           <Route element={<Demo1Layout />}>
-            {/* project routs */}
+            {/* project routs */} 
+            <Route path="/userwisereportkey" element={<UserReportKeyPage/>}/>
             <Route path="/menuitemmaster" element={<MenuItemMaster/>}/>
             <Route path="/menucatmaster" element={<MenuItemCategoryMaster/>}/>
          <Route path="/menucattypemaster" element={<Menuitemcattypemaster/>}/>
