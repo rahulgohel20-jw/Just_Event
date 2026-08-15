@@ -1,7 +1,4 @@
-// Builds the API payload for POST /event/add-update from the CreateEvent
-// multi-step formData + useEventDraftStore state.
-// This is the inverse of mapEventToFormData (see useEventEditLoader.js) —
-// keep the two in sync if the API response/request shape changes.
+
 
 const TITLE_MAP = { "Mr.": "MR", "Mrs.": "MRS", "Ms.": "MS", "Dr.": "DR" };
 const STATUS_MAP = { Inquiry: "INQUIRY", Tentative: "TENTATIVE", Confirmed: "CONFIRMED" };
@@ -19,7 +16,7 @@ function buildEventFunctionPayload(fn) {
     venues: fn.venue?.value
       ? [
           {
-            id: fn.venueRecordId || null, // venue-link row id — see note below
+            id: fn.venueRecordId || null, 
             venueId: fn.venue.value,
             subVenueId: fn.subVenues || [],
           },
@@ -44,13 +41,11 @@ const userId = Number(localStorage.getItem("userId"));
     id: existingId || null,
     userId,
 
-    // From draft store
     projectName: draftStore.eventName || "",
     eventTypeId: draftStore.eventType?.value ?? null,
     priority: PRIORITY_MAP[draftStore.priority] || "HIGH",
     venueId: draftStore.venue?.value ?? null,
 
-    // Event details
     inquiryDate: eventDetails.inquiryDate || "",
     eventStatus: STATUS_MAP[eventDetails.eventStatus] || "INQUIRY",
     eventStartDate: eventDetails.eventStartDate || "",
@@ -60,18 +55,17 @@ const userId = Number(localStorage.getItem("userId"));
     budgetAmount: eventDetails.budgetAmount ? Number(eventDetails.budgetAmount) : 0,
     remarks: eventDetails.remarks || "",
 
-    // Client details (single party — extend here if addBrideGroom adds a second)
     partyId: primaryClient.clientMasterId ?? null,
     title: TITLE_MAP[primaryClient.title] || "MR",
     // partyNameEnglish: primaryClient.name || "",
     // partyMobileNo: primaryClient.mobile || "",
     // partyAddress: primaryClient.address || "",
 
-    // Function details
     eventFunctions: (functionDetails.functions || []).map(buildEventFunctionPayload),
 
     
     eventOtherInfo: {
+         id: otherInformation.id || null, 
       photographerDetailType: photographer.mode === "other" ? "OTHER" : "GROOM_BRIDE",
       groomPhotographerName: photographer.photographerName || "",
       groomPhotographerContactNumber: photographer.photographerNo || "",

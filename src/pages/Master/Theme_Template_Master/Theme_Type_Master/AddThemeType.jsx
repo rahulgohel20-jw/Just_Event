@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Save, Loader2, Search } from "lucide-react";
+import { Save, Loader2, Search, ArrowRight, ArrowLeft, Check, KeyRound } from "lucide-react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import MultiLangInputBox from "@/components/form-inputs/input/Multilanginputbox";
 import {
@@ -9,6 +9,7 @@ import {
   getalltheme,
 } from "@/services/apiServices";
 import { showApiResult, showApiError } from "@/utils/swalHelpers";
+import Swal from "sweetalert2";
 
 const initialFormState = {
   themeName: { english: "", hindi: "", gujarati: "" },
@@ -17,7 +18,13 @@ const initialFormState = {
   templateModuleId: null,
 };
 
+const STEPS = [
+  { id: 1, label: "Theme details" },
+  { id: 2, label: "Report keys" },
+];
+
 const AddThemeType = ({ open, onClose, onSave, initialData }) => {
+  const [step, setStep] = useState(1);
   const [form, setForm] = useState(initialFormState);
   const [saving, setSaving] = useState(false);
   const [reportKeyOptions, setReportKeyOptions] = useState([]);
@@ -32,7 +39,6 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
     const loadReportKeys = async () => {
       try {
         const res = await getallreportkey();
-        // response shape: { msg, data: [{ id, name, defaultValue, createdAt }], success }
         const body = res?.data ?? res;
         const list = body?.data ?? [];
         setReportKeyOptions(
@@ -71,8 +77,9 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
     loadReportKeys();
     loadTemplateModules();
     setReportKeySearch("");
+    setStep(1);
 
-   if (initialData) {
+    if (initialData) {
       setForm({
         themeName: {
           english: initialData.nameEnglish || "",
@@ -80,12 +87,7 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
           gujarati: initialData.nameGujarati || "",
         },
         isAutoAssign: initialData.isAutoAssign ?? true,
-        // "keys" (not "reportKeys") is the array name from the list API.
-        // isAssigned comes back null on the list endpoint, so fall back to defaultValue.
-        reportKeyIds: (initialData.keys || [])
-          .filter((rk) => (rk.isAssigned ?? rk.defaultValue) === true)
-          .map((rk) => rk.reportKeyId),
-        // templateModuleId comes back as a string ("2") from the list API
+        reportKeyIds: (initialData.keys || []).map((rk) => rk.reportKeyId),
         templateModuleId: initialData.templateModuleId
           ? Number(initialData.templateModuleId)
           : null,
@@ -141,11 +143,21 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
   const handleReset = () => {
     setForm(initialFormState);
     setReportKeySearch("");
+    setStep(1);
     onClose();
   };
 
- const handleSave = async () => {
-    // matches the exact payload shape required by /template-mapping/add-update
+  const handleNext = () => {
+    if (!form.themeName.english?.trim()) {
+      Swal.fire("Required", "Please enter the theme type name in English.", "warning");
+      return;
+    }
+    setStep(2);
+  };
+
+  const handleBack = () => setStep(1);
+
+  const handleSave = async () => {
     const payload = {
       id: initialData?.id ?? null,
       isAutoAssign: form.isAutoAssign,
@@ -153,13 +165,14 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
       nameGujarati: form.themeName.gujarati,
       nameHindi: form.themeName.hindi,
       templateModuleId: form.templateModuleId ?? 0,
-      reportKeys: reportKeyOptions.map((opt) => ({
-        id:
-          initialData?.keys?.find((rk) => rk.reportKeyId === opt.value)
-            ?.id || null,
-        reportKeyId: opt.value,
-        isAssigned: form.reportKeyIds.includes(opt.value),
-      })),
+      reportKeys: reportKeyOptions
+        .filter((opt) => form.reportKeyIds.includes(opt.value))
+        .map((opt) => ({
+          id:
+            initialData?.keys?.find((rk) => rk.reportKeyId === opt.value)
+              ?.id || null,
+          reportKeyId: opt.value,
+        })),
     };
 
     setSaving(true);
@@ -174,19 +187,15 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
           const body = res?.data ?? res;
           onSave?.(body?.data ?? body);
           setForm(initialFormState);
+          setStep(1);
           onClose?.();
         },
       });
 
-      if (!success) {
-        // stays open so the user can fix the input and retry
-        return;
-      }
+      if (!success) return;
     } catch (err) {
       console.error("Failed to save theme type:", err);
-      showApiError(err, {
-        title: "Failed",
-      });
+      showApiError(err, { title: "Failed" });
     } finally {
       setSaving(false);
     }
@@ -202,31 +211,43 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
       footer={
         <div className="flex justify-between items-center px-6 pb-6">
           <button
-            onClick={handleReset}
+            onClick={step === 1 ? handleReset : handleBack}
             disabled={saving}
-            className="px-5 py-2 rounded-lg bg-[#F7E5EA] text-primary font-medium transition-colors disabled:opacity-60"
+            className="flex items-center gap-1.5 px-5 py-2 rounded-lg bg-[#F7E5EA] text-primary font-medium transition-colors disabled:opacity-60"
           >
-            Cancel
+            {step === 2 && <ArrowLeft size={16} />}
+            {step === 1 ? "Cancel" : "Back"}
           </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-primary text-white font-medium transition-colors disabled:opacity-60"
-          >
-            {saving ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <Save size={16} />
-            )}
-            {isEditMode ? "Update Theme Type" : "Save Theme Type"}
-          </button>
+
+          {step === 1 ? (
+            <button
+              onClick={handleNext}
+              className="flex items-center gap-2 px-5 py-2 rounded-lg bg-primary text-white font-medium transition-colors"
+            >
+              Next
+              <ArrowRight size={16} />
+            </button>
+          ) : (
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2 rounded-lg bg-primary text-white font-medium transition-colors disabled:opacity-60"
+            >
+              {saving ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Save size={16} />
+              )}
+              {isEditMode ? "Update Theme Type" : "Save Theme Type"}
+            </button>
+          )}
         </div>
       }
     >
       <div className="px-6 pt-5 pb-4">
         <div className="flex justify-between items-start mb-5">
           <div>
-            <h2 className="text-xl font-bold text-primary">
+            <h2 className="text-xl  text-primary">
               {isEditMode ? "Edit Theme Type" : "Add Theme Type"}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
@@ -241,107 +262,176 @@ const AddThemeType = ({ open, onClose, onSave, initialData }) => {
           </button>
         </div>
 
-        <div className="mb-5">
-          <label className="text-sm font-medium text-gray-700 mb-2 block">
-            Template Module
-          </label>
-          <select
-            value={form.templateModuleId ?? ""}
-            onChange={handleTemplateModuleChange}
-            disabled={templateModuleLoading}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-60"
-          >
-            <option value="">
-              {templateModuleLoading ? "Loading..." : "Select Template Module"}
-            </option>
-            {templateModuleOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="mb-5">
-          <MultiLangInputBox
-            label="Theme Type Name"
-            name="themeName"
-            value={form.themeName}
-            onChange={handleThemeNameChange}
-            onTranslate={handleTranslate}
-            required
-          />
-          <p className="text-xs text-gray-400 mt-2">
-            e.g., Exclusive Theme, Back Office Theme
-          </p>
-        </div>
-
-        <div className="mb-5 flex items-center justify-between">
-          <label className="text-sm font-medium text-gray-700">
-            Auto Assign
-          </label>
-          <button
-            type="button"
-            onClick={() =>
-              setForm((prev) => ({ ...prev, isAutoAssign: !prev.isAutoAssign }))
-            }
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              form.isAutoAssign ? "bg-primary" : "bg-gray-300"
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                form.isAutoAssign ? "translate-x-6" : "translate-x-1"
-              }`}
-            />
-          </button>
-        </div>
-
-        {/* Report Keys: search + checkbox list */}
-        <div className="mb-2">
-          <label className="text-sm font-medium text-gray-700 mb-2 block">
-            Report Keys
-          </label>
-
-          <div className="relative mb-3">
-            <Search
-              size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-            <input
-              type="text"
-              value={reportKeySearch}
-              onChange={(e) => setReportKeySearch(e.target.value)}
-              placeholder="Search report keys..."
-              className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-
-          {reportKeyOptions.length === 0 ? (
-            <p className="text-xs text-gray-400">No report keys available.</p>
-          ) : filteredReportKeyOptions.length === 0 ? (
-            <p className="text-xs text-gray-400">
-              No report keys match "{reportKeySearch}".
-            </p>
-          ) : (
-            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-              {filteredReportKeyOptions.map((opt) => (
-                <label
-                  key={opt.value}
-                  className="flex items-center gap-2 text-sm text-gray-600"
+        {/* Step indicator */}
+        <div className="flex items-center gap-3 mb-6">
+          {STEPS.map((s, i) => (
+            <div key={s.id} className="flex items-center gap-3 flex-1">
+              <div className="flex items-center gap-2">
+                <div
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+                    step === s.id
+                      ? "bg-primary text-white"
+                      : step > s.id
+                      ? "bg-[#F7E5EA] text-primary"
+                      : "bg-gray-100 text-gray-400"
+                  }`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={form.reportKeyIds.includes(opt.value)}
-                    onChange={() => toggleReportKey(opt.value)}
-                    className="accent-primary"
-                  />
-                  {opt.label}
-                </label>
-              ))}
+                  {step > s.id ? <Check size={14} /> : s.id}
+                </div>
+                <span
+                  className={`text-sm font-medium whitespace-nowrap ${
+                    step === s.id ? "text-gray-900" : "text-gray-400"
+                  }`}
+                >
+                  {s.label}
+                </span>
+              </div>
+              {i < STEPS.length - 1 && (
+                <div
+                  className={`h-px flex-1 transition-colors ${
+                    step > s.id ? "bg-primary" : "bg-gray-200"
+                  }`}
+                />
+              )}
             </div>
-          )}
+          ))}
         </div>
+
+        {/* Step 1: theme details */}
+        {step === 1 && (
+          <div>
+            <div className="mb-5">
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Template Module
+              </label>
+              <select
+                value={form.templateModuleId ?? ""}
+                onChange={handleTemplateModuleChange}
+                disabled={templateModuleLoading}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-60"
+              >
+                <option value="">
+                  {templateModuleLoading ? "Loading..." : "Select Template Module"}
+                </option>
+                {templateModuleOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mb-5">
+              <MultiLangInputBox
+                label="Theme Type Name"
+                name="themeName"
+                value={form.themeName}
+                onChange={handleThemeNameChange}
+                onTranslate={handleTranslate}
+                required
+              />
+            
+            </div>
+
+            <div className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3">
+              <div>
+                <p className="text-sm font-medium text-gray-700">
+                  Auto Assign
+                </p>
+                <p className="text-xs text-gray-400">
+                  Automatically assign this theme to new templates.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setForm((prev) => ({ ...prev, isAutoAssign: !prev.isAutoAssign }))
+                }
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                  form.isAutoAssign ? "bg-primary" : "bg-gray-300"
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    form.isAutoAssign ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: report keys */}
+        {step === 2 && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F7E5EA] text-primary">
+                  <KeyRound size={15} />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-800">
+                    Select the report keys for this theme
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {form.reportKeyIds.length} of {reportKeyOptions.length} selected
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative mb-3">
+              <Search
+                size={15}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <input
+                type="text"
+                value={reportKeySearch}
+                onChange={(e) => setReportKeySearch(e.target.value)}
+                placeholder="Search report keys..."
+                className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+
+            {reportKeyOptions.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-8">
+                No report keys available.
+              </p>
+            ) : filteredReportKeyOptions.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-8">
+                No report keys match "{reportKeySearch}".
+              </p>
+            ) : (
+              <div className="rounded-lg border border-gray-200 max-h-64 overflow-y-auto divide-y divide-gray-100">
+                {filteredReportKeyOptions.map((opt) => {
+                  const checked = form.reportKeyIds.includes(opt.value);
+                  return (
+                    <label
+                      key={opt.value}
+                      className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
+                    >
+                      <span className="text-sm text-gray-700">{opt.label}</span>
+                      <button
+                        type="button"
+                        onClick={() => toggleReportKey(opt.value)}
+                        className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
+                          checked ? "bg-primary" : "bg-gray-300"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                            checked ? "translate-x-4.5" : "translate-x-1"
+                          }`}
+                        />
+                      </button>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </CustomModal>
   );
