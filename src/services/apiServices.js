@@ -423,6 +423,40 @@ export const deletemenutiem = (id) =>{
     return DELETE(`/menu-item/delete?id=${id}`);
 };
 
+
+export const GetEstimateById = (data) => {
+    return POST(`/event-estimate/list`,data);
+};
+
+
+export const AddPresentation = (data) => {
+    return POST(`/event-media/add-update`,data);
+};
+
+
+export const GetAllPresentation = (data) => {
+    return POST(`/event-media/list`,data);
+}
+
+export const DeletePresenation = (id) => {
+    return GET(`/event-media/delete?id=${id}`);
+}
+
+
+export const ApprovedPresentation = (data) => {
+    return POST(`/event-media/approve`,data);
+}
+
+export const GetAllEventExecution = (data) => {
+    return POST(`/event-function-execution/list`,data);
+}
+
+export const AddEventExecution = (data) => {
+    return POST(`/event-function-execution/add-update`,data);
+}
+
+
+
 //userwisekey 
 export const updatereportkey = (data, userId) => {
     return POST(`/user-report-key/add-update?userId=${userId}`, data);

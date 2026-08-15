@@ -9,46 +9,24 @@ export const DEFAULT_SORTING = [
   },
 ];
 
-export const ESTIMATE_TABLE_DATA = [
-  {
-    id: "01",
-    itemName: "Crystal Cascade Stage Decor",
-    description:
-      "Premium Austrian crystal backdrops with floral accent borders and warm ambient LED wash.",
-    image:
-      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=100",
-    size: "01",
-    qty: "01",
-    sqft: "01",
-    rate: "1,25,000",
-    discount: 10,
-    total: "1,12,500",
-  },
-  {
-    id: "02",
-    itemName: "LED Kinetic Sculpture",
-    description:
-      "3D mapping compatible moving LED light tubes for main hall ceiling architecture.",
-    image:
-      "https://images.unsplash.com/photo-1511578314322-379afb476865?w=100",
-    size: "01",
-    qty: "01",
-    sqft:"01",
-    rate: "1,25,000",
-    discount: 10,
-    total: "1,12,500",
-  },
-];
+export const ESTIMATE_TABLE_DATA = [];
 
 export const getEstimateColumns = ({
   onEdit,
   onDelete,
   onDescriptionChange,
   onImageUpload,
+  onFieldChange, // (id, field, value) => void
 }) => [
   {
     accessorKey: "id",
     header: "SR",
+    cell: ({ row, table }) => {
+      const index = table.getSortedRowModel().rows.findIndex(
+        (r) => r.original.id === row.original.id
+      );
+      return index + 1;
+    },
   },
 
   {
@@ -80,11 +58,15 @@ export const getEstimateColumns = ({
 
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <img
-          src={row.original.image}
-          alt={row.original.itemName}
-          className="h-10 w-10 rounded-md object-cover"
-        />
+        {row.original.image ? (
+          <img
+            src={row.original.image}
+            alt={row.original.itemName}
+            className="h-10 w-10 rounded-md object-cover"
+          />
+        ) : (
+          <div className="h-10 w-10 rounded-md bg-gray-100" />
+        )}
 
         <label
           className="cursor-pointer rounded border-2 p-3 text-gray-600 border-dashed border-primary-clarity hover:bg-primary-clarity/10"
@@ -112,8 +94,11 @@ export const getEstimateColumns = ({
 
     cell: ({ row }) => (
       <input
-        defaultValue={row.original.size}
-        className="w-14 rounded-lg text-dark font-bold text-xs border text-center h-9 border-primary-clarity outline-none" 
+        value={row.original.size ?? ""}
+        onChange={(e) =>
+          onFieldChange && onFieldChange(row.original.id, "size", e.target.value)
+        }
+        className="w-14 rounded-lg text-dark font-bold text-xs border text-center h-9 border-primary-clarity outline-none"
       />
     ),
   },
@@ -124,8 +109,13 @@ export const getEstimateColumns = ({
 
     cell: ({ row }) => (
       <input
-        defaultValue={row.original.qty}
-        className="w-14 rounded-lg text-dark font-bold text-xs border text-center h-9 border-primary-clarity outline-none"
+        type="number"
+        min="0"
+        value={row.original.qty ?? ""}
+        onChange={(e) =>
+          onFieldChange && onFieldChange(row.original.id, "qty", e.target.value)
+        }
+        className="w-16 rounded-lg text-dark font-bold text-xs border text-center h-9 border-primary-clarity outline-none"
       />
     ),
   },
@@ -136,25 +126,57 @@ export const getEstimateColumns = ({
 
     cell: ({ row }) => (
       <input
-        defaultValue={row.original.sqft}
-        className="w-14 rounded-lg text-dark font-bold text-xs border text-center h-9 border-primary-clarity outline-none"
+        value={row.original.sqft ?? ""}
+        onChange={(e) =>
+          onFieldChange && onFieldChange(row.original.id, "sqft", e.target.value)
+        }
+        className="w-16 rounded-lg text-dark font-bold text-xs border text-center h-9 border-primary-clarity outline-none"
       />
     ),
   },
 
   {
     accessorKey: "rate",
-    header: "RATE / DISC",
+    header: "RATE",
 
     cell: ({ row }) => (
-      <div>
-        <div className="font-bold text-dark">
-          ₹{row.original.rate.toLocaleString()}
-        </div>
+      <div className="relative w-24">
+        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-xs">
+          ₹
+        </span>
+        <input
+          type="number"
+          min="0"
+          value={row.original.rate ?? ""}
+          onChange={(e) =>
+            onFieldChange && onFieldChange(row.original.id, "rate", e.target.value)
+          }
+          className="w-full rounded-lg text-dark font-bold text-xs border h-9 pl-5 pr-2 border-primary-clarity outline-none"
+        />
+      </div>
+    ),
+  },
 
-        <div className="text-xs text-success">
-          -{row.original.discount}% Disc
-        </div>
+  {
+    accessorKey: "discountRate",
+    header: "DISC %",
+
+    cell: ({ row }) => (
+      <div className="relative w-16">
+        <input
+          type="number"
+          min="0"
+          max="100"
+          value={row.original.discountRate ?? ""}
+          onChange={(e) =>
+            onFieldChange &&
+            onFieldChange(row.original.id, "discountRate", e.target.value)
+          }
+          className="w-full rounded-lg text-dark font-bold text-xs border h-9 text-center pr-4 border-primary-clarity outline-none"
+        />
+        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-xs">
+          %
+        </span>
       </div>
     ),
   },
@@ -163,11 +185,18 @@ export const getEstimateColumns = ({
     accessorKey: "total",
     header: "TOTAL",
 
-    cell: ({ row }) => (
-      <span className="font-semibold text-primary">
-        ₹{row.original.total.toLocaleString()}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const qty = Number(row.original.qty || 0);
+      const rate = Number(row.original.rate || 0);
+      const discountRate = Number(row.original.discountRate || 0);
+      const total = qty * rate * (1 - discountRate / 100);
+
+      return (
+        <span className="font-semibold text-primary">
+          ₹{total.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
+        </span>
+      );
+    },
   },
 
   {

@@ -131,7 +131,6 @@ import RawMaterialAllocationPage from "@/pages/Event/RawMaterialAllocationPage";
 import LabourOtherManagementPage from "@/pages/Event/LabourOtherManagementPage";
 import OrderBookingReportsPage from "@/pages/Event/OrderBookingReportsPage";
 import DishCostingPage from "@/pages/Event/DishCostingPage";
-import QuotationPage from "@/pages/Event/QuotationPage";
 import EventInvoicePage from "@/pages/Event/EventInvoicePage";
 import AddInvoicePage from "@/pages/Event/AddInvoicePage";
 import InvoiceViewPage from "@/pages/Event/InvoiceViewPage";
@@ -155,7 +154,6 @@ import RowCategoryMaster from "../pages/Master/RowCategoryMaster";
 import UnitMaster from "../pages/Master/UnitMaster";
 import RowItemMaster from "../pages/Master/RowItemMaster";
 import RawSubCategoryMaster from "../pages/Master/RowSubCategoryMaster";
-import QuotationDashboard from "../pages/quotation/quotion-dashboard";
 import RoleMaster from "../pages/Master/RoleMaster";
 import ExecutionPage from "../pages/execution/ExecutionPage";
 import PlanMaster from "../pages/Master/Plan Master";
@@ -180,6 +178,7 @@ import { BankDetailsMasterPage } from "../pages/Master/BankAccount";
 import { Menuitemcattypemaster } from "../pages/Master/MenuItemMaster/MenuItemCategoryType";
 import { MenuItemCategoryMaster } from "../pages/Master/MenuItemMaster/Menuitemcategory";
 import { MenuItemMaster } from "../pages/Master/MenuItemMaster/menuitemmaster";
+import QuotationPage from "../pages/quotation";
 import { UserReportKeyPage } from "../pages/setting/UserReportKey/UserReportKeyPage";
 const AppRoutingSetup = () => {
   return (
@@ -223,8 +222,8 @@ const AppRoutingSetup = () => {
             <Route path="/overview" element={<OverviewPage />} />
 
           {/* Quotation */}
-          <Route path="/quotation/:eventId" element={<QuotationDashboard />} />
-          <Route path="/execution" element={<ExecutionPage />}/>
+          <Route path="/quotation/:eventId" element={<QuotationPage />} />
+          <Route path="/execution/:eventId" element={<ExecutionPage />}/>
           <Route path="/flower" element={<EventFlower />}/>
           <Route path="/lighting" element={<EventLighting />}/>
           <Route path="/ledwall" element={<EventLED />}/>
@@ -288,7 +287,7 @@ const AppRoutingSetup = () => {
               element={<OrderBookingReportsPage />}
             />
             <Route path="/dish-costing" element={<DishCostingPage />} />
-            <Route path="/quotations" element={<QuotationPage />} />
+          
             <Route path="/event-invoice" element={<EventInvoicePage />} />
             <Route path="/add-invoice" element={<AddInvoicePage />} />
             <Route path="/view-invoice" element={<InvoiceViewPage />} />
