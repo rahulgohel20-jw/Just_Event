@@ -1,65 +1,208 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Printer,
   BarChart3,
   FileSpreadsheet,
   MonitorPlay,
   ArrowUpRight,
+  Loader2,
 } from "lucide-react";
 import { AutoComplete, DatePicker, Input, Select } from "antd";
+import Swal from "sweetalert2";
 import dayjs from "dayjs";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import ExecutionItemsTable from "./ExecutionItemsTable";
 import {
   PRODUCTION_INCHARGE_OPTIONS,
-  FUNCTION_NAME_OPTIONS,
   STATUS_OPTIONS,
 } from "./constant";
+import { getbyeventid, GetAllEventExecution, AddEventExecution } from "../../services/apiServices";
 // import { AddDecorationModal } from "./AddDecorationModal"; // hook up when built
 
-const ExecutionPage = () => {
-  const { eventId, functionId } = useParams();
+const toId = (v) => (v === null || v === undefined || v === "" ? null : Number(v));
 
-  // TODO: replace with real event summary fetch (GetEventDetails or similar);
-  // static identity fields left as-is to mirror the reference screenshot.
-  const event = {
-    code: "JE-2024-0812",
-    eventNo: "#EV-99021",
-    eventName: "Grand Crimson Gala",
-    partyName: "Lumina Global Corp",
-    venue: "The Ritz-Carlton Atrium",
-    eventDate: "Oct 24, 2024 → Oct 26, 2024",
-    reference: "BK-991",
+// ASSUMPTION: execution list rows come back shaped like this. Adjust field
+// names once a real GetAllEventExecution response is available.
+const mapExecutionItems = (list = []) =>
+  list.map((item, idx) => ({
+    id: item.id,
+    srNo: String(idx + 1).padStart(2, "0"),
+    name: item.name ?? item.itemName ?? "Item",
+    description: item.description ?? "",
+    size: item.size ?? "",
+    qty: Number(item.qty || 0),
+    images: (item.images ?? []).map((img) => img.url ?? img),
+    materials: item.materials ?? [],
+    materialsCount: (item.materials ?? []).length,
+  }));
+
+const ExecutionPage = () => {
+  const { eventId: routeEventId, functionId: routeFunctionId } = useParams();
+  const [searchParams] = useSearchParams();
+  const eventId = routeEventId ?? searchParams.get("eventId");
+  const userId = localStorage.getItem("userId");
+
+  const [eventData, setEventData] = useState(null);
+  const [loadingEvent, setLoadingEvent] = useState(true);
+
+  const [selectedFunctionId, setSelectedFunctionId] = useState(
+    toId(routeFunctionId ?? searchParams.get("functionId"))
+  );
+
+  const [tableData, setTableData] = useState([]);
+  const [loadingItems, setLoadingItems] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [executionRecordId, setExecutionRecordId] = useState(null); // id of the saved execution record for this function, if any
+
+  // Editable header fields — kept local for now (no dedicated save endpoint
+  // for these was provided; they get bundled into the AddEventExecution
+  // payload on Save).
+  const [productionIncharge, setProductionIncharge] = useState("");
+  const [budget, setBudget] = useState("");
+  const [setupAt, setSetupAt] = useState(null);
+  const [dismantlingAt, setDismantlingAt] = useState(null);
+  const [status, setStatus] = useState("remaining");
+  const [note, setNote] = useState("");
+
+  /* ---- Load event + its functions (mirrors QuotationPage) ---- */
+  useEffect(() => {
+    if (!eventId) {
+      Swal.fire({ icon: "warning", title: "No event selected" });
+      setLoadingEvent(false);
+      return;
+    }
+    setLoadingEvent(true);
+    getbyeventid(eventId)
+      .then((res) => {
+        const body = res?.data ?? res;
+        const data = body?.data ?? body;
+        setEventData(data);
+
+        // default to first function if none selected via route/query
+        if (selectedFunctionId == null && data?.eventFunctions?.length) {
+          setSelectedFunctionId(toId(data.eventFunctions[0].id));
+        }
+      })
+      .catch(() => Swal.fire({ icon: "error", title: "Failed to load event details" }))
+      .finally(() => setLoadingEvent(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventId]);
+
+  const functionOptions =
+    eventData?.eventFunctions?.map((f) => ({ value: toId(f.id), label: f.nameEnglish })) ?? [];
+
+  /* ---- Fetch execution items whenever the selected function changes ---- */
+  const fetchExecutionList = () => {
+    if (!eventId || selectedFunctionId == null) return Promise.resolve();
+    setLoadingItems(true);
+    return GetAllEventExecution({
+      eventId: Number(eventId),
+      eventFunctionId: null,
+      page: 0,
+      size: 100, // ASSUMPTION: no pagination in the UI yet, pull a large page
+      sortBy: "id",
+      sortDirection: "ASC",
+      userId: Number(userId),
+    })
+      .then((res) => {
+        const body = res?.data ?? res;
+        const page = body?.data ?? body;
+        const content = page?.content ?? [];
+        const record = content[0]; // ASSUMPTION: one execution record per function, holding an items[] array
+
+        setExecutionRecordId(record?.id ?? null);
+        setTableData(mapExecutionItems(record?.items ?? []));
+
+        // ASSUMPTION: header fields live on the same record
+        if (record) {
+          setProductionIncharge(record.productionIncharge ?? "");
+          setBudget(record.budget ?? "");
+          setSetupAt(record.setupAt ? dayjs(record.setupAt) : null);
+          setDismantlingAt(record.dismantlingAt ? dayjs(record.dismantlingAt) : null);
+          setStatus(record.status ?? "remaining");
+          setNote(record.note ?? "");
+        } else {
+          setProductionIncharge("");
+          setBudget("");
+          setSetupAt(null);
+          setDismantlingAt(null);
+          setStatus("remaining");
+          setNote("");
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load execution list:", err);
+        setTableData([]);
+        setExecutionRecordId(null);
+      })
+      .finally(() => setLoadingItems(false));
   };
 
-  // Editable fields — from Production Incharge onward. Production Incharge
-  // and Function Name use AutoComplete so the user can pick a suggestion or
-  // type a new one; Setup/Dismantling use antd DatePicker with time.
-  const [productionIncharge, setProductionIncharge] = useState("Sarah Jenkins");
-  const [budget, setBudget] = useState("1,18,000.00");
-  const [functionName, setFunctionName] = useState("Haldi Celebration");
-  const [setupAt, setSetupAt] = useState(dayjs("2024-10-23T10:00"));
-  const [dismantlingAt, setDismantlingAt] = useState(dayjs("2024-10-26T23:59"));
-  const [status, setStatus] = useState("remaining");
-  const [note, setNote] = useState(
-    "Ensure heavy-duty anchors for outdoor marigold setup."
-  );
+  useEffect(() => {
+    fetchExecutionList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventId, selectedFunctionId]);
+
+  const handleFunctionChange = (val) => setSelectedFunctionId(toId(val));
 
   const handleAddDecoration = () => {
     // setIsAddModalOpen(true);
     console.log("open Add Decoration modal");
   };
 
-  const handleSaveChanges = () => {
-    console.log("save event execution header changes", {
+  /* ---- SAVE: single endpoint for create/update, multipart like AddEstimate ---- */
+  const handleSaveChanges = async () => {
+    if (!eventId || selectedFunctionId == null) {
+      Swal.fire({ icon: "warning", title: "Select a function first" });
+      return;
+    }
+
+    const payload = {
+      id: executionRecordId ?? 0,
+      eventId: Number(eventId),
+      eventFunctionId: selectedFunctionId,
       productionIncharge,
       budget,
-      functionName,
-      setupAt: setupAt?.toISOString(),
-      dismantlingAt: dismantlingAt?.toISOString(),
+      setupAt: setupAt ? setupAt.toISOString() : null,
+      dismantlingAt: dismantlingAt ? dismantlingAt.toISOString() : null,
       status,
       note,
+      userId: Number(userId),
+      items: tableData.map((item) => ({
+        id: typeof item.id === "number" && item.id < 1e10 ? item.id : 0,
+        name: item.name,
+        description: item.description,
+        size: item.size,
+        qty: Number(item.qty || 0),
+        materials: item.materials ?? [],
+      })),
+    };
+
+    const formData = new FormData();
+    formData.append("data", new Blob([JSON.stringify(payload)], { type: "application/json" }));
+
+    // Attach any newly-picked image files (local blob previews carry a
+    // hidden `file` reference set in ImagesCell — see ExecutionItemsTable note)
+    tableData.forEach((item, itemIndex) => {
+      (item.imageFiles ?? []).forEach((file) => {
+        formData.append(`items[${itemIndex}].images`, file);
+      });
     });
+
+    setSaving(true);
+    try {
+      const res = await AddEventExecution(formData);
+      const body = res?.data ?? res;
+      const data = body?.data ?? body;
+      setExecutionRecordId(data?.id ?? executionRecordId);
+      await fetchExecutionList();
+      Swal.fire({ icon: "success", title: "Execution plan saved", timer: 1200, showConfirmButton: false });
+    } catch (err) {
+      console.error("Failed to save execution plan:", err);
+      Swal.fire({ icon: "error", title: "Failed to save execution plan" });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -68,10 +211,7 @@ const ExecutionPage = () => {
       <div className="border-b border-gray-100 bg-white px-8 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div>
-           
-            <h1 className="mt-1 text-2xl font-semibold text-primary">
-              Menu Execution
-            </h1>
+            <h1 className="mt-1 text-2xl font-semibold text-primary">Menu Execution</h1>
           </div>
           <div className="flex items-center gap-2">
             <TopBarButton icon={Printer} label="Print" />
@@ -85,18 +225,34 @@ const ExecutionPage = () => {
 
       <div className="mx-auto mt-6 flex max-w-8xl flex-col gap-6 px-8">
         {/* Event info card */}
-        <section className="rounded-2xl border border-gray-100 bg-white p-6">
+        <section className={`rounded-2xl border border-gray-100 bg-white p-6 ${loadingEvent ? "pointer-events-none opacity-50" : ""}`}>
           <div className="grid grid-cols-2 gap-x-8 gap-y-5 md:grid-cols-4">
-            {/* Static identity fields */}
-            <Field label="Event No." value={event.eventNo} />
-            <Field label="Event Name" value={event.eventName} />
-            <Field label="Party Name" value={event.partyName} />
-            <Field label="Venue" value={event.venue} />
+            {/* Static identity fields — from real event data now */}
+            <Field label="Event No." value={eventData?.eventNo} />
+            <Field label="Event Name" value={eventData?.eventNameEnglish} />
+            <Field label="Party Name" value={eventData?.partyNameEnglish} />
+            <Field label="Venue" value={eventData?.venueNameEnglish} />
 
-            <Field label="Event Date" value={event.eventDate} />
-            <Field label="Reference" value={event.reference} />
+            <div>
+              <FieldLabel>Function Name</FieldLabel>
+              <Select
+                className="mt-1 w-full"
+                placeholder="Select function"
+                options={functionOptions}
+                value={selectedFunctionId ?? undefined}
+                onChange={handleFunctionChange}
+              />
+            </div>
+            <Field
+              label="Event Date"
+              value={
+                eventData?.eventStartDate
+                  ? `${eventData.eventStartDate} → ${eventData.eventEndDate ?? eventData.eventStartDate}`
+                  : "—"
+              }
+            />
 
-            {/* Editable from here on */}
+            {/* Editable */}
             <div>
               <FieldLabel>Production Incharge</FieldLabel>
               <AutoComplete
@@ -117,20 +273,6 @@ const ExecutionPage = () => {
                 prefix="₹"
                 value={budget}
                 onChange={(e) => setBudget(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <FieldLabel>Function Name</FieldLabel>
-              <AutoComplete
-                className="mt-1 w-full"
-                value={functionName}
-                onChange={setFunctionName}
-                options={FUNCTION_NAME_OPTIONS}
-                placeholder="Select or type a function"
-                filterOption={(input, option) =>
-                  option.label.toLowerCase().includes(input.toLowerCase())
-                }
               />
             </div>
             <div>
@@ -176,19 +318,23 @@ const ExecutionPage = () => {
             </div>
             <button
               onClick={handleSaveChanges}
-              className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-rose-950"
+              disabled={saving}
+              className="flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-rose-950 disabled:opacity-60"
             >
-              Save Changes
+              {saving && <Loader2 size={15} className="animate-spin" />}
+              {saving ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </section>
 
-        {/* Execution items — self-contained: fetches its own data and owns
-            the Manage Materials sidebar */}
+        {/* Execution items */}
         <section className="rounded-2xl border border-gray-100 bg-white p-6">
           <ExecutionItemsTable
             eventId={eventId}
-            functionId={functionId}
+            functionId={selectedFunctionId}
+            items={tableData}
+            setItems={setTableData}
+            loading={loadingItems}
             onAddDecoration={handleAddDecoration}
           />
         </section>
@@ -198,7 +344,11 @@ const ExecutionPage = () => {
           <button className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50">
             Save as Draft
           </button>
-          <button className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-rose-950">
+          <button
+            onClick={handleSaveChanges}
+            disabled={saving}
+            className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-rose-950 disabled:opacity-60"
+          >
             Finalize Plan
           </button>
         </div>
@@ -217,15 +367,13 @@ const TopBarButton = ({ icon: Icon, label }) => (
 );
 
 const FieldLabel = ({ children }) => (
-  <p className="text-xs font-bold uppercase tracking-wide text-gray-600">
-    {children}
-  </p>
+  <p className="text-xs font-bold uppercase tracking-wide text-gray-600">{children}</p>
 );
 
 const Field = ({ label, value }) => (
   <div>
     <FieldLabel>{label}</FieldLabel>
-    <p className="mt-1 text-sm text-gray-800">{value}</p>
+    <p className="mt-1 text-sm text-gray-800">{value ?? "—"}</p>
   </div>
 );
 

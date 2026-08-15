@@ -7,29 +7,18 @@ import {
   DEFAULT_PAGINATION_SIZE,
   DEFAULT_SORTING,
   DEFAULT_MATERIAL_CATEGORIES,
-  MOCK_EXECUTION_ITEMS,
   getExecutionColumns,
 } from "./constant";
 import ManageMaterialsSidebar from "./ManageMaterialsSidebar";
-// API integration intentionally removed for now — everything below runs on
-// local mock data / local state. Swap MOCK_EXECUTION_ITEMS + the handlers
-// below for real fetch/save/delete calls when the endpoints are ready.
 
 /**
  * ExecutionItemsTable
  * ------------------------------------------------------------------
- * Self-contained section for the "Menu Planning Execution" page.
- * Renders decoration/execution items through the shared TableComponent
- * and owns the Manage Materials sidebar modal (opened per-row).
- *
- * Props
- *  - eventId    : string | number   current event (kept for when API wiring returns)
- *  - functionId : string | number   current function within the event
- *  - onAddDecoration : () => void   opens the Add Decoration modal (parent-owned)
+ * Controlled version: `items` and `setItems` are owned by ExecutionPage,
+ * which fetches via GetAllEventExecution and saves via AddEventExecution.
+ * This component only renders + edits the array it's given.
  */
-const ExecutionItemsTable = ({ eventId, functionId, onAddDecoration }) => {
-  const [tableData, setTableData] = useState(MOCK_EXECUTION_ITEMS);
-  const [loading] = useState(false);
+const ExecutionItemsTable = ({ items, setItems, loading, onAddDecoration }) => {
   const [searchText, setSearchText] = useState("");
   const [size] = useState(DEFAULT_PAGINATION_SIZE);
 
@@ -46,9 +35,8 @@ const ExecutionItemsTable = ({ eventId, functionId, onAddDecoration }) => {
     setActiveItem(null);
   };
 
-  // Called by the sidebar on Save — updates the row's materials locally.
   const handleMaterialsSaved = (item, selectedList) => {
-    setTableData((prev) =>
+    setItems((prev) =>
       prev.map((row) =>
         row.id === item.id
           ? { ...row, materials: selectedList, materialsCount: selectedList.length }
@@ -59,20 +47,27 @@ const ExecutionItemsTable = ({ eventId, functionId, onAddDecoration }) => {
 
   const handleEdit = (record) => console.log("Edit execution item:", record);
 
-  const handleUploadImage = (record, newImageUrls = []) => {
-    setTableData((prev) =>
+  // Keep both a displayable preview URL (image.images) and the raw File
+  // objects (image.imageFiles) so ExecutionPage can attach them to
+  // FormData on save — mirrors QuotationPage's handleImageUpload pattern.
+  const handleUploadImage = (record, files = []) => {
+    if (!files.length) return;
+    const previewUrls = files.map((file) => URL.createObjectURL(file));
+    setItems((prev) =>
       prev.map((row) =>
         row.id === record.id
-          ? { ...row, images: [...(row.images || []), ...newImageUrls] }
+          ? {
+              ...row,
+              images: [...(row.images || []), ...previewUrls],
+              imageFiles: [...(row.imageFiles || []), ...files],
+            }
           : row
       )
     );
   };
 
-  // Called by inline-editable cells (description, size, qty) on commit —
-  // local-only update for now, swap in a save/patch API call later.
   const handleUpdateField = (record, field, value) => {
-    setTableData((prev) =>
+    setItems((prev) =>
       prev.map((row) => (row.id === record.id ? { ...row, [field]: value } : row))
     );
   };
@@ -87,17 +82,10 @@ const ExecutionItemsTable = ({ eventId, functionId, onAddDecoration }) => {
       confirmButtonColor: "#7A2E45",
       cancelButtonText: "Cancel",
     });
-
     if (!confirm.isConfirmed) return;
 
-    // Local-only removal — no API call for now.
-    setTableData((prev) => prev.filter((row) => row.id !== record.id));
-    Swal.fire({
-      icon: "success",
-      title: "Item Deleted",
-      timer: 1500,
-      showConfirmButton: false,
-    });
+    setItems((prev) => prev.filter((row) => row.id !== record.id));
+    Swal.fire({ icon: "success", title: "Item Deleted", timer: 1500, showConfirmButton: false });
   };
 
   const columns = useMemo(
@@ -109,23 +97,18 @@ const ExecutionItemsTable = ({ eventId, functionId, onAddDecoration }) => {
         onUploadImage: handleUploadImage,
         onUpdateField: handleUpdateField,
       }),
-    []
+    [items] // recompute if handlers close over stale `items`-derived data
   );
 
   const filteredData = useMemo(() => {
-    if (!searchText) return tableData;
-    return tableData.filter((row) =>
-      row.name.toLowerCase().includes(searchText.toLowerCase())
-    );
-  }, [tableData, searchText]);
+    if (!searchText) return items;
+    return items.filter((row) => row.name?.toLowerCase().includes(searchText.toLowerCase()));
+  }, [items, searchText]);
 
   const toolbar = (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="relative w-full max-w-xs mb-3">
-        <Search
-          size={16}
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-        />
+        <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           type="text"
           value={searchText}
