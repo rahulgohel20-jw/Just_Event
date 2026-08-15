@@ -126,7 +126,7 @@ const AddThemeName = ({ open, onClose, onSave, initialData }) => {
       <div className="px-6 pt-5 pb-4">
         <div className="flex justify-between items-start mb-5">
           <div>
-            <h2 className="text-xl font-bold text-primary">
+            <h2 className="text-xl  text-primary">
               {isEditMode ? "Edit Template Name" : "Add Template Name"}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
@@ -150,9 +150,7 @@ const AddThemeName = ({ open, onClose, onSave, initialData }) => {
             onTranslate={handleTranslate}
             required
           />
-          <p className="text-xs text-gray-400 mt-2">
-            e.g., Exclusive Theme, Back Office Theme
-          </p>
+        
         </div>
       </div>
     </CustomModal>

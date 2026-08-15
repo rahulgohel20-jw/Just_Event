@@ -400,10 +400,13 @@ export const addupadtemenuitemcat = (data) => {
 export const getallmenuitemcat = (data) => {
     return POST(`/menu-category/list`,data);
 };
+
 export const deletemenuitemcat = (id) =>{
     return DELETE(`/menu-category/delete?id=${id}`);
 };
 
+
+//itemmenu
 export const addupadtemenuitem = (data) =>{
     return POST(`/menu-item/add-update`,data);
 };
@@ -454,3 +457,10 @@ export const AddEventExecution = (data) => {
 
 
 
+//userwisekey 
+export const updatereportkey = (data, userId) => {
+    return POST(`/user-report-key/add-update?userId=${userId}`, data);
+};
+export const getalluserwisereportkey = (data) => {
+    return POST(`/user-report-key/list`,data);
+};

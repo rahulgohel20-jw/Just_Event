@@ -210,7 +210,7 @@ export const MENU_SIDEBAR = [
   // },
 
 
-  {
+ {
     title: "Events",
      icon: "  text-lg ki-filled ki-calendar text-primary",
      path:"/creteevnetname",
@@ -347,6 +347,22 @@ export const MENU_SIDEBAR = [
         title: "View Invoice",
         path: "/view-invoice",
       },
+    ],
+  },
+ 
+   {
+    title: "setting",
+     icon: "  text-lg ki-filled ki-calendar text-primary",
+     path:"/creteevnetname",
+    children: [
+      {
+        title:"Report Key Configuration",
+        path:"/userwisereportkey",
+      },
+     
+      
+      
+      
     ],
   },
 ];

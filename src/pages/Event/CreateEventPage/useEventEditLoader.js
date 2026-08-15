@@ -71,6 +71,7 @@ export function mapEventToFormData(event) {
       functions: (event.eventFunctions || []).map(mapEventFunctionToRow),
     },
     otherInformation: {
+      id: otherInfo.id ?? null, // eventOtherInfo row id — buildEventPayload reads this to send eventOtherInfo.id on update
       photographer: {
         mode: otherInfo.photographerDetailType === "OTHER" ? "other" : "groomBride",
         photographerName: otherInfo.groomPhotographerName || otherInfo.bridePhotographerName || "",

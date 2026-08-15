@@ -41,8 +41,15 @@ export default function OtherInformation({ data, onChange }) {
   const [subStep, setSubStep] = useState(0);
   const current = SUB_PHASES[subStep];
 
+  // IMPORTANT: spread `data` (the whole otherInformation object, which
+  // includes `id` when editing an existing event) alongside the patched
+  // sub-key. Previously this only sent `{ [key]: patch }`, which silently
+  // dropped `id` (and any other top-level fields) if the parent's onChange
+  // does a shallow replace rather than a merge — that's what caused
+  // eventOtherInfo.id to come back null on save even after loading an
+  // existing event with a real id.
   const updateSub = (key, patch) => {
-    onChange({ [key]: { ...(data[key] || {}), ...patch } });
+    onChange({ ...data, [key]: { ...(data[key] || {}), ...patch } });
   };
 
   return (
