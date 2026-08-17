@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { DatePicker, Select } from "antd";
+import { Select, Spin } from "antd";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import {
   X,
   Calendar,
@@ -12,23 +13,19 @@ import {
   FileText,
 } from "lucide-react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { AddFollowUp } from "@/services/apiServices";
+import { AddFollowUp, getalluser } from "@/services/apiServices";
 import { showApiResult, showApiError } from "@/utils/swalHelpers";
+import DateField from "../../../components/form-inputs/DatePicker/Datefield";
 
+dayjs.extend(customParseFormat);
+
+const DATE_FORMAT = "DD/MM/YYYY";
 const DESCRIPTION_LIMIT = 500;
-
-// TODO: swap for a real manager-master API call once one exists.
-const STATIC_MANAGERS = [
-  { id: 1, name: "Himanshu Sharma" },
-  { id: 2, name: "Amit Raj" },
-  { id: 3, name: "Priya Mehta" },
-  { id: 4, name: "Rohit Patel" },
-];
 
 const initialFormState = {
   followManagerId: null,
   description: "",
-  followDate: null,
+  followDate: "",
   file: null,
 };
 
@@ -41,6 +38,61 @@ const AddFollowUpModal = ({ open, onClose, onSave, eventId }) => {
 
   const userId = Number(localStorage.getItem("userId")) || 0;
   const today = dayjs();
+
+  // Follow Manager — async search against /users/list, same request shape
+  // as UserMaster.jsx's fetchUserList / ExecutionPage's Production Incharge.
+  const [managerOptions, setManagerOptions] = useState([]);
+  const [managerSearching, setManagerSearching] = useState(false);
+  const [managerHasLoadedOnce, setManagerHasLoadedOnce] = useState(false);
+  const managerDebounceRef = useRef(null);
+
+  const managerDisplayName = (user) =>
+    [user.firstName, user.lastName].filter(Boolean).join(" ").trim() ||
+    user.email ||
+    user.companyName ||
+    `User #${user.id}`;
+
+  const fetchManagerOptions = async (query) => {
+    setManagerSearching(true);
+    try {
+      const res = await getalluser({
+        cityId: null,
+        clientId: null,
+        companyName: "",
+        countryId: null,
+        isActive: true,
+        isBlock: false,
+        page: 0,
+        roleId: null,
+        search: query || "",
+        size: 20,
+        sortBy: "id",
+        sortDirection: "DESC",
+        stateId: null,
+        userType: "MEMBER",
+      });
+      const body = res?.data ?? res;
+      const content = body?.data?.content ?? [];
+      setManagerOptions(
+        content.map((user) => ({ value: user.id, label: managerDisplayName(user) }))
+      );
+      setManagerHasLoadedOnce(true);
+    } catch (err) {
+      console.error("Failed to fetch follow managers:", err);
+      setManagerOptions([]);
+    } finally {
+      setManagerSearching(false);
+    }
+  };
+
+  const handleManagerSearch = (text) => {
+    if (managerDebounceRef.current) clearTimeout(managerDebounceRef.current);
+    managerDebounceRef.current = setTimeout(() => fetchManagerOptions(text), 300);
+  };
+
+  const handleManagerFocus = () => {
+    if (!managerHasLoadedOnce && !managerSearching) fetchManagerOptions("");
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -82,14 +134,18 @@ const AddFollowUpModal = ({ open, onClose, onSave, eventId }) => {
   const handleSave = async () => {
     if (!validate()) return;
 
+    // followDate is already a "DD/MM/YYYY" string (DateField's own format) —
+    // send it through as-is rather than reformatting to YYYY-MM-DD.
     const payload = {
       id: null,
       eventId: Number(eventId),
-      followManagerId: form.followManagerId,
+      managerId: form.followManagerId,
       description: form.description,
-      followDate: form.followDate.format("YYYY-MM-DD"),
+      followUpDate: form.followDate,
       userId,
     };
+
+    console.log("data",payload)
 
     const formData = new FormData();
     formData.append("data", new Blob([JSON.stringify(payload)], { type: "application/json" }));
@@ -121,11 +177,6 @@ const AddFollowUpModal = ({ open, onClose, onSave, eventId }) => {
       setSaving(false);
     }
   };
-
-  const managerOptions = STATIC_MANAGERS.map((m) => ({
-    value: m.id,
-    label: m.name,
-  }));
 
   return (
     <CustomModal
@@ -182,9 +233,14 @@ const AddFollowUpModal = ({ open, onClose, onSave, eventId }) => {
             Follow Manager<span className="text-red-500 ml-0.5">*</span>
           </label>
           <Select
+            showSearch
             value={form.followManagerId ?? undefined}
             onChange={(v) => handleChange("followManagerId", v)}
+            onSearch={handleManagerSearch}
+            onFocus={handleManagerFocus}
             options={managerOptions}
+            filterOption={false}
+            notFoundContent={managerSearching ? <Spin size="small" /> : "No members found"}
             placeholder={
               <span className="flex items-center gap-2 text-gray-400">
                 <UserRound size={15} />
@@ -230,24 +286,17 @@ const AddFollowUpModal = ({ open, onClose, onSave, eventId }) => {
 
         {/* Follow Date */}
         <div className="mb-4">
-          <label className="text-sm font-medium text-gray-700 mb-1.5 block">
-            Follow Date<span className="text-red-500 ml-0.5">*</span>
-          </label>
-          <DatePicker
+          <DateField
+            label="Follow Date"
+            required
             value={form.followDate}
-            onChange={(date) => handleChange("followDate", date)}
-            format="DD/MM/YYYY"
-            placeholder="Select follow-up date"
-            suffixIcon={<Calendar size={15} className="text-gray-400" />}
-            className="w-full !py-2.5"
-            status={errors.followDate ? "error" : undefined}
+            onChange={(v) => handleChange("followDate", v)}
+            placeholder="DD/MM/YYYY"
+            error={errors.followDate}
           />
           <p className="text-[11px] text-gray-400 mt-1">
             A reminder will be generated for this date.
           </p>
-          {errors.followDate && (
-            <p className="text-xs text-red-500 mt-1">{errors.followDate}</p>
-          )}
         </div>
 
         {/* Upload File */}
