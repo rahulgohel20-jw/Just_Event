@@ -51,7 +51,7 @@ export default function CreateEventName() {
   const [loadingTypes, setLoadingTypes] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const debounceRef = useRef(null);
-
+const [submitError, setSubmitError] = useState("");
   const fetchEventTypes = async (pageToFetch, search, append = false) => {
     if (append) setLoadingMore(true);
     else setLoadingTypes(true);
@@ -98,8 +98,10 @@ export default function CreateEventName() {
   const handleShowMore = () => {
     fetchEventTypes(page + 1, searchTerm, true);
   };
-
-  const canSubmit = eventName.trim().length > 0;
+useEffect(() => {
+  resetDraft();
+}, []); // run once on mount
+  const canSubmit = eventName.trim().length > 0 && Boolean(eventDate);
 const resetDraft = () => {
     setEventName("");
     setEventType(null);
@@ -110,6 +112,15 @@ const resetDraft = () => {
   };
 
  const handleCreateWorkspace = () => {
+  if (!canSubmit) {
+    setSubmitError(
+      !eventName.trim().length
+        ? "Project name is required."
+        : "Event date is required."
+    );
+    return;
+  }
+  setSubmitError("");
   setSearchTerm(""); // local search input only — safe, doesn't touch the shared draft
   navigate("/creteEvent");
 };
@@ -323,17 +334,21 @@ const resetDraft = () => {
           </div>
 
           {/* Submit */}
-          <button
-            type="button"
-            // disabled={!canSubmit}
-            onClick={handleCreateWorkspace}
-            className={`w-full rounded-xl py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${canSubmit
-                ? "bg-primary hover:bg-rose-950 text-white"
-                : "bg-rose-200 text-white cursor-not-allowed"
-              }`}
-          >
-            Create Event Workspace <ArrowRight className="w-4 h-4" />
-          </button>
+        {submitError && (
+  <p className="text-xs text-red-500 mb-3 text-center">{submitError}</p>
+)}
+<button
+  type="button"
+  disabled={!canSubmit}
+  onClick={handleCreateWorkspace}
+  className={`w-full rounded-xl py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${
+    canSubmit
+      ? "bg-primary hover:bg-rose-950 text-white"
+      : "bg-rose-200 text-white cursor-not-allowed"
+  }`}
+>
+  Create Event Workspace <ArrowRight className="w-4 h-4" />
+</button>
         </section>
       </main>
     </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Circle, Loader2 } from "lucide-react";
 import Swal from "sweetalert2";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams , useNavigate   } from "react-router-dom";
 import EventDetails from "./component/Eventdetails";
 import ClientDetails from "./component/Clientdetails";
 import FunctionDetails from "./component/Functiondetails";
@@ -41,6 +41,7 @@ const STEPS = [
 ];
 
 export default function CreateEvent({ onSubmit, existingId: existingIdProp = 0 }) {
+   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const idFromParams = Number(searchParams.get("id")) || 0;
   const existingId = existingIdProp || idFromParams;
@@ -142,49 +143,53 @@ export default function CreateEvent({ onSubmit, existingId: existingIdProp = 0 }
   };
 
   const handleSaveDraft = async () => {
-    const payload = buildEventPayload({ formData, draftStore, existingId });
-    try {
-      const res = await addupadtevent(payload);
-      showApiResult(res, {
-        successTitle: "Draft Saved",
-        errorTitle: "Failed to Save Draft",
-        onSuccess: () => setDraftSaved(true),
-      });
-    } catch (err) {
-      showApiError(err, { title: "Failed to Save Draft" });
-    }
-  };
+  const payload = buildEventPayload({ formData, draftStore, existingId });
+  try {
+    const res = await addupadtevent(payload);
+    showApiResult(res, {
+      successTitle: "Draft Saved",
+      errorTitle: "Failed to Save Draft",
+      onSuccess: () => setDraftSaved(true),
+    });
+  } catch (err) {
+    showApiError(err, { title: "Failed to Save Draft" });
+  }
+};
 
   const handleBack = () => {
     if (!isFirst) setStepIndex((i) => i - 1);
   };
 
   const handleContinue = async () => {
-    const missing = getMissingFields();
-    if (missing.length > 0) {
-      showMissingFieldsAlert(missing);
-      return;
-    }
+  const missing = getMissingFields();
+  if (missing.length > 0) {
+    showMissingFieldsAlert(missing);
+    return;
+  }
 
-    if (isLast) {
-      const payload = buildEventPayload({ formData, draftStore, existingId });
-      setSubmitting(true);
-      try {
-        const res = await addupadtevent(payload);
-        showApiResult(res, {
-          successTitle: "Event Submitted",
-          errorTitle: "Failed to Submit Event",
-          onSuccess: () => onSubmit?.(res.data),
-        });
-      } catch (err) {
-        showApiError(err, { title: "Failed to Submit Event" });
-      } finally {
-        setSubmitting(false);
-      }
-    } else {
-      setStepIndex((i) => i + 1);
+  if (isLast) {
+    const payload = buildEventPayload({ formData, draftStore, existingId });
+    setSubmitting(true);
+    try {
+      const res = await addupadtevent(payload);
+      showApiResult(res, {
+        successTitle: "Event Submitted",
+        errorTitle: "Failed to Submit Event",
+        onSuccess: () => {
+          draftStore.resetDraft?.();
+          onSubmit?.(res.data);
+          navigate("/calendar");
+        },
+      });
+    } catch (err) {
+      showApiError(err, { title: "Failed to Submit Event" });
+    } finally {
+      setSubmitting(false);
     }
-  };
+  } else {
+    setStepIndex((i) => i + 1);
+  }
+};
 
   const StepComponent = step.Component;
 

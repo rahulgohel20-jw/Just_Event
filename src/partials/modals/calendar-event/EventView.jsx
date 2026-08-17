@@ -52,9 +52,11 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData }) => {
           <div class="flex flex-col gap-3 lg:gap-4 grow">
             <div class="flex flex-col">
               <p className="text-gray-700">Date:</p>
-              <h4 className="text-gray-900 font-semibold">
-                {eventData.event.start.toLocaleDateString("en-CA")}
-              </h4>
+             <h4 className="text-gray-900 font-semibold">
+  {eventData?.event?.start
+    ? eventData.event.start.toLocaleDateString("en-CA")
+    : "—"}
+</h4>
             </div>
             <div class="flex flex-col">
               <p className="text-gray-700">Mobile:</p>
