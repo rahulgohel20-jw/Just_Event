@@ -14,6 +14,7 @@ import PresentationModel from "../models/PresentationModel";
 import ChatBoxModel from "../models/ChatBoxModel";
 import InfoModel from "../models/InfoModel";
 import PrintModel from "../models/PrintModel";
+import DateField from "../../../components/form-inputs/DatePicker/Datefield";
 
 const OPTIONS = [
   { value: "Completed", label: "Completed" },
@@ -124,11 +125,10 @@ export default function NewEstimate({
   placeholder="Location Name"
 />
 
-            <Input
+            <DateField
               label="ESTIMATE DATE"
-              type="date"
               value={estimateDate}
-              onChange={(e) => onEstimateDateChange(e.target.value)}
+              onChange={onEstimateDateChange}
             />
 
             <SelectInput

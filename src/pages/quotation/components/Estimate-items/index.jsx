@@ -1,11 +1,15 @@
-import { useMemo, useState } from "react";
-import { Search, Plus, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Search, Plus, Sparkles, Loader2, ChevronDown } from "lucide-react";
 import { TableComponent } from "@/components/table/TableComponent";
+import { getallmenuitem } from "@/services/apiServices";
 import {
   getEstimateColumns,
   DEFAULT_PAGINATION_SIZE,
   DEFAULT_SORTING,
 } from "./constant";
+import { AddMenuitemmaster } from "../../../Master/MenuItemMaster/menuitemmaster/AddMenuitemmaster";
+
+const SUGGESTION_PAGE_SIZE = 8;
 
 const EstimateItems = ({
   items = [],
@@ -17,13 +21,124 @@ const EstimateItems = ({
 }) => {
   const [search, setSearch] = useState("");
 
+  // Quick Add dropdown state
+  const [suggestions, setSuggestions] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [page, setPage] = useState(0);
+  const [isLastPage, setIsLastPage] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+
+  // Generate Item -> Add Menu Item modal
+  const [generateModalOpen, setGenerateModalOpen] = useState(false);
+
   const filteredData = useMemo(() => {
     return items.filter((item) =>
-      (item.description ?? item.itemName ?? "")
+      (item.itemName ?? item.description ?? "")
         .toLowerCase()
         .includes(search.toLowerCase())
     );
   }, [items, search]);
+
+  // Builds a new table row. Field names match getEstimateColumns AND the
+  // EventEstimateItemRequestDto shape (menuItemId, discount, discountRate,
+  // qty, rate, size, sqFt) so nothing needs remapping at save time.
+  const buildItemRow = ({
+    menuItemId = null,
+    itemName = "New Item",
+    description = "",
+    image = "",
+    qty = 1,
+    rate = 0,
+    discountRate = 0,
+    size = "",
+    sqft = "",
+  }) => ({
+    id: Date.now() + Math.floor(Math.random() * 1000), // client-only temp id
+    menuItemId,
+    itemName,
+    description: description || itemName,
+    image,
+    qty: Number(qty || 0),
+    rate: Number(rate || 0),
+    discountRate: Number(discountRate || 0),
+    size,
+    sqft,
+    sqFt: sqft, // alias for the payload's exact casing
+  });
+
+  // Applies a single field edit (from the table's inline inputs) to an item
+  const updateItemField = (id, field, value) => {
+    onItemsChange(
+      items.map((item) => {
+        if (item.id !== id) return item;
+        const isNumericField = ["qty", "rate", "discountRate"].includes(field);
+        const nextValue = isNumericField ? value : value;
+        const updated = { ...item, [field]: nextValue };
+        if (field === "sqft") updated.sqFt = value; // keep alias in sync
+        return updated;
+      })
+    );
+  };
+
+  const handleDescriptionChange = (id, value) => {
+    onItemsChange(
+      items.map((item) => (item.id === id ? { ...item, description: value } : item))
+    );
+  };
+
+  const fetchMenuItems = async (query, pageNum, append) => {
+    if (append) setLoadingMore(true);
+    else setSearching(true);
+
+    try {
+      const res = await getallmenuitem({
+        page: pageNum,
+        size: SUGGESTION_PAGE_SIZE,
+        nameEnglish: query,
+        isActive: true,
+        sortBy: "id",
+        sortDirection: "ASC",
+      });
+
+      const body = res?.data ?? res;
+      // Response shape: { data: { content, last, totalPages, ... }, msg, success }
+      const pageData = body?.data ?? body;
+      const content = pageData?.content ?? [];
+      const last = pageData?.last ?? true;
+
+      setSuggestions((prev) => (append ? [...prev, ...content] : content));
+      setIsLastPage(last);
+      setPage(pageNum);
+      setHasLoadedOnce(true);
+    } catch {
+      if (!append) setSuggestions([]);
+    } finally {
+      setSearching(false);
+      setLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      fetchMenuItems(search, 0, false);
+    }, 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
+  const handleFocus = () => {
+    setShowSuggestions(true);
+    if (!hasLoadedOnce && !searching) {
+      fetchMenuItems(search, 0, false);
+    }
+  };
+
+  const handleLoadMore = () => {
+    if (isLastPage || loadingMore) return;
+    fetchMenuItems(search, page + 1, true);
+  };
 
   const updateSummary = (field, value) =>
     onSummaryChange((prev) => ({ ...prev, [field]: value }));
@@ -36,27 +151,66 @@ const EstimateItems = ({
     onItemsChange([]);
   };
 
-  const handleAdd = () => {
-    // TODO: wire to your item picker / search-select flow
+  const handleImageUpload = (id, file) => {
+    if (!file) return;
+    const previewUrl = URL.createObjectURL(file);
+    onItemsChange(
+      items.map((item) =>
+        item.id === id
+          ? { ...item, image: previewUrl, imageFile: file }
+          : item
+      )
+    );
+  };
+
+  // Adds a single item picked from the Quick Add suggestion dropdown
+  const addMenuItemToEstimate = (menuItem) => {
     onItemsChange([
       ...items,
-      {
-        id: Date.now(),
-        rawItemId: null,
-        description: search || "New Item",
-        qty: 1,
-        rate: 0,
-        discountRate: 0,
-        size: "",
-        sqFt: "",
-      },
+      buildItemRow({
+        menuItemId: menuItem.id,
+        itemName: menuItem.nameEnglish,
+        description: menuItem.description,
+        rate: menuItem.rate ?? menuItem.price ?? 0,
+      }),
     ]);
     setSearch("");
+    setShowSuggestions(false);
+  };
+
+  // Called by AddMenuitemmaster's onSave once the new menu item is created
+  const handleMenuItemCreated = (savedItem) => {
+    if (!savedItem) return;
+    onItemsChange([
+      ...items,
+      buildItemRow({
+        menuItemId: savedItem.id,
+        itemName: savedItem.nameEnglish,
+        description: savedItem.description,
+        rate: savedItem.rate ?? savedItem.price ?? 0,
+      }),
+    ]);
+  };
+
+  // Fallback: manual free-text add (Add button)
+  const handleAdd = () => {
+    onItemsChange([
+      ...items,
+      buildItemRow({
+        menuItemId: null,
+        itemName: search || "New Item",
+      }),
+    ]);
+    setSearch("");
+    setShowSuggestions(false);
   };
 
   const columns = getEstimateColumns({
     onEdit: (row) => console.log("Edit", row),
     onDelete: handleDelete,
+    onDescriptionChange: handleDescriptionChange,
+    onImageUpload: handleImageUpload,
+    onFieldChange: updateItemField,
   });
 
   const cgstAmount = (amountAfterDiscount * Number(summary.cgst || 0)) / 100;
@@ -98,8 +252,64 @@ const EstimateItems = ({
               placeholder="Search decor, lighting, catering..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onFocus={handleFocus}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
               className="h-11 w-full rounded-lg border border-dashed border-dark pl-10 pr-4 text-sm outline-none focus:border-primary text-dark"
             />
+
+            {showSuggestions && (
+              <div className="absolute z-10 mt-1 w-full rounded-lg border bg-white shadow-lg max-h-72 overflow-y-auto">
+                {searching ? (
+                  <div className="flex items-center gap-2 px-4 py-3 text-sm text-gray-500">
+                    <Loader2 size={14} className="animate-spin" />
+                    Loading...
+                  </div>
+                ) : suggestions.length ? (
+                  <>
+                    {suggestions.map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onMouseDown={() => addMenuItemToEstimate(m)}
+                        className="w-full flex items-center justify-between px-4 py-2 text-left text-sm hover:bg-gray-50"
+                      >
+                        <span>{m.nameEnglish}</span>
+                        {(m.rate ?? m.price) != null && (
+                          <span className="text-gray-500">
+                            ₹{m.rate ?? m.price}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+
+                    {!isLastPage && (
+                      <button
+                        type="button"
+                        onMouseDown={handleLoadMore}
+                        disabled={loadingMore}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 text-xs font-semibold text-primary hover:bg-gray-50 disabled:opacity-60"
+                      >
+                        {loadingMore ? (
+                          <>
+                            <Loader2 size={13} className="animate-spin" />
+                            Loading more...
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown size={13} />
+                            Load more
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div className="px-4 py-3 text-sm text-gray-500">
+                    No items found
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Add Button */}
@@ -111,9 +321,9 @@ const EstimateItems = ({
             Add
           </button>
 
-          {/* Generate Button */}
+          {/* Generate Button -> opens Add Menu Item modal */}
           <button
-            onClick={() => console.log("Generate")}
+            onClick={() => setGenerateModalOpen(true)}
             className="flex h-11 items-center justify-center gap-2 text-sm rounded-lg bg-primary px-6 font-medium text-white hover:opacity-90"
           >
             <Sparkles size={16} />
@@ -292,6 +502,12 @@ const EstimateItems = ({
           </div>
         </div>
       </div>
+
+      <AddMenuitemmaster
+        open={generateModalOpen}
+        onClose={() => setGenerateModalOpen(false)}
+        onSave={handleMenuItemCreated}
+      />
     </div>
   );
 };
