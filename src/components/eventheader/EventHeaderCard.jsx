@@ -1,20 +1,18 @@
-import React from 'react';
-import { Button, Typography, Input, Select, DatePicker, TimePicker } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button, Typography, Input, Select, Spin } from 'antd';
 import {
-  SaveOutlined,
   PrinterOutlined,
   RedoOutlined,
   CheckSquareOutlined,
   DesktopOutlined,
   ExportOutlined,
 } from '@ant-design/icons';
-import dayjs from 'dayjs';
 import DateTimeField from '../form-inputs/DatePicker/DateTimeField';
+import { getalluser } from '@/services/apiServices';
 
 const { Text, Title, Link } = Typography;
 
 const DEFAULT_ACTIONS = [
-  { key: 'save', icon: <SaveOutlined />, label: 'Save', primary: true, handlerProp: 'onSave' },
   { key: 'print', icon: <PrinterOutlined />, label: 'Print', handlerProp: 'onPrint' },
   { key: 'total', icon: <RedoOutlined />, label: 'Total', handlerProp: 'onTotal' },
   { key: 'status', icon: <CheckSquareOutlined />, label: 'Status', handlerProp: 'onStatus' },
@@ -22,9 +20,6 @@ const DEFAULT_ACTIONS = [
   { key: 'goto', icon: <ExportOutlined />, label: 'Go To', handlerProp: 'onGoTo' },
 ];
 
-/* ------------------------------------------------------------------ */
-/* Small local field bits — inline here, not shared.                   */
-/* ------------------------------------------------------------------ */
 const FieldLabel = ({ children }) => (
   <Text type="secondary" className="block !text-xs font-semibold uppercase tracking-wide mb-2">
     {children}
@@ -56,17 +51,129 @@ const ReadField = ({ label, value, underline, onClick }) => (
   </div>
 );
 
+const inchargeDisplayName = (user) =>
+  [user.firstName, user.lastName].filter(Boolean).join(' ').trim() ||
+  user.email ||
+  user.companyName ||
+  `User #${user.id}`;
+
+const InchargeSelect = ({ value, onChange }) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const debounceRef = useRef(null);
+
+  const fetchOptions = async (query) => {
+    setLoading(true);
+    try {
+      const res = await getalluser({
+        cityId: null,
+        clientId: null,
+        companyName: '',
+        countryId: null,
+        isActive: true,
+        isBlock: false,
+        page: 0,
+        roleId: null,
+        search: query || '',
+        size: 20,
+        sortBy: 'id',
+        sortDirection: 'DESC',
+        stateId: null,
+        userType: 'MEMBER',
+      });
+      const body = res?.data ?? res;
+      const content = body?.data?.content ?? [];
+      setOptions((prev) => {
+        const fetched = content.map((user) => ({ value: user.id, label: inchargeDisplayName(user) }));
+        const preserved = value != null ? prev.filter((o) => o.value === value && !fetched.some((f) => f.value === o.value)) : [];
+        return [...preserved, ...fetched];
+      });
+      setHasLoadedOnce(true);
+    } catch (err) {
+      console.error('Failed to fetch production incharge list:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (text) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchOptions(text), 300);
+  };
+
+  const handleFocus = () => {
+    if (!hasLoadedOnce && !loading) fetchOptions('');
+  };
+
+  // A preselected incharge id (e.g. loaded from a saved record) has no
+  // matching option until the user opens/searches this select, so antd
+  // renders the raw id instead of a name. Resolve it once in the
+  // background so the label shows immediately on load.
+  useEffect(() => {
+    if (value == null) return;
+    if (options.some((o) => o.value === value)) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await getalluser({
+          cityId: null,
+          clientId: null,
+          companyName: '',
+          countryId: null,
+          isActive: null,
+          isBlock: null,
+          page: 0,
+          roleId: null,
+          search: '',
+          size: 1000,
+          sortBy: 'id',
+          sortDirection: 'DESC',
+          stateId: null,
+          userType: 'MEMBER',
+        });
+        const body = res?.data ?? res;
+        const content = body?.data?.content ?? [];
+        const match = content.find((u) => u.id === value);
+        if (match && !cancelled) {
+          setOptions((prev) => (prev.some((o) => o.value === value) ? prev : [...prev, { value: match.id, label: inchargeDisplayName(match) }]));
+        }
+      } catch (err) {
+        console.error('Failed to resolve production incharge label:', err);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return (
+    <Select
+      showSearch
+      allowClear
+      style={{ width: '100%' }}
+      value={value ?? undefined}
+      onChange={onChange}
+      onSearch={handleSearch}
+      onFocus={handleFocus}
+      filterOption={false}
+      placeholder="Select Incharge"
+      options={options}
+      notFoundContent={loading ? <Spin size="small" /> : 'No members found'}
+    />
+  );
+};
+
 /**
  * The header card shared by every "event x" page (Event Flower, Event
  * Lighting, etc.): title + toolbar, the read-only event summary row, and the
  * Reference / Incharge / Note + Setup / Dismantling inputs.
  *
- * The page below it (item list / catalog) stays page-specific and is not
- * part of this component — only wire up what differs page to page (title,
- * toolbar handlers, incharge options) via props.
- *
  * Pass `actions` to fully replace the default toolbar buttons; otherwise the
- * standard Save/Print/Total/Status/Presentation/Go To set is used, wired to
+ * standard Print/Total/Status/Presentation/Go To set is used, wired to
  * whichever on* handler props you pass (unset ones just render with no
  * onClick).
  */
@@ -80,7 +187,6 @@ const EventHeaderCard = ({
 
   incharge,
   onInchargeChange,
-  inchargeOptions = [],
 
   note,
   onNoteChange,
@@ -141,16 +247,7 @@ const EventHeaderCard = ({
         </div>
         <div>
           <FieldLabel>Production Incharge</FieldLabel>
-          <Select
-            showSearch
-            allowClear
-            style={{ width: '100%' }}
-            value={incharge || undefined}
-            onChange={onInchargeChange}
-            placeholder="Select Incharge"
-            optionFilterProp="label"
-            options={inchargeOptions.map((o) => ({ value: o, label: o }))}
-          />
+          <InchargeSelect value={incharge} onChange={onInchargeChange} />
         </div>
         <div>
           <FieldLabel>Note</FieldLabel>
@@ -162,24 +259,24 @@ const EventHeaderCard = ({
         </div>
       </div>
 
- <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-  <div>
-    <FieldLabel>Setup</FieldLabel>
-    <DateTimeField
-      value={setUpDateTime}
-      onChange={onSetUpDateTimeChange}
-      placeholder="DD/MM/YYYY hh:mm A"
-    />
-  </div>
-  <div>
-    <FieldLabel>Dismantling</FieldLabel>
-    <DateTimeField
-      value={dismantlingDateTime}
-      onChange={onDismantlingDateTimeChange}
-      placeholder="DD/MM/YYYY hh:mm A"
-    />
-  </div>
-</div>
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div>
+          <FieldLabel>Setup</FieldLabel>
+          <DateTimeField
+            value={setUpDateTime}
+            onChange={onSetUpDateTimeChange}
+            placeholder="DD/MM/YYYY hh:mm A"
+          />
+        </div>
+        <div>
+          <FieldLabel>Dismantling</FieldLabel>
+          <DateTimeField
+            value={dismantlingDateTime}
+            onChange={onDismantlingDateTimeChange}
+            placeholder="DD/MM/YYYY hh:mm A"
+          />
+        </div>
+      </div>
     </div>
   );
 };
