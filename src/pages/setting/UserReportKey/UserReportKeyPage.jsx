@@ -96,7 +96,7 @@ const UserReportKeyPage = () => {
 
   const handleSave = async () => {
     const payload = reportKeys.map((rk) => ({
-      id: rk.id ?? 0,
+      id: rk.id ?? null,
       isEnabled: rk.isEnabled,
       reportKeyId: rk.reportKeyId,
     }));

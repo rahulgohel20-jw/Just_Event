@@ -325,7 +325,14 @@ export const MENU_SIDEBAR = [
       title:"Trip Master ",
       path:"/tripmaster",
      },
-    
+     {
+        title:"Role Master",
+        path: '/rolemaster'
+      },
+      {
+        title:"User Master",
+        path:"/allmember",
+      },
     ],
   },
   // {
@@ -521,6 +528,7 @@ export const superAdminMenuItems = [
       {title:"Report Key " , path: "/reporkeymaster"},
       {title: "Theme Name" , path:"/templatenamemaster"},
       {title:"Theme Type " , path :"/templatetypemaster"},
+      {title:"All Theme " , path:"/alltheme"},
     ],
   },
 ];
