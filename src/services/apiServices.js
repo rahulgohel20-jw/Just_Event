@@ -76,6 +76,35 @@ export const getAllCategoryTypemaster = (data) => {
     return POST(`/category-type/list`, data);
 };
 
+
+//trip master
+export const AddTrip = (data) => {
+    return POST(`/trip-master/add-update`, data);
+};
+
+export const DeleteTrip = (id) => {
+    return DELETE(`/trip-master/deletebyid?tripId=${id}`);
+};
+
+
+export const GetAllTrip = (data) => {
+    return POST(`/trip-master/list`, data);
+};
+
+// transportation master 
+export const AddTransportation = (data) => {
+    return POST(`/transportation-master/add-update`, data);
+};
+
+export const DeleteTransportation = (id) => {
+    return DELETE(`/transportation-master/deletebyid?id=${id}`);
+};
+
+export const GetAllTransportaion = (data) => {
+    return POST(`/transportation-master/list`, data);
+};
+
+
 //eventtype
 export const getAllEventTypemaster = (data) => {
     return POST(`/event-type/list`, data);
@@ -439,13 +468,35 @@ export const GetAllPresentation = (data) => {
 }
 
 export const DeletePresenation = (id) => {
-    return GET(`/event-media/delete?id=${id}`);
+    return DELETE(`/event-media/delete?id=${id}`);
 }
 
 
 export const ApprovedPresentation = (data) => {
     return POST(`/event-media/approve`,data);
 }
+
+export const AddFollowUp = (data) => {
+    return POST(`/event-followup/add-update`,data);
+};
+
+export const GetFollowUp = (data) => {
+    return POST(`/event-followup/list`,data);
+};
+
+export const DeleteFollowUp = (id) => {
+    return DELETE(`/event-followup/delete?id=${id}`);
+}
+
+
+export const ApproveFollowUp = (done,id) => {
+    return PATCH(`/event-followup/mark-done?done=${done}&id=${id}`);
+};
+
+
+
+
+
 
 export const GetAllEventExecution = (data) => {
     return POST(`/event-function-execution/list`,data);
@@ -463,6 +514,19 @@ export const updatereportkey = (data, userId) => {
 };
 export const getalluserwisereportkey = (data) => {
     return POST(`/user-report-key/list`,data);
+};
+
+
+export const GetEventExecutionFunction = (eventFunctionId ) => {
+    return GET(`/event-function-execution/get-by-function?eventFunctionId=${eventFunctionId}`);
+}
+// event function transportation
+export const AddUpdateEventFunctionTransportation = (data) => {
+    return POST(`/event-function-transportation/add-update`, data);
+};
+
+export const GetEventFunctionTransportation = (eventFunctionId) => {
+    return GET(`/event-function-transportation/getbyeventfunctionid?eventFunctionId=${eventFunctionId}`);
 };
 
 //addtheme

@@ -180,6 +180,9 @@ import { MenuItemCategoryMaster } from "../pages/Master/MenuItemMaster/Menuitemc
 import { MenuItemMaster } from "../pages/Master/MenuItemMaster/menuitemmaster";
 import QuotationPage from "../pages/quotation";
 import { UserReportKeyPage } from "../pages/setting/UserReportKey/UserReportKeyPage";
+import TripMaster from "../pages/Master/TripMaster/TripMaster";
+import TransportationMaster from "../pages/Master/TransportationMaster/TransportationMaster";
+import EventTransportation from "../pages/Event/EventTransportation/EventTransportation";
 import { MenuReportThemesPage } from "../pages/Master/Theme_Template_Master/All_Theme";
 import UserMaster from "../pages/Master/user_master";
 const AppRoutingSetup = () => {
@@ -240,8 +243,10 @@ const AppRoutingSetup = () => {
            <Route path="/new-making" element={<EventNewMaking />}/>
            <Route path="/godown" element={<EventGodown />}/>
               <Route path="/labour-agency" element={<EventLabourAgency />}/>
+              <Route path="/transportation" element={<EventTransportation />}/>
 
-
+            <Route path="/tripmaster" element={<TripMaster />}/>
+            <Route path="/transportationmaster" element={<TransportationMaster />}/>
             <Route path="/rolemaster" element={<RoleMaster />} />
 
             <Route path="/company" element={<CompanyListPage />}></Route>

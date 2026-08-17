@@ -5,6 +5,9 @@ import { useMenus } from '@/providers';
 import { usePathname } from '@/providers';
 import { MENU_CREATE_EVENT_SIDEBAR, MENU_INVENTORY_SIDEBAR } from '@/config/menu.config';
 import { useMenu } from '../../../hooks/useMenu';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { buildModuleUrl } from '../../../config/eventModuleLinks';
+
 
 
 const SidebarMenu = () => {
@@ -20,6 +23,13 @@ const SidebarMenu = () => {
   const accordionLinkGap = ['gap-[10px]', 'gap-[14px]', 'gap-[5px]', 'gap-[5px]', 'gap-[5px]', 'gap-[5px]'];
   const accordionPl = ['ps-[10px]', 'ps-[22px]', 'ps-[22px]', 'ps-[22px]', 'ps-[22px]', 'ps-[22px]'];
   const accordionBorderLeft = ['before:start-[20px]', 'before:start-[32px]', 'before:start-[32px]', 'before:start-[32px]', 'before:start-[32px]'];
+
+
+  const { eventId: routeEventId } = useParams();
+const [searchParams] = useSearchParams();
+const currentEventId = routeEventId ?? searchParams.get('eventId');
+
+
 
   const buildMenu = items => {
     return items.map((item, index) => {
@@ -174,14 +184,18 @@ const SidebarMenu = () => {
   const { pathname } = usePathname();
 
   const isInventoryRoute = pathname.startsWith('/inventory');
-  const CREATE_EVENT_ROUTES = ['/creteEvent', '/quotation', '/execution', '/flower','/lighting','/ledwall','/sound','/mandap','/furniture', '/artist-entertainment','/printing','/outsource-agency','/new-making','/godown','/labour-agency'];
-  const isCreateEvent = CREATE_EVENT_ROUTES.some(route => pathname.startsWith(route));
+  const CREATE_EVENT_ROUTES = ['/creteEvent', '/quotation', '/execution', '/flower','/lighting','/ledwall','/sound','/mandap','/furniture', '/artist-entertainment','/printing','/outsource-agency','/new-making','/godown','/labour-agency','/transportation'];
+const isCreateEvent = CREATE_EVENT_ROUTES.some(route => pathname.startsWith(route));
 
   const menuConfig = isInventoryRoute
-    ? [backItem, ...MENU_INVENTORY_SIDEBAR]
-    : isCreateEvent
-    ? MENU_CREATE_EVENT_SIDEBAR
-    : menu;
+  ? [backItem, ...MENU_INVENTORY_SIDEBAR]
+  : isCreateEvent
+  ? MENU_CREATE_EVENT_SIDEBAR.map((item) => ({
+      ...item,
+      // rewrite bare paths to carry the current eventId forward
+      path: item.path === '/' ? item.path : buildModuleUrl(item.path, currentEventId),
+    }))
+  : menu;
 
   return <Menu highlight={true} multipleExpand={false} className={clsx('flex flex-col grow min-h-0 overflow-y-auto', itemsGap)}>
       {menuConfig && buildMenu(menuConfig)}

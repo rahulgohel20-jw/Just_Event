@@ -1,24 +1,8 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search, X } from "lucide-react";
-// API integration intentionally removed for now — Save just calls onSaved
-// with the locally selected list. Wire up a real "Manage Raw Materials"
-// save endpoint here later.
 
-/**
- * ManageMaterialsSidebar
- * ------------------------------------------------------------------
- * Slide-in sidebar modal (right-docked) used to attach inventory
- * categories to a single decoration/execution item.
- *
- * Props
- *  - open      : boolean              controls visibility
- *  - item      : { id, name } | null  the execution item being edited
- *  - materials : string[]             full list of selectable material categories
- *  - selected  : string[]             material categories already checked for `item`
- *  - onClose   : () => void
- *  - onSaved   : (item, selectedList: string[]) => void   called after a successful save
- */
+
 export default function ManageMaterialsSidebar({
   open,
   item,

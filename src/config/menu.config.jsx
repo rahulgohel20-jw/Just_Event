@@ -317,6 +317,14 @@ export const MENU_SIDEBAR = [
       title:"Menu Item ",
       path:"/menuitemmaster",
      },
+      {
+      title:"Transportation Master ",
+      path:"/transportationmaster",
+     },
+     {
+      title:"Trip Master ",
+      path:"/tripmaster",
+     },
      {
         title:"Role Master",
         path: '/rolemaster'
@@ -414,6 +422,11 @@ export const MENU_CREATE_EVENT_SIDEBAR = [
     icon: "ki-filled ki-microphone-2 text-primary",
     path: "/sound"
   },
+  {
+  title: "Event Transportation",
+  icon: "ki-filled ki-delivery-3",
+  path: "/transportation",
+},
   {
     title: "Event Mandap",
     icon: "ki-filled ki-home-2 text-primary",
