@@ -78,7 +78,7 @@ const AddTheme = ({ open, onClose, onSave, initialData }) => {
     setSubmitting(true);
     try {
       const payload = {
-        id: form.id ?? 0,
+        id: form.id ?? null,
         backOfficeDescription: form.backOfficeDescription,
         description: form.description,
         isDefault: form.isDefault,

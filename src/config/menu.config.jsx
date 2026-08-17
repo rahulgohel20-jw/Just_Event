@@ -317,7 +317,14 @@ export const MENU_SIDEBAR = [
       title:"Menu Item ",
       path:"/menuitemmaster",
      },
-    
+     {
+        title:"Role Master",
+        path: '/rolemaster'
+      },
+      {
+        title:"User Master",
+        path:"/allmember",
+      },
     ],
   },
   // {

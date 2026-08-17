@@ -431,7 +431,28 @@ export const getalluserwisereportkey = (data) => {
     return POST(`/user-report-key/list`,data);
 };
 
+//addtheme
 export const addupdatetheme = (data) => {
     return POST(`/template-master/add-update`,data);
 };
 
+export const getallthememaster = (data) => {
+    return POST(`/template-master/list`,data);
+};
+
+export const getbyidthememaster = (templateMasterId) =>{
+    return GET(`/template-master/getbyid?templateMasterId=${itemplateMasterId}`);
+};
+
+export const deletebytemplatemasterid = (templateMasterId) => {
+    return DELETE(`/template-master/deletebyid?templateMasterId=${templateMasterId}`);
+};
+
+//usermember 
+export const getalluser = (data) =>{
+    return POST(`/users/list`,data);
+};
+
+export const getbyiduser = (id) => {
+    return GET(`/users/get?id=${id}`);
+};

@@ -10,10 +10,11 @@ import {
   ChevronRight,
   ChevronLeft,
 } from "lucide-react";
-import { getalltheme, deletetheme } from "@/services/apiServices";
+import { getallthememaster, getbyidthememaster, deletetheme } from "@/services/apiServices"; // TODO: confirm real deletetheme function name — not yet given
+import { getalltheme } from "@/services/apiServices"; // modules/tabs list (/template-module/list)
 import { confirmDelete, showApiResult, showApiError } from "@/utils/swalHelpers";
 import { ContentLoader } from "@/components/loaders/ContentLoader";
-import { AddTheme } from "./AddTheme"; // TODO: confirm actual path to AddTheme.jsx
+import { AddTheme } from "./AddTheme"; // TODO: confirm actual path/filename
 
 const PAGE_SIZE = 10;
 const DEBOUNCE_MS = 400;
@@ -29,8 +30,7 @@ const MenuReportThemesPage = () => {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  // AddTheme modal state
-  const [themeModalOpen, setThemeModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [editingTheme, setEditingTheme] = useState(null);
 
   const debounceRef = useRef(null);
@@ -49,7 +49,7 @@ const MenuReportThemesPage = () => {
           isAutoAssign: null,
           nameEnglish: "",
           page: 0,
-          size: 50,
+          size: 50, // TODO: paginate this properly if there can be more than ~50 modules
           sortBy: "id",
           sortDirection: "DESC",
         });
@@ -68,27 +68,23 @@ const MenuReportThemesPage = () => {
     };
   }, []);
 
-  // TODO: THIS IS THE MISSING PIECE. Need the real endpoint that returns
-  // actual theme cards (name + preview image) scoped to a template module.
   const fetchThemes = useCallback(
     async (pageToLoad, { append } = {}) => {
       if (!activeTab) return;
       append ? setLoadingMore(true) : setLoading(true);
       try {
-        // const res = await getallreporttheme({
-        //   nameEnglish: search,
-        //   page: pageToLoad,
-        //   size: PAGE_SIZE,
-        //   sortBy: "id",
-        //   sortDirection: "DESC",
-        //   templateMappingId: activeTab,
-        // });
-        // const data = res?.data?.data;
-        // const list = data?.content ?? [];
-        // setThemes((prev) => (append ? [...prev, ...list] : list));
-        // setTotalElements(data?.totalElements ?? list.length);
-        setThemes([]);
-        setTotalElements(0);
+        const res = await getallthememaster({
+          nameEnglish: search,
+          page: pageToLoad,
+          size: PAGE_SIZE,
+          sortBy: "id",
+          sortDirection: "DESC",
+          templateModuleId: activeTab,
+        });
+        const data = res?.data?.data;
+        const list = data?.content ?? [];
+        setThemes((prev) => (append ? [...prev, ...list] : list));
+        setTotalElements(data?.totalElements ?? list.length);
         setPage(pageToLoad);
       } catch (err) {
         showApiError(err, { title: "Failed to load themes" });
@@ -132,8 +128,11 @@ const MenuReportThemesPage = () => {
     return () => observer.disconnect();
   }, [fetchThemes, hasMore, loading, loadingMore, page]);
 
+  // TODO: no count field (like the 253/10/5/4 badges in your screenshot)
+  // appears anywhere on the module objects. Badges omitted until confirmed.
+
   const handleDelete = async (theme) => {
-    const confirmed = await confirmDelete(theme.nameEnglish);
+    const confirmed = await confirmDelete(theme.name);
     if (!confirmed) return;
     try {
       const res = await deletetheme(theme.id);
@@ -143,32 +142,34 @@ const MenuReportThemesPage = () => {
     }
   };
 
-  const handleOpenAddTheme = () => {
-    setEditingTheme(null);
-    setThemeModalOpen(true);
-  };
-
-  const handleOpenEditTheme = (theme) => {
-    setEditingTheme(theme);
-    setThemeModalOpen(true);
-  };
-
-  const handleCloseThemeModal = () => {
-    setThemeModalOpen(false);
-    setEditingTheme(null);
-  };
-
-  const handleThemeSaved = () => {
-    // AddTheme already shows success/error toasts internally, just refresh + close
-    handleCloseThemeModal();
-    fetchThemes(0, { append: false });
-  };
-
   const scrollTabs = (dir) => {
     tabsScrollRef.current?.scrollBy({ left: dir * 220, behavior: "smooth" });
   };
 
-  const activeTabLabel = tabs.find((t) => t.id === activeTab)?.nameEnglish;
+  const handleAddTheme = () => {
+    // pre-fill templateModuleId with the tab (Theme) the user is currently
+    // viewing; templateMappingId (Theme Type Master) still needs picking
+    // since it's scoped/dependent on the module and can't be assumed
+    setEditingTheme({ templateModuleId: activeTab });
+    setModalOpen(true);
+  };
+
+  const handleEditTheme = async (theme) => {
+    try {
+      const res = await getbyidthememaster(theme.id);
+      const full = res?.data?.data ?? theme;
+      setEditingTheme(full);
+      setModalOpen(true);
+    } catch (err) {
+      showApiError(err, { title: "Failed to load theme" });
+    }
+  };
+
+  const handleModalSave = () => {
+    setModalOpen(false);
+    setEditingTheme(null);
+    fetchThemes(0, { append: false });
+  };
 
   return (
     <div className="p-6">
@@ -211,8 +212,7 @@ const MenuReportThemesPage = () => {
         <button
           type="button"
           className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-red-900"
-          onClick={handleOpenAddTheme}
-          disabled={!activeTab}
+          onClick={handleAddTheme}
         >
           <UploadCloud size={16} />
           Add Theme
@@ -282,9 +282,8 @@ const MenuReportThemesPage = () => {
               <ThemeCard
                 key={theme.id}
                 theme={theme}
-                tabLabel={activeTabLabel}
                 onDelete={() => handleDelete(theme)}
-                onEdit={() => handleOpenEditTheme(theme)}
+                onEdit={() => handleEditTheme(theme)}
                 onPreview={() => {}} // TODO: wire preview action
               />
             ))}
@@ -300,31 +299,28 @@ const MenuReportThemesPage = () => {
       )}
 
       <AddTheme
-        open={themeModalOpen}
-        onClose={handleCloseThemeModal}
-        onSave={handleThemeSaved}
-        initialData={
-          editingTheme
-            ? editingTheme
-            : activeTab
-            ? { templateMappingId: activeTab }
-            : null
-        }
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setEditingTheme(null);
+        }}
+        onSave={handleModalSave}
+        initialData={editingTheme}
       />
     </div>
   );
 };
 
-const ThemeCard = ({ theme, tabLabel, onDelete, onEdit, onPreview }) => (
+const ThemeCard = ({ theme, onDelete, onEdit, onPreview }) => (
   <div className="group">
     <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-gray-100">
-      {theme.imageUrl ? (
-        <img src={theme.imageUrl} alt={theme.nameEnglish} className="h-full w-full object-cover" />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
-          No preview
-        </div>
-      )}
+      {/* No image field exists anywhere in the confirmed /template-master/list
+          response (id, templateModuleId, templateModuleName, templateMappingId,
+          templateMappingName, name, description, backOfficeDescription, price,
+          isDefault) — this data model has no theme preview image at all. */}
+      <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+        No preview
+      </div>
 
       <div className="absolute top-3 right-3 flex flex-col gap-2">
         <IconButton icon={Eye} onClick={onPreview} />
@@ -332,8 +328,13 @@ const ThemeCard = ({ theme, tabLabel, onDelete, onEdit, onPreview }) => (
         <IconButton icon={Trash2} onClick={onDelete} iconClassName="text-red-500" />
       </div>
     </div>
-    <p className="mt-3 text-sm font-semibold text-primary">{theme.nameEnglish}</p>
-    <p className="text-xs text-gray-400">{tabLabel}</p>
+    <p className="mt-3 text-sm font-semibold text-primary">{theme.name}</p>
+    <p className="text-xs text-gray-400">{theme.templateMappingName}</p>
+    {theme.isDefault && (
+      <span className="mt-1 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+        Default
+      </span>
+    )}
   </div>
 );
 
