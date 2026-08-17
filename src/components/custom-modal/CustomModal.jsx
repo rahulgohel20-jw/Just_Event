@@ -47,7 +47,7 @@ const CustomModal = ({ open, onClose, children, footer,centered, title, ...rest 
       title={
         title ? (
           <div>
-            <div className="flex justify-between items-center p-2">
+            <div className="flex justify-between items-center p-4">
               <span className="text-base font-medium">{title}</span>
               <button
                 type="text"

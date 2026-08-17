@@ -30,12 +30,10 @@ function emptyClient(clientType) {
 export default function ClientDetails({ data, onChange }) {
   const addBrideGroom = !!data.addBrideGroom;
   const clients = data.clients?.length ? data.clients : [emptyClient("groom")];
-
-  // Newly-created clients pushed here so PaginatedSearchSelect shows them
-  // immediately, without a refetch.
+ 
+  
   const [extraClients, setExtraClients] = useState([]);
   const [addClientOpen, setAddClientOpen] = useState(false);
-  // which row's "+" was clicked, so we know which client to auto-select on save
   const [addClientTargetId, setAddClientTargetId] = useState(null);
 
   const toggleBrideGroom = () => {
@@ -126,6 +124,8 @@ function ClientCard({
   onSelectClient,
   onAddNew,
 }) {
+    const userId = Number(localStorage.getItem("userId"));
+
   const isBride = client.clientType === "bride";
   const label = showTypeToggle
     ? index == 0
@@ -179,38 +179,43 @@ function ClientCard({
             </p>
             <div className="flex-1">
               <PaginatedSearchSelect
-                fetchFn={getAllClientMaster}
-                extraParams={{ sortBy: "id", sortDirection: "DESC" }}
-                labelKey="nameEnglish"
-                valueKey="id"
-                searchParamName="nameEnglish"
-                sizeParamName="size"
-                mapOption={(r) => ({
-                  value: r.id,
-                  label: r.nameEnglish,
-                  mobileNo: r.mobileNo,
-                  address: r.address,
-                })}
-                initialOption={
-                  client.clientMasterId
-                    ? { value: client.clientMasterId, label: client.name }
-                    : undefined
-                }
-                extraOptions={extraClients}
-                value={client.clientMasterId || undefined}
-                onChange={() => {}}
-                onSelectOption={(opt) =>
-                  onSelectClient({
-                    clientMasterId: opt?.value ?? null,
-                    name: opt?.label || "",
-                    mobile: opt?.mobileNo || "",
-                    address: opt?.address || "",
-                  })
-                }
-                placeholder="Search full legal name..."
-                size="large"
-                className="h-14-select"
-              />
+  fetchFn={getAllClientMaster}
+  extraParams={{ sortBy: "id", sortDirection: "DESC", userId ,categoryId: 6 }}
+  labelKey="nameEnglish"
+  valueKey="id"
+  searchParamName="nameEnglish"
+  sizeParamName="size"
+  mapOption={(r) => ({
+    value: r.id,
+    label: r.nameEnglish,
+    mobileNo: r.mobileNo,
+    address: r.address,
+  })}
+ initialOption={
+  client.clientMasterId
+    ? {
+        value: Number(client.clientMasterId),
+        label: client.name,
+        mobileNo: client.mobile,
+        address: client.address,
+      }
+    : undefined
+}
+  extraOptions={extraClients}
+  value={client.clientMasterId != null ? Number(client.clientMasterId) : undefined}
+  onChange={() => {}}
+  onSelectOption={(opt) =>
+    onSelectClient({
+      clientMasterId: opt?.value ?? null,
+      name: opt?.label || "",
+      mobile: opt?.mobileNo || "",
+      address: opt?.address || "",
+    })
+  }
+  placeholder="Search full legal name..."
+  size="large"
+  className="h-14-select"
+/>
             </div>
           </div>
         </div>

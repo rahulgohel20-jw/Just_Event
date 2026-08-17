@@ -67,10 +67,18 @@ const userId = Number(localStorage.getItem("userId"));
     eventOtherInfo: {
          id: otherInformation.id || null, 
       photographerDetailType: photographer.mode === "other" ? "OTHER" : "GROOM_BRIDE",
-      groomPhotographerName: photographer.photographerName || "",
-      groomPhotographerContactNumber: photographer.photographerNo || "",
-      bridePhotographerName: photographer.photographerName || "",
-      bridePhotographerContactNumber: photographer.photographerNo || "",
+     groomPhotographerName: photographer.mode === "other"
+  ? (photographer.photographerName || "")
+  : (photographer.groom?.photographerName || ""),
+groomPhotographerContactNumber: photographer.mode === "other"
+  ? (photographer.photographerNo || "")
+  : (photographer.groom?.photographerContactNumber || ""),
+bridePhotographerName: photographer.mode === "other"
+  ? (photographer.photographerName || "")
+  : (photographer.bride?.photographerName || ""),
+bridePhotographerContactNumber: photographer.mode === "other"
+  ? (photographer.photographerNo || "")
+  : (photographer.bride?.photographerContactNumber || ""),
       groomName: photographer.groom?.name || "",
       groomFatherName: photographer.groom?.fatherName || "",
       groomContactNumber: photographer.groom?.contactNumber || "",

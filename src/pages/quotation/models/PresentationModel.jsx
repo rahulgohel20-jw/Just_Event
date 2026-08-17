@@ -8,6 +8,10 @@ import {
   Archive,
   Loader2,
   Check,
+  ImageIcon,
+  ChevronLeft,
+  ChevronRight,
+  Download,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { TableComponent } from "@/components/table/TableComponent";
@@ -20,6 +24,11 @@ import {
 
 const MEDIA_TYPE = "PRESENTATION";
 const DEFAULT_PAGE_SIZE = 10;
+
+// Backend currently sends fileType as e.g. "http://localhost:9091IMAGE" (looks
+// like a base-URL + type concat bug), so match loosely on "IMAGE" rather than
+// an exact string — keeps working once/if the backend sends a clean value.
+const isImageFile = (file) => (file?.fileType ?? "").toUpperCase().includes("IMAGE");
 
 const PresentationModel = ({ open, onClose, eventId }) => {
   const userId = Number(localStorage.getItem("userId"));
@@ -35,6 +44,10 @@ const PresentationModel = ({ open, onClose, eventId }) => {
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [sortBy] = useState("id");
   const [sortDirection] = useState("DESC");
+
+  // Lightbox state: which file list we're viewing + current index within it
+  const [previewFiles, setPreviewFiles] = useState(null); // array of files, or null when closed
+  const [previewIndex, setPreviewIndex] = useState(0);
 
   const fileInputRef = useRef(null);
 
@@ -167,6 +180,15 @@ const PresentationModel = ({ open, onClose, eventId }) => {
     }
   };
 
+  const openPreview = (files, startIndex = 0) => {
+    if (!files?.length) return;
+    setPreviewFiles(files);
+    setPreviewIndex(startIndex);
+  };
+  const closePreview = () => setPreviewFiles(null);
+  const showPrev = () => setPreviewIndex((i) => (i - 1 + previewFiles.length) % previewFiles.length);
+  const showNext = () => setPreviewIndex((i) => (i + 1) % previewFiles.length);
+
   const columns = useMemo(
     () => [
       {
@@ -181,20 +203,36 @@ const PresentationModel = ({ open, onClose, eventId }) => {
         accessorKey: "files",
         header: "FILE INFORMATION",
         cell: ({ row }) => {
-          const files = row.original.files;
-          const fileCount = Array.isArray(files) ? files.length : 0;
+          const files = row.original.files ?? [];
+          const fileCount = files.length;
+          const firstImage = files.find(isImageFile);
+
           return (
-            <div className="flex items-center gap-4 py-2">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-inverse">
-                <FileText size={20} className="text-primary" />
+            <button
+              type="button"
+              onClick={() => fileCount && openPreview(files, files.indexOf(firstImage ?? files[0]))}
+              disabled={!fileCount}
+              className="group flex items-center gap-4 py-2 text-left disabled:cursor-default"
+              title={fileCount ? "View attachment" : undefined}
+            >
+              <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary-inverse">
+                {firstImage ? (
+                  <img
+                    src={firstImage.path}
+                    alt=""
+                    className="h-full w-full object-cover transition group-hover:scale-105"
+                  />
+                ) : (
+                  <FileText size={20} className="text-primary" />
+                )}
               </div>
               <div>
-                <p className="text-sm font-bold text-dark m-0">
+                <p className="text-sm font-bold text-dark m-0 group-hover:text-primary">
                   {fileCount ? `${fileCount} file${fileCount > 1 ? "s" : ""}` : "No files"}
                 </p>
                 <p className="text-xs text-gray-400 m-0">{row.original.mediaType}</p>
               </div>
-            </div>
+            </button>
           );
         },
       },
@@ -279,6 +317,8 @@ const PresentationModel = ({ open, onClose, eventId }) => {
   );
 
   if (!open) return null;
+
+  const activePreviewFile = previewFiles?.[previewIndex] ?? null;
 
   return (
     <>
@@ -381,6 +421,84 @@ const PresentationModel = ({ open, onClose, eventId }) => {
           </div>
         </div>
       </div>
+
+      {/* Image lightbox — separate top-most overlay, only mounted while previewing */}
+      {previewFiles && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 p-6"
+          onClick={closePreview}
+        >
+          <button
+            onClick={closePreview}
+            className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+            title="Close"
+          >
+            <X size={20} />
+          </button>
+
+          {previewFiles.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  showPrev();
+                }}
+                className="absolute left-6 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                title="Previous"
+              >
+                <ChevronLeft size={22} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  showNext();
+                }}
+                className="absolute right-6 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                title="Next"
+              >
+                <ChevronRight size={22} />
+              </button>
+            </>
+          )}
+
+          <div
+            className="flex max-h-full max-w-4xl flex-col items-center gap-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {activePreviewFile && isImageFile(activePreviewFile) ? (
+              <img
+                src={activePreviewFile.path}
+                alt=""
+                className="max-h-[75vh] max-w-full rounded-lg object-contain shadow-2xl"
+              />
+            ) : (
+              <div className="flex h-64 w-64 flex-col items-center justify-center gap-3 rounded-lg bg-white/10 text-white">
+                <FileText size={32} />
+                <p className="text-sm">Preview not available</p>
+              </div>
+            )}
+
+            <div className="flex items-center gap-4">
+              {previewFiles.length > 1 && (
+                <span className="text-xs font-medium text-white/70">
+                  {previewIndex + 1} / {previewFiles.length}
+                </span>
+              )}
+              {activePreviewFile?.path && (
+                <a
+                  href={activePreviewFile.path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-white/90 hover:text-white"
+                >
+                  <Download size={13} />
+                  Open original
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

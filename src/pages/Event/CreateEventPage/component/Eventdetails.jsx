@@ -215,7 +215,7 @@ export default function EventDetails({ data, onChange }) {
           <div>
             <p className="text-[13px] font-medium text-dark mb-2">Special Instructions / Remarks</p>
             <textarea
-              placeholder="Special Instructions / Remarks"
+              
               value={data.remarks || ""}
               onChange={set("remarks")}
               rows={1}

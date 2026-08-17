@@ -1,7 +1,8 @@
-import React, { Fragment, useCallback, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useNavigate } from "react-router-dom";
+import { CalendarPlus, CalendarCheck, Plus } from "lucide-react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import CalendarComponent from "@/components/CalendarComponent";
@@ -11,10 +12,6 @@ import { showApiError } from "@/utils/swalHelpers";
 
 dayjs.extend(customParseFormat);
 
-// FullCalendar wants "YYYY-MM-DD". This codebase's event date fields have
-// shown up in more than one format elsewhere (see the your-journey-connect
-// eventDate fix), so try the shapes we've actually seen before falling back
-// to a loose dayjs parse.
 const toCalendarDate = (raw) => {
   if (!raw) return null;
   const formats = ["YYYY-MM-DD", "DD/MM/YYYY", "YYYY-MM-DDTHH:mm:ss"];
@@ -26,26 +23,39 @@ const toCalendarDate = (raw) => {
   return fallback.isValid() ? fallback.format("YYYY-MM-DD") : null;
 };
 
-// NOTE: address/mobile field names are guesses (venueNameEnglish/venueAddress,
-// partyMobile/mobileNo) — swap these for whatever getallevent actually
-// returns; I don't have the real response shape to confirm against.
+
 const mapEventToCalendar = (item) => {
   const start = toCalendarDate(item.eventStartDate || item.inquiryDate);
   if (!start) return null;
 
+  const projectName = item.projectName || "";
+  const eventName = item.eventNameEnglish || "";
+  const title =
+    projectName && eventName
+      ? `${projectName} (${eventName})`
+      : projectName || eventName || "Event";
+
   return {
     id: item.id,
-    title: item.partyNameEnglish || item.eventNameEnglish || item.projectName || "Event",
+    title,
     start,
     extendedProps: {
       time: item.eventStartTime || "",
-      event_name: item.eventNameEnglish || item.projectName || "",
+      event_name: eventName || projectName,
       address: item.venueNameEnglish || item.venueAddress || "",
       mobile: item.partyMobile || item.mobileNo || "",
+      status: item.eventStatus || "", 
       raw: item,
     },
   };
 };
+
+
+const STATUS_FILTERS = [
+  { value: "INQUIRY", label: "Inquiry", className: "bg-blue-500 text-white" },
+  { value: "CONFIRMED", label: "Confirm", className: "bg-green-500 text-white" },
+  { value: "CANCELLED", label: "Cancel", className: "bg-red-600 text-white" },
+];
 
 const CalendarPage = () => {
   const navigate = useNavigate();
@@ -55,13 +65,8 @@ const CalendarPage = () => {
   const [calendarEvents, setCalendarEvents] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const statuses = [
-    { label: "Confirm", color: "bg-[#1AFF00]" },
-    { label: "Estimate", color: "bg-[#0011FF]" },
-    { label: "High Priority", color: "bg-[#FFB700]" },
-    { label: "Inquiry", color: "bg-[#00FFFF]" },
-    { label: "Cancel", color: "bg-[#FF0000]" },
-  ];
+  const [activeStatus, setActiveStatus] = useState(null); 
+  const [typeFilter, setTypeFilter] = useState("All");  
 
   const fetchCalendarEvents = useCallback(async () => {
     setLoading(true);
@@ -76,9 +81,6 @@ const CalendarPage = () => {
         partyId: null,
         priority: null,
         search: "",
-        // Calendar needs the full set, not one paginated page — bump size
-        // well above any realistic event count. Swap for a dedicated
-        // "all events" endpoint if one exists on the backend.
         size: 1000,
         sortBy: "id",
         sortDirection: "DESC",
@@ -108,35 +110,79 @@ const CalendarPage = () => {
     fetchCalendarEvents();
   }, [fetchCalendarEvents]);
 
+  // Client-side filter by chip selection. Swap for a server-side
+  // eventStatus param on fetchCalendarEvents if the list can get large.
+  const visibleEvents = useMemo(() => {
+    if (!activeStatus) return calendarEvents;
+    return calendarEvents.filter(
+      (ev) => ev.extendedProps?.status === activeStatus
+    );
+  }, [calendarEvents, activeStatus]);
+
   const openEvent = (clickInfo) => {
     setEventModalData(clickInfo.event.extendedProps.raw || null);
     setIsModalOpen(true);
   };
 
   const goToCreateEvent = (eventDate) => {
-    navigate("/creteevnetname", {
-      state: { eventDate },
-    });
+    navigate("/creteevnetname", { state: { eventDate } });
   };
 
- const handleDateClick = (info) => {
-  goToCreateEvent(info.dateStr);
-};
+  const handleDateClick = (info) => {
+    goToCreateEvent(info.dateStr);
+  };
 
-  // No date was clicked, so default to today.
   const handleAddEventClick = () => {
     goToCreateEvent(dayjs().format("YYYY-MM-DD"));
+  };
+
+  const toggleStatus = (value) => {
+    setActiveStatus((prev) => (prev === value ? null : value));
   };
 
   return (
     <Fragment>
       <Container>
-        <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Events" }]} />
+        <div className="flex flex-wrap items-center justify-between gap-3 mt-4 mb-4">
+          {/* Status legend / filter chips */}
+          <div className="flex flex-wrap items-center gap-2">
+            {STATUS_FILTERS.map((s) => (
+              <button
+                key={s.value}
+                type="button"
+                onClick={() => toggleStatus(s.value)}
+                className={`rounded-lg px-4 py-2 text-sm  transition-opacity ${s.className} ${
+                  activeStatus && activeStatus !== s.value ? "opacity-50" : ""
+                }`}
+                title={`Filter by ${s.label}`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Right-side controls */}
+          <div className="flex flex-wrap items-center gap-2">
+          
+
+           
+
+           
+
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-rose-950"
+              onClick={handleAddEventClick}
+              title="Add Event"
+            >
+              <Plus size={16} />
+              Add Event
+            </button>
+          </div>
         </div>
 
         <CalendarComponent
-          data={calendarEvents}
+          data={visibleEvents}
           loading={loading}
           openEvent={openEvent}
           handleDateClick={handleDateClick}
@@ -149,6 +195,7 @@ const CalendarPage = () => {
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           eventData={eventModalData}
+          onDeleted={fetchCalendarEvents}
         />
       )}
     </Fragment>

@@ -2,7 +2,7 @@ import { Popconfirm, Tooltip } from "antd";
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 
-export const columns = [
+export const columns = (handleDelete) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -70,7 +70,7 @@ export const columns = [
       cellClassName: "w-[6%] text-center",
     },
   },
- {
+  {
     accessorKey: "action",
     header: "Action ",
     cell: ({ row }) => {
@@ -79,40 +79,34 @@ export const columns = [
       return (
         <div className="flex items-center justify-center gap-1">
           <Tooltip className="cursor-pointer" title="Edit Event">
-            <Link to={`/add-event?id=${eventId}`}>
+            <Link to={`/creteevnetname?id=${eventId}`}>
               <button className="btn btn-sm btn-icon btn-clear" title="Edit">
                 <i className="ki-filled ki-notepad-edit text-primary"></i>
               </button>
             </Link>
           </Tooltip>
-        <Popconfirm
-              title="Are you sure to copy this item?"
-              onConfirm={() => console.log('confirm')
-              }
-              onCancel={() => console.log('Cancelled')}
-              okText="Yes"
-              cancelText="No"
-            >
-          <Tooltip className="cursor-pointer" title="Copy Event">
-            <button className="btn btn-sm btn-icon btn-clear" title="Copy">
-              <i className="ki-filled ki-copy text-success"></i>
-            </button>
-          </Tooltip>
-          </Popconfirm>
           <Popconfirm
-              title="Are you sure to delete this item?"
-              onConfirm={() => console.log('confirm')
-              }
-              onCancel={() => console.log('Cancelled')}
-              okText="Yes"
-              cancelText="No"
-            >
+            title="Are you sure to copy this item?"
+            onConfirm={() => console.log('confirm')}
+            onCancel={() => console.log('Cancelled')}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Tooltip className="cursor-pointer" title="Copy Event">
+              <button className="btn btn-sm btn-icon btn-clear" title="Copy">
+                <i className="ki-filled ki-copy text-success"></i>
+              </button>
+            </Tooltip>
+          </Popconfirm>
           <Tooltip className="cursor-pointer" title="Remove Event">
-            <button className="btn btn-sm btn-icon btn-clear" title="Remove">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="Remove"
+              onClick={() => handleDelete?.(eventId, row.original.customer)}
+            >
               <i className="ki-filled ki-trash text-danger"></i>
             </button>
           </Tooltip>
-        </Popconfirm>
           <Tooltip title="Menu Preparation">
             <Link to="/menu-preparation">
               <button
@@ -126,12 +120,12 @@ export const columns = [
 
           <Tooltip title="Menu Allocation">
             <Link to="/menu-allocation">
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              title="Menu Allocation"
-            >
-              <i className="ki-filled ki-grid  text-info"></i>
-            </button>
+              <button
+                className="btn btn-sm btn-icon btn-clear"
+                title="Menu Allocation"
+              >
+                <i className="ki-filled ki-grid  text-info"></i>
+              </button>
             </Link>
           </Tooltip>
         </div>
@@ -142,6 +136,7 @@ export const columns = [
       cellClassName: "w-[10%]",
     },
   },
+];
   // {
   //   accessorKey: "action_menu",
   //   header: "Actions (Menu)",
@@ -239,7 +234,6 @@ export const columns = [
   //     cellClassName: "w-[5%] text-center",
   //   },
   // },
-];
 
 export const defaultData = [
   {

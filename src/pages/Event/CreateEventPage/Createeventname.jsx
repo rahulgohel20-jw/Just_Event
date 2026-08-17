@@ -7,12 +7,13 @@ import {
   Loader2,
 } from "lucide-react";
 import dayjs from "dayjs";
-
 import illustrationImg from "../../../assets/create-event-img.png";
 import { useNavigate, useLocation } from "react-router";
+import { useSearchParams } from "react-router-dom";
 import { getAllEventTypemaster } from "@/services/apiServices";
 import DateField from "../../../components/form-inputs/DatePicker/Datefield";
 import { useEventDraftStore } from "@/stores/useEventDraftStore";
+import { useEventEditLoader } from "./useEventEditLoader"; // adjust to actual path
 
 const PAGE_SIZE = 9;
 const PRIORITIES = ["High", "Med", "Low"];
@@ -20,6 +21,10 @@ const PRIORITIES = ["High", "Med", "Low"];
 export default function CreateEventName() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const eventId = Number(searchParams.get("id")) || 0;
+
+  const { loading: loadingEvent } = useEventEditLoader(eventId > 0 ? eventId : null);
 
   const {
     eventName, setEventName,
@@ -98,11 +103,9 @@ const [submitError, setSubmitError] = useState("");
   const handleShowMore = () => {
     fetchEventTypes(page + 1, searchTerm, true);
   };
-useEffect(() => {
-  resetDraft();
-}, []); // run once on mount
+
   const canSubmit = eventName.trim().length > 0 && Boolean(eventDate);
-const resetDraft = () => {
+  const resetDraft = () => {
     setEventName("");
     setEventType(null);
     setEventDate("");
@@ -110,6 +113,16 @@ const resetDraft = () => {
     setVenue(null);
     setSearchTerm("");
   };
+
+  // Only reset for a brand-new workspace. In edit mode (eventId > 0) we
+  // don't want to blank the store — useEventEditLoader above is
+  // responsible for populating it from the fetched event instead.
+  useEffect(() => {
+    if (eventId === 0) {
+      resetDraft();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
  const handleCreateWorkspace = () => {
   if (!canSubmit) {
@@ -122,11 +135,19 @@ const resetDraft = () => {
   }
   setSubmitError("");
   setSearchTerm(""); // local search input only — safe, doesn't touch the shared draft
-  navigate("/creteEvent");
+  navigate(eventId > 0 ? `/creteEvent?id=${eventId}` : "/creteEvent");
 };
   
 
   const hasMore = page + 1 < totalPages;
+
+  if (eventId > 0 && loadingEvent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -347,7 +368,7 @@ const resetDraft = () => {
       : "bg-rose-200 text-white cursor-not-allowed"
   }`}
 >
-  Create Event Workspace <ArrowRight className="w-4 h-4" />
+  {eventId > 0 ? "Continue Editing" : "Create Event Workspace"} <ArrowRight className="w-4 h-4" />
 </button>
         </section>
       </main>

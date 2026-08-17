@@ -7,33 +7,42 @@ import {
   ArrowUpRight,
   Loader2,
 } from "lucide-react";
-import { AutoComplete, DatePicker, Input, Select } from "antd";
+import { AutoComplete, Input, Select } from "antd";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useParams, useSearchParams } from "react-router-dom";
 import ExecutionItemsTable from "./ExecutionItemsTable";
 import {
   PRODUCTION_INCHARGE_OPTIONS,
   STATUS_OPTIONS,
+  MATERIAL_OPTIONS,
 } from "./constant";
-import { getbyeventid, GetAllEventExecution, AddEventExecution } from "../../services/apiServices";
+import { getbyeventid, GetEventExecutionFunction, AddEventExecution } from "../../services/apiServices";
+import DateTimeField from "../../components/form-inputs/DatePicker/DateTimeField";
 // import { AddDecorationModal } from "./AddDecorationModal"; // hook up when built
+
+dayjs.extend(customParseFormat);
+
+const DATE_TIME_FORMAT = "DD/MM/YYYY hh:mm A";
 
 const toId = (v) => (v === null || v === undefined || v === "" ? null : Number(v));
 
-// ASSUMPTION: execution list rows come back shaped like this. Adjust field
-// names once a real GetAllEventExecution response is available.
+// Maps the real API item shape 1:1 into what the table columns read.
 const mapExecutionItems = (list = []) =>
   list.map((item, idx) => ({
-    id: item.id,
+    id: item.id ?? null,
+    estimateItemId: item.estimateItemId ?? null,
+    menuItemId: item.menuItemId ?? null,
     srNo: String(idx + 1).padStart(2, "0"),
-    name: item.name ?? item.itemName ?? "Item",
-    description: item.description ?? "",
+    particularName: item.particularName ?? "Item",
+    particularDescription: item.particularDescription ?? "",
+    elementsAndMaterials: item.elementsAndMaterials ?? "",
     size: item.size ?? "",
     qty: Number(item.qty || 0),
     images: (item.images ?? []).map((img) => img.url ?? img),
+    imageFiles: [], // freshly-picked File objects staged for upload on save
     materials: item.materials ?? [],
-    materialsCount: (item.materials ?? []).length,
   }));
 
 const ExecutionPage = () => {
@@ -52,19 +61,21 @@ const ExecutionPage = () => {
   const [tableData, setTableData] = useState([]);
   const [loadingItems, setLoadingItems] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [executionRecordId, setExecutionRecordId] = useState(null); // id of the saved execution record for this function, if any
+  const [executionRecordId, setExecutionRecordId] = useState(null);
 
-  // Editable header fields — kept local for now (no dedicated save endpoint
-  // for these was provided; they get bundled into the AddEventExecution
-  // payload on Save).
-  const [productionIncharge, setProductionIncharge] = useState("");
+  // Header fields — now matching the real payload keys.
+  const [productionInchargeId, setProductionInchargeId] = useState(null);
+  const [productionInchargeName, setProductionInchargeName] = useState("");
   const [budget, setBudget] = useState("");
-  const [setupAt, setSetupAt] = useState(null);
-  const [dismantlingAt, setDismantlingAt] = useState(null);
-  const [status, setStatus] = useState("remaining");
+  const [reference, setReference] = useState("");
+  // NOTE: these are now plain "DD/MM/YYYY hh:mm A" strings (DateTimeField's format),
+  // not dayjs objects — see fetchExecutionList (load) and handleSaveChanges (save).
+  const [setupDateTime, setSetupDateTime] = useState("");
+  const [dismantleDateTime, setDismantleDateTime] = useState("");
+  const [status, setStatus] = useState("REMAINING");
   const [note, setNote] = useState("");
 
-  /* ---- Load event + its functions (mirrors QuotationPage) ---- */
+  /* ---- Load event + its functions ---- */
   useEffect(() => {
     if (!eventId) {
       Swal.fire({ icon: "warning", title: "No event selected" });
@@ -78,7 +89,6 @@ const ExecutionPage = () => {
         const data = body?.data ?? body;
         setEventData(data);
 
-        // default to first function if none selected via route/query
         if (selectedFunctionId == null && data?.eventFunctions?.length) {
           setSelectedFunctionId(toId(data.eventFunctions[0].id));
         }
@@ -91,49 +101,61 @@ const ExecutionPage = () => {
   const functionOptions =
     eventData?.eventFunctions?.map((f) => ({ value: toId(f.id), label: f.nameEnglish })) ?? [];
 
-  /* ---- Fetch execution items whenever the selected function changes ---- */
+  const resetExecutionState = () => {
+    setExecutionRecordId(null);
+    setTableData([]);
+    setProductionInchargeId(null);
+    setProductionInchargeName("");
+    setBudget("");
+    setReference("");
+    setSetupDateTime("");
+    setDismantleDateTime("");
+    setStatus("REMAINING");
+    setNote("");
+  };
+
+  /* ---- Fetch execution record for the currently selected function ---- */
   const fetchExecutionList = () => {
-    if (!eventId || selectedFunctionId == null) return Promise.resolve();
+    if (selectedFunctionId == null) return Promise.resolve();
     setLoadingItems(true);
-    return GetAllEventExecution({
-      eventId: Number(eventId),
-      eventFunctionId: null,
-      page: 0,
-      size: 100, // ASSUMPTION: no pagination in the UI yet, pull a large page
-      sortBy: "id",
-      sortDirection: "ASC",
-      userId: Number(userId),
-    })
+    return GetEventExecutionFunction(selectedFunctionId)
       .then((res) => {
         const body = res?.data ?? res;
-        const page = body?.data ?? body;
-        const content = page?.content ?? [];
-        const record = content[0]; // ASSUMPTION: one execution record per function, holding an items[] array
+        const record = body?.data ?? body;
 
-        setExecutionRecordId(record?.id ?? null);
-        setTableData(mapExecutionItems(record?.items ?? []));
-
-        // ASSUMPTION: header fields live on the same record
-        if (record) {
-          setProductionIncharge(record.productionIncharge ?? "");
-          setBudget(record.budget ?? "");
-          setSetupAt(record.setupAt ? dayjs(record.setupAt) : null);
-          setDismantlingAt(record.dismantlingAt ? dayjs(record.dismantlingAt) : null);
-          setStatus(record.status ?? "remaining");
-          setNote(record.note ?? "");
-        } else {
-          setProductionIncharge("");
-          setBudget("");
-          setSetupAt(null);
-          setDismantlingAt(null);
-          setStatus("remaining");
-          setNote("");
+        if (!record) {
+          resetExecutionState();
+          return;
         }
+
+        setExecutionRecordId(record.id ?? null);
+        setTableData(mapExecutionItems(record.items ?? []));
+
+        setProductionInchargeId(record.productionInchargeId ?? null);
+        setProductionInchargeName(record.productionInchargeName ?? "");
+        setBudget(record.budgetAmount ?? "");
+        setReference(record.reference ?? "");
+        // Server sends ISO — convert to the DD/MM/YYYY hh:mm A string DateTimeField expects.
+        setSetupDateTime(
+  record.setupDateTime
+    ? dayjs(record.setupDateTime, DATE_TIME_FORMAT, true).isValid()
+      ? record.setupDateTime
+      : dayjs(record.setupDateTime).format(DATE_TIME_FORMAT) // fallback if server still sends ISO
+    : ""
+);
+setDismantleDateTime(
+  record.dismantleDateTime
+    ? dayjs(record.dismantleDateTime, DATE_TIME_FORMAT, true).isValid()
+      ? record.dismantleDateTime
+      : dayjs(record.dismantleDateTime).format(DATE_TIME_FORMAT)
+    : ""
+);
+        setStatus(record.status ?? "remaining");
+        setNote(record.note ?? "");
       })
       .catch((err) => {
-        console.error("Failed to load execution list:", err);
-        setTableData([]);
-        setExecutionRecordId(null);
+        console.error("Failed to load execution record:", err);
+        resetExecutionState();
       })
       .finally(() => setLoadingItems(false));
   };
@@ -141,53 +163,137 @@ const ExecutionPage = () => {
   useEffect(() => {
     fetchExecutionList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventId, selectedFunctionId]);
+  }, [selectedFunctionId]);
 
   const handleFunctionChange = (val) => setSelectedFunctionId(toId(val));
 
   const handleAddDecoration = () => {
-    // setIsAddModalOpen(true);
     console.log("open Add Decoration modal");
   };
 
-  /* ---- SAVE: single endpoint for create/update, multipart like AddEstimate ---- */
+ // Helper: validate a DateTimeField string, return it in DD/MM/YYYY hh:mm A format (or null if empty/invalid).
+const toDateTimeString = (str) => {
+  if (!str) return null;
+  const parsed = dayjs(str, DATE_TIME_FORMAT, true);
+  return parsed.isValid() ? parsed.format(DATE_TIME_FORMAT) : null;
+};
+
+  /* ---- SAVE: multipart FormData matching the exact swagger field list ---- */
   const handleSaveChanges = async () => {
     if (!eventId || selectedFunctionId == null) {
       Swal.fire({ icon: "warning", title: "Select a function first" });
       return;
     }
 
-    const payload = {
-      id: executionRecordId ?? 0,
-      eventId: Number(eventId),
-      eventFunctionId: selectedFunctionId,
-      productionIncharge,
-      budget,
-      setupAt: setupAt ? setupAt.toISOString() : null,
-      dismantlingAt: dismantlingAt ? dismantlingAt.toISOString() : null,
-      status,
-      note,
-      userId: Number(userId),
-      items: tableData.map((item) => ({
-        id: typeof item.id === "number" && item.id < 1e10 ? item.id : 0,
-        name: item.name,
-        description: item.description,
-        size: item.size,
-        qty: Number(item.qty || 0),
-        materials: item.materials ?? [],
-      })),
-    };
+
+    const appendIfNotNull = (formData, key, value) => {
+  if (value !== null && value !== undefined && value !== "") {
+    formData.append(key, value);
+  }
+};
+
+   const dto = {
+  id: executionRecordId ?? null,
+  eventId: Number(eventId),
+  eventFunctionId: selectedFunctionId,
+  budget: budget === "" ? null : Number(budget),
+  productionInchargeId: productionInchargeId != null ? Number(productionInchargeId) : null,
+  reference: reference || null,
+  setupDateTime: toDateTimeString(setupDateTime),
+  dismantleDateTime: toDateTimeString(dismantleDateTime),
+  status: status || null,
+  note: note || null,
+  userId: Number(userId),
+  items: tableData.map((item) => ({
+  id: typeof item.id === "number" && item.id < 1e10 ? item.id : null,
+  estimateItemId: item.estimateItemId ?? null,
+  menuItemId: item.menuItemId ?? null,
+  particularName: item.particularName,
+  particularDescription: item.particularDescription,
+  elementsAndMaterials: item.elementsAndMaterials,
+  size: item.size,
+  qty: Number(item.qty || 0),
+})),
+};
 
     const formData = new FormData();
-    formData.append("data", new Blob([JSON.stringify(payload)], { type: "application/json" }));
 
-    // Attach any newly-picked image files (local blob previews carry a
-    // hidden `file` reference set in ImagesCell — see ExecutionItemsTable note)
-    tableData.forEach((item, itemIndex) => {
-      (item.imageFiles ?? []).forEach((file) => {
-        formData.append(`items[${itemIndex}].images`, file);
-      });
+formData.append("eventId", dto.eventId);
+formData.append("eventFunctionId", dto.eventFunctionId);
+
+appendIfNotNull(formData, "id", dto.id);
+appendIfNotNull(formData, "budget", dto.budget);
+appendIfNotNull(formData, "productionInchargeId", dto.productionInchargeId);
+appendIfNotNull(formData, "reference", dto.reference);
+appendIfNotNull(formData, "setupDateTime", dto.setupDateTime);
+appendIfNotNull(formData, "dismantleDateTime", dto.dismantleDateTime);
+appendIfNotNull(formData, "status", dto.status);
+appendIfNotNull(formData, "note", dto.note);
+
+formData.append("userId", dto.userId);
+
+    // Per-item fields, indexed as items[i].fieldName
+    dto.items.forEach((item, i) => {
+  const realId =
+    typeof item.id === "number" && item.id < 1e10
+      ? item.id
+      : null;
+
+  appendIfNotNull(
+    formData,
+    `items[${i}].id`,
+    realId
+  );
+
+  appendIfNotNull(
+    formData,
+    `items[${i}].estimateItemId`,
+    item.estimateItemId
+  );
+
+  appendIfNotNull(
+    formData,
+    `items[${i}].menuItemId`,
+    item.menuItemId
+  );
+
+  formData.append(
+    `items[${i}].particularName`,
+    item.particularName ?? ""
+  );
+
+  formData.append(
+    `items[${i}].particularDescription`,
+    item.particularDescription ?? ""
+  );
+
+  formData.append(
+    `items[${i}].elementsAndMaterials`,
+    item.elementsAndMaterials ?? ""
+  );
+
+  formData.append(
+    `items[${i}].size`,
+    item.size ?? ""
+  );
+
+  formData.append(
+    `items[${i}].qty`,
+    item.qty ?? 0
+  );
+});
+   
+    tableData.forEach((item, i) => {
+  const materials = item.materials ?? [];
+  if (materials.length === 0) {
+    // send an empty marker so the backend doesn't just skip the field entirely
+    formData.append(`items[${i}].materials`, "");
+  } else {
+    materials.forEach((m) => {
+      formData.append(`items[${i}].materials`, m);
     });
+  }
+});
 
     setSaving(true);
     try {
@@ -227,7 +333,6 @@ const ExecutionPage = () => {
         {/* Event info card */}
         <section className={`rounded-2xl border border-gray-100 bg-white p-6 ${loadingEvent ? "pointer-events-none opacity-50" : ""}`}>
           <div className="grid grid-cols-2 gap-x-8 gap-y-5 md:grid-cols-4">
-            {/* Static identity fields — from real event data now */}
             <Field label="Event No." value={eventData?.eventNo} />
             <Field label="Event Name" value={eventData?.eventNameEnglish} />
             <Field label="Party Name" value={eventData?.partyNameEnglish} />
@@ -252,13 +357,12 @@ const ExecutionPage = () => {
               }
             />
 
-            {/* Editable */}
             <div>
               <FieldLabel>Production Incharge</FieldLabel>
               <AutoComplete
                 className="mt-1 w-full"
-                value={productionIncharge}
-                onChange={setProductionIncharge}
+                value={productionInchargeName}
+                onChange={setProductionInchargeName}
                 options={PRODUCTION_INCHARGE_OPTIONS}
                 placeholder="Select or type a name"
                 filterOption={(input, option) =>
@@ -276,25 +380,26 @@ const ExecutionPage = () => {
               />
             </div>
             <div>
-              <FieldLabel>Setup (Date/Time)</FieldLabel>
-              <DatePicker
+              <FieldLabel>Reference</FieldLabel>
+              <Input
                 className="mt-1 w-full"
-                showTime={{ format: "hh:mm A" }}
-                format="MMM DD, YYYY hh:mm A"
-                value={setupAt}
-                onChange={setSetupAt}
+                value={reference}
+                onChange={(e) => setReference(e.target.value)}
               />
             </div>
-            <div>
-              <FieldLabel>Dismantling (Date/Time)</FieldLabel>
-              <DatePicker
-                className="mt-1 w-full"
-                showTime={{ format: "hh:mm A" }}
-                format="MMM DD, YYYY hh:mm A"
-                value={dismantlingAt}
-                onChange={setDismantlingAt}
-              />
-            </div>
+
+            <DateTimeField
+              label="Setup (Date/Time)"
+              value={setupDateTime}
+              onChange={setSetupDateTime}
+            />
+
+            <DateTimeField
+              label="Dismantling (Date/Time)"
+              value={dismantleDateTime}
+              onChange={setDismantleDateTime}
+            />
+
             <div>
               <FieldLabel>Status</FieldLabel>
               <Select
@@ -330,20 +435,21 @@ const ExecutionPage = () => {
         {/* Execution items */}
         <section className="rounded-2xl border border-gray-100 bg-white p-6">
           <ExecutionItemsTable
-            eventId={eventId}
-            functionId={selectedFunctionId}
-            items={tableData}
-            setItems={setTableData}
-            loading={loadingItems}
-            onAddDecoration={handleAddDecoration}
-          />
+  eventId={eventId}
+  functionId={selectedFunctionId}
+  items={tableData}
+  setItems={setTableData}
+  loading={loadingItems}
+  onAddDecoration={handleAddDecoration}
+  materialOptions={MATERIAL_OPTIONS}
+/>
         </section>
 
         {/* Footer actions */}
         <div className="flex justify-end gap-3">
-          <button className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50">
+          {/* <button className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50">
             Save as Draft
-          </button>
+          </button> */}
           <button
             onClick={handleSaveChanges}
             disabled={saving}

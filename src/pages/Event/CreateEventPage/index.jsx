@@ -156,9 +156,13 @@ export default function CreateEvent({ onSubmit, existingId: existingIdProp = 0 }
   }
 };
 
-  const handleBack = () => {
-    if (!isFirst) setStepIndex((i) => i - 1);
-  };
+ const handleBack = () => {
+  if (isFirst) {
+    navigate(existingId > 0 ? `/creteevnetname?id=${existingId}` : "/creteevnetname");
+  } else {
+    setStepIndex((i) => i - 1);
+  }
+};
 
   const handleContinue = async () => {
   const missing = getMissingFields();
@@ -235,6 +239,13 @@ export default function CreateEvent({ onSubmit, existingId: existingIdProp = 0 }
           </button>
 
           <div className="flex items-center gap-3 ml-auto">
+            <button
+  type="button"
+  onClick={handleBack}
+  className="flex items-center gap-1.5 text-sm font-medium rounded-xl px-4 py-2.5 border transition-colors border-primary-clarity text-primary"
+>
+  <ArrowLeft className="w-4 h-4" /> Back
+</button>
             <button
               type="button"
               onClick={handleContinue}

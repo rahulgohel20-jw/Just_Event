@@ -193,21 +193,20 @@ function PersonColumn({ icon: Icon, title, person, onFieldChange }) {
     disableFuture
   />
            <div className="grid grid-cols-2 gap-3">
-            <input
-            type="tel"
-            placeholder="Photographer Name "
-            value={person.contactNumber || ""}
-            onChange={onFieldChange("contactNumber")}
-            className="w-full bg-light border-2 mt-4 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
-          />
            <input
-            type="tel"
-            placeholder="Contact Number"
-            value={person.contactNumber || ""}
-            onChange={onFieldChange("contactNumber")}
-            className="w-full bg-light border-2 mt-4 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
-          />
-        
+    type="text"
+    placeholder="Photographer Name"
+    value={person.photographerName || ""}
+    onChange={onFieldChange("photographerName")}
+    className="w-full bg-light border-2 mt-4 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
+  />
+  <input
+    type="tel"
+    placeholder="Photographer Contact Number"
+    value={person.photographerContactNumber || ""}
+    onChange={onFieldChange("photographerContactNumber")}
+    className="w-full bg-light border-2 mt-4 border-primary-clarity rounded-xl px-4 py-3 text-sm text-dark placeholder:text-dark outline-none focus:ring-2 focus:ring-primary-clarity mb-3"
+  />
           </div>
         
         </div>

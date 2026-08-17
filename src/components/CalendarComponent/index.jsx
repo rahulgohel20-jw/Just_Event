@@ -17,14 +17,14 @@ const CalendarComponent = ({ data, openEvent, handleDateClick, onAddEventClick, 
     <div className={`${classes.fullCalendar} fullCalendarCommon`}>
       {/* Add Event Button */}
       <div style={{ marginBottom: "10px", textAlign: "right" }}>
-        <button
+        {/* <button
           className="btn bg-primary text-white"
           onClick={onAddEventClick}
           title="Add Event"
           disabled={loading}
         >
           <i className="ki-filled ki-plus"></i> Add Event
-        </button>
+        </button> */}
       </div>
 
       <FullCalendar
