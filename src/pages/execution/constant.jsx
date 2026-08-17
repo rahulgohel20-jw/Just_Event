@@ -12,15 +12,16 @@ export const DEFAULT_PAGINATION_SIZE = 10;
 export const DEFAULT_SORTING = { sortBy: "id", sortDirection: "ASC" };
 
 export const DEFAULT_MATERIAL_CATEGORIES = [
-  "Flowers",
-  "Lighting",
-  "Sound",
-  "LED Wall",
-  "Mandap",
-  "Furniture",
-  "Artist & Entertainment",
-  "Printing",
-  "Outsource",
+  "FLOWERS",
+  "LIGHTING",
+  "SOUND",
+  "LED_WALL",
+  "MANDAP",
+  "FURNITURE",
+  "ARTIST_ENTERTAINMENT",
+  "PRINTING",
+  "OUTSOURCE",
+  "NEW_PURCHASE",
 ];
 
 export const PRODUCTION_INCHARGE_OPTIONS = [
@@ -29,62 +30,27 @@ export const PRODUCTION_INCHARGE_OPTIONS = [
   { value: "Arjun Patel", label: "Arjun Patel" },
 ];
 
-export const FUNCTION_NAME_OPTIONS = [
-  { value: "Haldi Celebration", label: "Haldi Celebration" },
-  { value: "Sangeet Night", label: "Sangeet Night" },
-  { value: "Wedding Ceremony", label: "Wedding Ceremony" },
-  { value: "Reception", label: "Reception" },
-];
-
 export const STATUS_OPTIONS = [
-  { value: "remaining", label: "Remaining" },
-  { value: "in-progress", label: "In Progress" },
-  { value: "completed", label: "Completed" },
+  { value: "REMAINING", label: "Remaining" },
+  { value: "IN_PROGRESS", label: "In Progress" },
+  { value: "COMPLETED", label: "Completed" },
+  {value: "ON_HOLD" ,label:"On Hold"}
 ];
 
-// Local mock data — no API integration yet. Shape matches what the table
-// columns expect directly (already "normalized"), so ExecutionItemsTable
-// can use it as-is until a real fetch is wired up.
-export const MOCK_EXECUTION_ITEMS = [
-  {
-    id: "dec-1",
-    srNo: "01",
-    name: "Marigold Backdrop Floral Wall",
-    description:
-      "Hand-woven fresh marigold strings on mesh structure, 12ft x 10ft feature wall.",
-    size: "12ft x 10ft",
-    qty: 2,
-    images: ["https://placehold.co/72x72", "https://placehold.co/72x72"],
-    materials: ["Flowers", "Lighting", "Sound", "Mandap", "Artist & Entertainment"],
-    materialsCount: 5,
-  },
-  {
-    id: "dec-2",
-    srNo: "02",
-    name: "Brass Urli with Floating Petals",
-    description:
-      'Handcrafted 24" antique brass urli filled with floating petals for aisle entrance.',
-    size: '24" Dia',
-    qty: 6,
-    images: [],
-    materials: [],
-    materialsCount: 0,
-  },
+export const MATERIAL_OPTIONS = [
+  { value: "FLOWERS", label: "Flowers" },
+  { value: "LIGHTING", label: "Lighting" },
+  { value: "SOUND", label: "Sound" },
+  { value: "LED_WALL", label: "LED Wall" },
+  { value: "MANDAP", label: "Mandap" },
+  { value: "FURNITURE", label: "Furniture" },
+  { value: "ARTIST_ENTERTAINMENT", label: "Artist / Entertainment" },
+  { value: "PRINTING", label: "Printing" },
+  { value: "OUTSOURCE", label: "Outsource" },
+  { value: "NEW_PURCHASE", label: "New Purchase" },
 ];
 
-/**
- * Column definitions for the execution items TableComponent (TanStack shape:
- * accessorKey / header / cell). Mirrors getCategoryColumns() from
- * CategoryTypeMaster/constant.js.
- *
- * onUploadImage(item, newImageUrls: string[]) — called after the user picks
- * file(s) in the Images cell; caller is responsible for merging the new
- * URLs into that row's `images`.
- *
- * onUpdateField(item, field, value) — called after an inline-editable cell
- * (description, size, qty) is committed; caller is responsible for merging
- * the new value into that row.
- */
+
 export const getExecutionColumns = ({
   onManageMaterials,
   onEdit,
@@ -103,20 +69,34 @@ export const getExecutionColumns = ({
   {
     id: "particular",
     header: "Particular Name & Description",
-    accessorKey: "name",
+    accessorKey: "particularName",
     cell: ({ row }) => (
       <div>
         <p className="text-sm font-semibold text-gray-800">
-          {row.original.name}
+          {row.original.particularName}
         </p>
         <AlwaysEditableCell
-          value={row.original.description}
+          value={row.original.particularDescription}
           placeholder="Add description..."
           multiline
           className="mt-0.5 max-w-sm"
-          onCommit={(val) => onUpdateField(row.original, "description", val)}
+          onCommit={(val) => onUpdateField(row.original, "particularDescription", val)}
         />
       </div>
+    ),
+  },
+  {
+    id: "elementsAndMaterials",
+    header: "Elements & Materials",
+    accessorKey: "elementsAndMaterials",
+    cell: ({ row }) => (
+      <AlwaysEditableCell
+        value={row.original.elementsAndMaterials}
+        placeholder="Enter elements & materials..."
+        multiline
+        className="max-w-[12rem]"
+        onCommit={(val) => onUpdateField(row.original, "elementsAndMaterials", val)}
+      />
     ),
   },
   {
@@ -166,8 +146,8 @@ export const getExecutionColumns = ({
         className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-medium text-white shadow-sm transition hover:bg-rose-950"
       >
         <Boxes size={14} />
-        {row.original.materialsCount
-          ? `Manage Materials (${row.original.materialsCount})`
+        {row.original.materials?.length
+          ? `Manage Materials (${row.original.materials.length})`
           : "Manage Materials"}
       </button>
     ),
@@ -177,14 +157,6 @@ export const getExecutionColumns = ({
     header: "Actions",
     cell: ({ row }) => (
       <div className="flex justify-center gap-3">
-        {/* <button
-          type="button"
-          onClick={() => onEdit(row.original)}
-          aria-label="Edit item"
-          className="text-gray-400 transition hover:text-primary"
-        >
-          <Pencil size={16} />
-        </button> */}
         <button
           type="button"
           onClick={() => onDelete(row.original)}
@@ -198,15 +170,7 @@ export const getExecutionColumns = ({
   },
 ];
 
-/**
- * AlwaysEditableCell
- * ------------------------------------------------------------------
- * Inline-editable cell used for description / size / qty. Renders the
- * input/textarea directly in the cell at all times — no click-to-open
- * step. Keeps its own draft state while typing so keystrokes don't get
- * clobbered by a parent re-render, and commits (calls onCommit) on
- * blur, or on Enter for single-line fields.
- */
+
 const AlwaysEditableCell = ({
   value,
   onCommit,
@@ -264,10 +228,8 @@ const ImagesCell = ({ item, onUploadImage }) => {
   const handleFiles = (e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
-    // Local preview only — swap for a real upload call + returned URLs later.
-    const urls = files.map((file) => URL.createObjectURL(file));
-    onUploadImage(item, urls);
-    e.target.value = ""; // allow re-selecting the same file again
+    onUploadImage(item, files);
+    e.target.value = "";
   };
 
   return (

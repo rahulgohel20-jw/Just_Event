@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState, useCallback } from "react";import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Select } from "antd";
 import {
@@ -43,8 +42,10 @@ import {
   STATUS_TYPE_MAP,
   PAYMENT_MODE_MAP,
 } from "../../services/apiServices";
+import { getallbankaccount, getallcashaccount } from "../../services/apiServices";
 import { useAuthStore } from "../../store/useAuthStore";
 import { AddMenuitemmaster } from "../Master/MenuItemMaster/menuitemmaster/AddMenuitemmaster";
+import DateTimeField from "../../components/form-inputs/DatePicker/DateTimeField";
 
 
 const toId = (v) => (v === null || v === undefined || v === "" ? null : Number(v));
@@ -400,6 +401,9 @@ const navigate = useNavigate();
   const [editedItemsByFunction, setEditedItemsByFunction] = useState({});
   const chequeTouchedRef = React.useRef(false);
   const [openSubtotalModal, setOpenSubtotalModal] = useState(false);
+const [bankAccounts, setBankAccounts] = useState([]);
+const [cashAccounts, setCashAccounts] = useState([]);
+  
 
   const fetchEstimate = () => {
   if (!eventId) return Promise.resolve();
@@ -445,7 +449,7 @@ const navigate = useNavigate();
       setPayments(mapPaymentsFromApi(data.payments));
       setNotes(data.notes ?? "");
 
-      chequeTouchedRef.current = Boolean(Number(data.cashAmount) || Number(data.chequeAmount));
+      chequeTouchedRef.current = Number(data.cashAmount) > 0;
 setSummary((prev) => ({
         ...prev,
         discount: data.discount ?? prev.discount,
@@ -460,6 +464,31 @@ setSummary((prev) => ({
     })
     .catch((err) => console.log("[Quotation] GetEstimateById: no estimate yet / error", err));
 };
+
+
+useEffect(() => {
+  const uid = Number(localStorage.getItem("userId")) || 0;
+
+  getallbankaccount({
+    isPrimary: null, page: 0, search: "", size: 100,
+    sortBy: "id", sortDirection: "ASC", userId: uid,
+  })
+    .then((res) => {
+      const body = res?.data ?? res;
+      setBankAccounts(body?.data?.content ?? body?.data ?? []);
+    })
+    .catch((err) => console.error("Failed to fetch bank accounts:", err));
+
+  getallcashaccount({
+    isPrimary: null, page: 0, search: "", size: 100,
+    sortBy: "id", sortDirection: "DESC", userId: uid,
+  })
+    .then((res) => {
+      const body = res?.data ?? res;
+      setCashAccounts(body?.data?.content ?? body?.data ?? []);
+    })
+    .catch((err) => console.error("Failed to fetch cash accounts:", err));
+}, []);
 
 useEffect(() => {
   fetchEstimate();
@@ -568,7 +597,7 @@ useEffect(() => {
 
  const items = useMemo(() => {
     if (selectedFunctionId == null) return [];
-    const key = String(selectedFunctionId);;
+    const key = String(selectedFunctionId);
     if (editedItemsByFunction[key] !== undefined) return editedItemsByFunction[key];
 
     const fn = estimateFunctionsRaw.find((f) => toId(f.eventFunctionId) === selectedFunctionId);
@@ -618,7 +647,8 @@ useEffect(() => {
   });
 };
 
-  const handleItemsChange = (updater) => {
+ const handleItemsChange = useCallback(
+  (updater) => {
     setEditedItemsByFunction((prev) => {
       const key = String(selectedFunctionId);
       const currentItems =
@@ -628,27 +658,52 @@ useEffect(() => {
       const nextItems = typeof updater === "function" ? updater(currentItems) : updater;
       return { ...prev, [key]: nextItems };
     });
-  };
+  },
+  [selectedFunctionId, estimateFunctionsRaw]
+);
 
-  const updateItemField = (id, field, value) => {
-    handleItemsChange(
-      items.map((item) => {
+  const updateItemField = useCallback(
+  (id, field, value) => {
+    handleItemsChange((currentItems) =>
+      currentItems.map((item) => {
         if (item.id !== id) return item;
         const updated = { ...item, [field]: value };
         if (field === "sqft") updated.sqFt = value;
         return updated;
       })
     );
-  };
-  const handleDescriptionChange = (id, value) =>
-    handleItemsChange(items.map((item) => (item.id === id ? { ...item, description: value } : item)));
-  const handleDeleteItem = (row) => handleItemsChange(items.filter((i) => i !== row));
-  const handleClearAllItems = () => handleItemsChange([]);
-  const handleImageUpload = (id, file) => {
+  },
+  [handleItemsChange]
+);
+
+const handleDescriptionChange = useCallback(
+  (id, value) => {
+    handleItemsChange((currentItems) =>
+      currentItems.map((item) => (item.id === id ? { ...item, description: value } : item))
+    );
+  },
+  [handleItemsChange]
+);
+
+const handleDeleteItem = useCallback(
+  (row) => {
+    handleItemsChange((currentItems) => currentItems.filter((i) => i.id !== row.id));
+  },
+  [handleItemsChange]
+);
+
+const handleImageUpload = useCallback(
+  (id, file) => {
     if (!file) return;
     const previewUrl = URL.createObjectURL(file);
-    handleItemsChange(items.map((item) => (item.id === id ? { ...item, image: previewUrl, imageFile: file } : item)));
-  };
+    handleItemsChange((currentItems) =>
+      currentItems.map((item) => (item.id === id ? { ...item, image: previewUrl, imageFile: file } : item))
+    );
+  },
+  [handleItemsChange]
+);
+
+
 const buildItemRow = ({ menuItemId = null, itemName = "New Item", description = "", rate = 0 }) => ({
   id: Date.now() + Math.floor(Math.random() * 1000),
   menuItemId,
@@ -769,13 +824,13 @@ const handleCashAmountChange = (value) => {
       userId,
       functions: functionsPayload,
       payments: payments.map((p) => ({
-        id: typeof p.id === "number" && p.id < 1e10 ? p.id : 0,
+        id: typeof p.id === "number" && p.id < 1e10 ? p.id : null,
         amount: Number(p.amount || 0),
         mode: PAYMENT_MODE_MAP[p.mode] ?? "CASH",
         paymentDate: p.date,
         description: p.description,
-        bankId: p.bankId ?? 0,
-        cashAccountId: p.cashAccountId ?? 0,
+        bankId: p.bankId ?? null,
+        cashAccountId: p.cashAccountId ?? null,
       })),
     };
 
@@ -904,20 +959,34 @@ const handleCashAmountChange = (value) => {
     [items, search]
   );
 
-  const columns = getEstimateColumns({
-    onEdit: (row) => console.log("Edit", row),
-    onDelete: handleDeleteItem,
-    onDescriptionChange: handleDescriptionChange,
-    onImageUpload: handleImageUpload,
-    onFieldChange: updateItemField,
-  });
+  const columns = useMemo(
+  () =>
+    getEstimateColumns({
+      onEdit: (row) => console.log("Edit", row),
+      onDelete: handleDeleteItem,
+      onDescriptionChange: handleDescriptionChange,
+      onImageUpload: handleImageUpload,
+      onFieldChange: updateItemField,
+    }),
+  [handleDeleteItem, handleDescriptionChange, handleImageUpload, updateItemField]
+);
 
   /* ---- Payments ---- */
   const addPayment = () =>
     setPayments((prev) => [...prev, { id: Date.now(), amount: "", mode: "Bank Transfer", date: "", description: "" }]);
   const removePayment = (id) => setPayments((prev) => prev.filter((p) => p.id !== id));
   const updatePayment = (id, field, value) =>
-    setPayments((prev) => prev.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
+  setPayments((prev) =>
+    prev.map((item) => {
+      if (item.id !== id) return item;
+      const updated = { ...item, [field]: value };
+      if (field === "mode") {
+        updated.bankId = 0;
+        updated.cashAccountId = 0;
+      }
+      return updated;
+    })
+  );
   const totalPaid = useMemo(() => payments.reduce((sum, item) => sum + Number(item.amount || 0), 0), [payments]);
   const remaining = grandTotal - totalPaid;
 
@@ -1023,13 +1092,23 @@ const handleCashAmountChange = (value) => {
           </div>
         </div>
 
-        <LayoutModel open={openLayoutModal} onClose={() => setOpenLayoutModal(false)} />
+      <LayoutModel
+  open={openLayoutModal}
+  onClose={() => setOpenLayoutModal(false)}
+  eventId={eventId}
+  eventData={eventData}
+/>
         <PresentationModel
   open={presentationModal}
   onClose={() => setPresentationModal(false)}
   eventId={eventId}
 />
-        <ChatBoxModel open={chatBoxModel} onClose={() => setChatBoxModel(false)} />
+        <ChatBoxModel
+  open={chatBoxModel}
+  onClose={() => setChatBoxModel(false)}
+  eventId={eventId}
+  eventData={eventData}
+/>
         <InfoModel open={infoModel} onClose={() => setInfoModel(false)} />
         <PrintModel open={printModel} onClose={() => setPrintModel(false)} />
             <SubtotalBreakdownModal
@@ -1118,15 +1197,7 @@ const handleCashAmountChange = (value) => {
         </div>
 
         <div className="rounded-lg border bg-light">
-          <div className="flex flex-col items-start justify-between gap-3 border-b px-6 py-5 sm:flex-row sm:items-center">
-            <h5 className="font-semibold text-dark">Estimate Items</h5>
-            <div className="flex items-center gap-4 text-xs">
-              <span className="text-gray-500">{filteredItems.length} Items Added</span>
-              <button onClick={handleClearAllItems} className="text-primary font-semibold">
-                Clear All
-              </button>
-            </div>
-          </div>
+          
           <TableComponent columns={columns} data={filteredItems} tableData={filteredItems} paginationSize={DEFAULT_PAGINATION_SIZE} defaultSorting={DEFAULT_SORTING} />
         </div>
 
@@ -1255,10 +1326,50 @@ const handleCashAmountChange = (value) => {
                   </div>
                 </div>
 
+                {payment.mode === "Bank Transfer" && (
+  <div className="mt-5">
+    <label className="mb-1 block text-[11px] font-semibold uppercase text-gray-500">
+      Bank Account
+    </label>
+    <select
+      value={payment.bankId || ""}
+      onChange={(e) => updatePayment(payment.id, "bankId", Number(e.target.value))}
+      className="h-11 w-full appearance-none rounded-lg border px-3 outline-none text-sm"
+    >
+      <option value="">Select bank account</option>
+      {bankAccounts.map((b) => (
+        <option key={b.id} value={b.id}>
+          {b.accountHolderName} — {b.bankName} ({(b.accountNo || "").slice(-4)})
+        </option>
+      ))}
+    </select>
+  </div>
+)}
+
+{payment.mode === "Cash" && (
+  <div className="mt-5">
+    <label className="mb-1 block text-[11px] font-semibold uppercase text-gray-500">
+      Cash Account
+    </label>
+    <select
+      value={payment.cashAccountId || ""}
+      onChange={(e) => updatePayment(payment.id, "cashAccountId", Number(e.target.value))}
+      className="h-11 w-full appearance-none rounded-lg border px-3 outline-none text-sm"
+    >
+      <option value="">Select cash account</option>
+      {cashAccounts.map((c) => (
+        <option key={c.id} value={c.id}>
+          {c.accountName}
+        </option>
+      ))}
+    </select>
+  </div>
+)}
+
                 <div className="mt-5 grid gap-5 lg:grid-cols-2">
                   <div>
   <label className="mb-1 block text-[11px] font-semibold uppercase text-gray-500">Payment Date & Time</label>
-  <DateField value={payment.date} onChange={(v) => updatePayment(payment.id, "date", v)} />
+  <DateTimeField value={payment.date} onChange={(v) => updatePayment(payment.id, "date", v)} />
 </div>
                   <div>
                     <label className="mb-1 block text-[11px] font-semibold uppercase text-gray-500">Payment Description</label>

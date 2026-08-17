@@ -9,8 +9,7 @@ import {
   ExportOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import DateField from '../form-inputs/DatePicker/Datefield';
-import TimeInput12h from '../form-inputs/Time/Timeinput12h';
+import DateTimeField from '../form-inputs/DatePicker/DateTimeField';
 
 const { Text, Title, Link } = Typography;
 
@@ -86,15 +85,10 @@ const EventHeaderCard = ({
   note,
   onNoteChange,
 
-  setupDate,
-  onSetupDateChange,
-  setupTime,
-  onSetupTimeChange,
-
-  dismantleDate,
-  onDismantleDateChange,
-  dismantleTime,
-  onDismantleTimeChange,
+  setUpDateTime,
+  onSetUpDateTimeChange,
+  dismantlingDateTime,
+  onDismantlingDateTimeChange,
 
   actions,
   onSave,
@@ -168,22 +162,24 @@ const EventHeaderCard = ({
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <FieldLabel>Setup</FieldLabel>
-          <div className="grid grid-cols-2 gap-3">
-             <DateField value={setupDate} onChange={onSetupDateChange} />
-            <TimeInput12h value={setupTime} onChange={onSetupTimeChange} />
-          </div>
-        </div>
-        <div>
-          <FieldLabel>Dismantling</FieldLabel>
-          <div className="grid grid-cols-2 gap-3">
-           <DateField value={dismantleDate} onChange={onDismantleDateChange} />
-            <TimeInput12h value={dismantleTime} onChange={onDismantleTimeChange} />
-          </div>
-        </div>
-      </div>
+ <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+  <div>
+    <FieldLabel>Setup</FieldLabel>
+    <DateTimeField
+      value={setUpDateTime}
+      onChange={onSetUpDateTimeChange}
+      placeholder="DD/MM/YYYY hh:mm A"
+    />
+  </div>
+  <div>
+    <FieldLabel>Dismantling</FieldLabel>
+    <DateTimeField
+      value={dismantlingDateTime}
+      onChange={onDismantlingDateTimeChange}
+      placeholder="DD/MM/YYYY hh:mm A"
+    />
+  </div>
+</div>
     </div>
   );
 };
