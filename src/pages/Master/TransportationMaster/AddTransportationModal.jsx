@@ -62,32 +62,35 @@ const AddTransportationModal = ({ open, onClose, onSave, initialData }) => {
     }
   }, [userId]);
 
-  const fetchAgencyOptions = useCallback(async () => {
-    setAgenciesLoading(true);
-    try {
-      const res = await getAllClientMaster({
-        nameEnglish: "",
-        page: 0,
-        size: 1000,
-        sortBy: "id",
-        sortDirection: "DESC",
-        userId,
-      });
-      const body = res?.data ?? res;
-      const content = body?.data?.content ?? body?.data ?? [];
-      setAgencyOptions(
-        (Array.isArray(content) ? content : []).map((item) => ({
-          value: item.id,
-          label: item.nameEnglish,
-        }))
-      );
-    } catch (err) {
-      console.error("Failed to load agencies:", err);
-      setAgencyOptions([]);
-    } finally {
-      setAgenciesLoading(false);
-    }
-  }, [userId]);
+const fetchAgencyOptions = useCallback(async () => {
+  setAgenciesLoading(true);
+  try {
+    const res = await getAllClientMaster({
+      nameEnglish: "",
+      page: 0,
+      size: 1000,
+      sortBy: "id",
+      sortDirection: "DESC",
+      userId,
+    });
+    const body = res?.data ?? res;
+    const content = body?.data?.content ?? body?.data ?? [];
+    const vendorsOnly = (Array.isArray(content) ? content : []).filter(
+      (item) => item.categoryTypeNameEnglish !== "Customer"
+    );
+    setAgencyOptions(
+      vendorsOnly.map((item) => ({
+        value: item.id,
+        label: item.nameEnglish,
+      }))
+    );
+  } catch (err) {
+    console.error("Failed to load agencies:", err);
+    setAgencyOptions([]);
+  } finally {
+    setAgenciesLoading(false);
+  }
+}, [userId]);
 
   useEffect(() => {
     if (open) {

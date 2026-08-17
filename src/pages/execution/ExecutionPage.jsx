@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Printer,
   BarChart3,
@@ -7,18 +7,22 @@ import {
   ArrowUpRight,
   Loader2,
 } from "lucide-react";
-import { AutoComplete, Input, Select } from "antd";
+import { AutoComplete, Input, Select, Spin } from "antd";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useParams, useSearchParams } from "react-router-dom";
 import ExecutionItemsTable from "./ExecutionItemsTable";
 import {
-  PRODUCTION_INCHARGE_OPTIONS,
   STATUS_OPTIONS,
   MATERIAL_OPTIONS,
 } from "./constant";
-import { getbyeventid, GetEventExecutionFunction, AddEventExecution } from "../../services/apiServices";
+import {
+  getbyeventid,
+  GetEventExecutionFunction,
+  AddEventExecution,
+  getalluser,
+} from "../../services/apiServices";
 import DateTimeField from "../../components/form-inputs/DatePicker/DateTimeField";
 // import { AddDecorationModal } from "./AddDecorationModal"; // hook up when built
 
@@ -27,6 +31,14 @@ dayjs.extend(customParseFormat);
 const DATE_TIME_FORMAT = "DD/MM/YYYY hh:mm A";
 
 const toId = (v) => (v === null || v === undefined || v === "" ? null : Number(v));
+
+// Any client-side temp id (e.g. Date.now() used for newly-added rows before
+// save) is a huge number — treat anything that large as "not a real id" so
+// it never gets sent to the server as if it were one. Used for item.id,
+// item.estimateItemId, and item.menuItemId alike, since all three are
+// server-assigned ids that a locally-created item won't actually have yet.
+const sanitizeServerId = (v) =>
+  typeof v === "number" && Number.isFinite(v) && v < 1e10 ? v : null;
 
 // Maps the real API item shape 1:1 into what the table columns read.
 const mapExecutionItems = (list = []) =>
@@ -74,6 +86,72 @@ const ExecutionPage = () => {
   const [dismantleDateTime, setDismantleDateTime] = useState("");
   const [status, setStatus] = useState("REMAINING");
   const [note, setNote] = useState("");
+
+  // Production Incharge — async search against /users/list, same request
+  // shape as UserMaster.jsx's fetchUserList (userType: "MEMBER", isActive:
+  // true, isBlock: false, etc.), instead of the old static options list.
+  const [inchargeOptions, setInchargeOptions] = useState([]);
+  const [inchargeSearching, setInchargeSearching] = useState(false);
+  const [inchargeHasLoadedOnce, setInchargeHasLoadedOnce] = useState(false);
+  const inchargeDebounceRef = useRef(null);
+
+  const inchargeDisplayName = (user) =>
+    [user.firstName, user.lastName].filter(Boolean).join(" ").trim() ||
+    user.email ||
+    user.companyName ||
+    `User #${user.id}`;
+
+  const fetchInchargeOptions = async (query) => {
+    setInchargeSearching(true);
+    try {
+      const res = await getalluser({
+        cityId: null,
+        clientId: null,
+        companyName: "",
+        countryId: null,
+        isActive: true,
+        isBlock: false,
+        page: 0,
+        roleId: null,
+        search: query || "",
+        size: 20,
+        sortBy: "id",
+        sortDirection: "DESC",
+        stateId: null,
+        userType: "MEMBER",
+      });
+      const body = res?.data ?? res;
+      const content = body?.data?.content ?? [];
+      setInchargeOptions(
+        content.map((user) => ({ value: String(user.id), label: inchargeDisplayName(user) }))
+      );
+      setInchargeHasLoadedOnce(true);
+    } catch (err) {
+      console.error("Failed to fetch production incharge list:", err);
+      setInchargeOptions([]);
+    } finally {
+      setInchargeSearching(false);
+    }
+  };
+
+  const handleInchargeSearch = (text) => {
+    setProductionInchargeName(text);
+    // Free-typed text no longer matches a picked user until they select
+    // an option again, so drop the stale id rather than saving a mismatch.
+    setProductionInchargeId(null);
+    if (inchargeDebounceRef.current) clearTimeout(inchargeDebounceRef.current);
+    inchargeDebounceRef.current = setTimeout(() => fetchInchargeOptions(text), 300);
+  };
+
+  const handleInchargeFocus = () => {
+    if (!inchargeHasLoadedOnce && !inchargeSearching) fetchInchargeOptions(productionInchargeName);
+  };
+
+  const handleInchargeSelect = (value, option) => {
+    setProductionInchargeId(toId(value));
+    setProductionInchargeName(option.label);
+  };
+
 
   /* ---- Load event + its functions ---- */
   useEffect(() => {
@@ -205,9 +283,13 @@ const toDateTimeString = (str) => {
   note: note || null,
   userId: Number(userId),
   items: tableData.map((item) => ({
-  id: typeof item.id === "number" && item.id < 1e10 ? item.id : null,
-  estimateItemId: item.estimateItemId ?? null,
-  menuItemId: item.menuItemId ?? null,
+  // Real DB id, or null for a not-yet-saved row.
+  id: sanitizeServerId(item.id),
+  // Only a genuine estimate-item id gets through — an item added directly
+  // from Execution (not sourced from an estimate) has no real estimateItemId,
+  // so this must resolve to null rather than leaking a client-side temp id.
+  estimateItemId: sanitizeServerId(item.estimateItemId),
+  menuItemId: sanitizeServerId(item.menuItemId),
   particularName: item.particularName,
   particularDescription: item.particularDescription,
   elementsAndMaterials: item.elementsAndMaterials,
@@ -234,28 +316,12 @@ formData.append("userId", dto.userId);
 
     // Per-item fields, indexed as items[i].fieldName
     dto.items.forEach((item, i) => {
-  const realId =
-    typeof item.id === "number" && item.id < 1e10
-      ? item.id
-      : null;
-
-  appendIfNotNull(
-    formData,
-    `items[${i}].id`,
-    realId
-  );
-
-  appendIfNotNull(
-    formData,
-    `items[${i}].estimateItemId`,
-    item.estimateItemId
-  );
-
-  appendIfNotNull(
-    formData,
-    `items[${i}].menuItemId`,
-    item.menuItemId
-  );
+  // dto.items already ran id/estimateItemId/menuItemId through
+  // sanitizeServerId above, so these are either a real server id or null —
+  // no separate temp-id check needed here anymore.
+  appendIfNotNull(formData, `items[${i}].id`, item.id);
+  appendIfNotNull(formData, `items[${i}].estimateItemId`, item.estimateItemId);
+  appendIfNotNull(formData, `items[${i}].menuItemId`, item.menuItemId);
 
   formData.append(
     `items[${i}].particularName`,
@@ -362,12 +428,15 @@ formData.append("userId", dto.userId);
               <AutoComplete
                 className="mt-1 w-full"
                 value={productionInchargeName}
-                onChange={setProductionInchargeName}
-                options={PRODUCTION_INCHARGE_OPTIONS}
-                placeholder="Select or type a name"
-                filterOption={(input, option) =>
-                  option.label.toLowerCase().includes(input.toLowerCase())
+                onSearch={handleInchargeSearch}
+                onFocus={handleInchargeFocus}
+                onSelect={handleInchargeSelect}
+                options={inchargeOptions}
+                placeholder="Search a member..."
+                notFoundContent={
+                  inchargeSearching ? <Spin size="small" /> : "No members found"
                 }
+                filterOption={false}
               />
             </div>
             <div>

@@ -66,7 +66,7 @@ const ChatBoxModel = ({ open, onClose, eventId, eventData }) => {
         try {
             const payload = {
                 eventId: Number(eventId),
-                managerId,
+                managerId: null,
                 page: pageIndex,
                 size: pageSize,
                 sortBy,
@@ -151,18 +151,30 @@ const ChatBoxModel = ({ open, onClose, eventId, eventData }) => {
             },
 
             {
-                accessorKey: "createdDate",
+                // API returns createdAt (often null in practice) rather than
+                // separate createdDate/createdTime strings — derive both
+                // display pieces from it, falling back to "—" when absent.
+                accessorKey: "createdAt",
                 header: "CREATED DATE",
-                cell: ({ row }) => (
-                    <div>
-                        <p className="text-sm font-bold text-dark m-0">
-                            {row.original.createdDate ?? "—"}
-                        </p>
-                        <p className="text-xs text-gray-400 m-0">
-                            {row.original.createdTime ?? ""}
-                        </p>
-                    </div>
-                ),
+                cell: ({ row }) => {
+                    const raw = row.original.createdAt;
+                    if (!raw) {
+                        return <p className="text-sm text-gray-400 m-0">—</p>;
+                    }
+                    const parsed = new Date(raw);
+                    const dateStr = Number.isNaN(parsed.getTime())
+                        ? raw
+                        : parsed.toLocaleDateString("en-GB");
+                    const timeStr = Number.isNaN(parsed.getTime())
+                        ? ""
+                        : parsed.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                    return (
+                        <div>
+                            <p className="text-sm font-bold text-dark m-0">{dateStr}</p>
+                            <p className="text-xs text-gray-400 m-0">{timeStr}</p>
+                        </div>
+                    );
+                },
             },
 
             {
@@ -190,12 +202,13 @@ const ChatBoxModel = ({ open, onClose, eventId, eventData }) => {
             },
 
             {
-                accessorKey: "followDate",
+                // API field is followUpDate (not followDate).
+                accessorKey: "followUpDate",
                 header: "FOLLOW DATE",
                 cell: ({ row }) => (
                     <span className="flex w-fit items-center gap-2 rounded-lg bg-primary-lighest px-3 py-1.5 text-sm font-semibold text-primary">
                         <Calendar size={14} />
-                        {row.original.followDate ?? "—"}
+                        {row.original.followUpDate ?? "—"}
                     </span>
                 ),
             },
@@ -204,7 +217,8 @@ const ChatBoxModel = ({ open, onClose, eventId, eventData }) => {
                 id: "attach",
                 header: "ATTACH",
                 cell: ({ row }) => {
-                    const files = row.original.files ?? [];
+                    // API field is attachments (not files).
+                    const files = row.original.attachments ?? [];
                     if (!files.length) {
                         return <span className="text-xs text-gray-400">No file</span>;
                     }

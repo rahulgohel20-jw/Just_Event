@@ -552,6 +552,11 @@ export const getbyiduser = (id) => {
     return GET(`/users/get?id=${id}`);
 };
 
+export const GetInventoryByFunction = (eventFunctionId, inventoryItems  ) => {
+    return GET(`/event-function-inventory/get-by-function?eventFunctionId=${eventFunctionId}&inventoryItems=${inventoryItems}`);
+};
+
+
 export const updateusermster = (data) => {
     return PUT(`/users/update`,data);
 };

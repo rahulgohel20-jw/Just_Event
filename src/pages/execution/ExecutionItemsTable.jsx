@@ -84,7 +84,7 @@ const ExecutionItemsTable = ({ items, setItems, loading, onAddDecoration }) => {
 
 const buildItemRow = ({ menuItemId = null, itemName = "New Item", description = "" }) => ({
   id: Date.now() + Math.floor(Math.random() * 1000), 
-  estimateItemId: menuItemId, 
+  estimateItemId: null, 
   menuItemId,
   srNo: String(items.length + 1).padStart(2, "0"),
   particularName: itemName,
