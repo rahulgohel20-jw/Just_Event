@@ -41,12 +41,12 @@ const PaginatedSearchSelect = ({
     async (pageToLoad, searchText, append) => {
       setLoading(true);
       try {
-        const res = await fetchFn({
-          page: pageToLoad,
-          [sizeParamName]: PAGE_SIZE,
-          [searchParamName]: searchText,
-          ...extraParams,
-        });
+       const res = await fetchFn({
+  page: pageToLoad,
+  [sizeParamName]: PAGE_SIZE,
+  [searchParamName]: searchText,
+  ...extraParams,
+});
         const data = res?.data?.data;
         const records = data?.content ?? [];
         const mapped = records.map(doMapOption);

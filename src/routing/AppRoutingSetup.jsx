@@ -180,6 +180,8 @@ import { MenuItemCategoryMaster } from "../pages/Master/MenuItemMaster/Menuitemc
 import { MenuItemMaster } from "../pages/Master/MenuItemMaster/menuitemmaster";
 import QuotationPage from "../pages/quotation";
 import { UserReportKeyPage } from "../pages/setting/UserReportKey/UserReportKeyPage";
+import { MenuReportThemesPage } from "../pages/Master/Theme_Template_Master/All_Theme";
+import UserMaster from "../pages/Master/user_master";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -188,6 +190,8 @@ const AppRoutingSetup = () => {
 
           <Route element={<Demo1Layout />}>
             {/* project routs */} 
+            <Route path="/allmember" element={<UserMaster/>}/>
+            <Route path="/alltheme" element={<MenuReportThemesPage/>}/>
             <Route path="/userwisereportkey" element={<UserReportKeyPage/>}/>
             <Route path="/menuitemmaster" element={<MenuItemMaster/>}/>
             <Route path="/menucatmaster" element={<MenuItemCategoryMaster/>}/>

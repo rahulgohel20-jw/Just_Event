@@ -32,10 +32,11 @@ const RoleMaster = () => {
 
   const searchDebounceRef = useRef(null);
 
-  const fetchRoleList = useCallback(
+ const fetchRoleList = useCallback(
     async (overrides = {}) => {
       setLoading(true);
       try {
+        const userId = Number(localStorage.getItem("userId"));
         const payload = {
           isActive: null,
           page,
