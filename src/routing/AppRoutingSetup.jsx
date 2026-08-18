@@ -187,6 +187,7 @@ import { MenuReportThemesPage } from "../pages/Master/Theme_Template_Master/All_
 import UserMaster from "../pages/Master/user_master";
 import LabourShiftMaster from "../pages/Master/Labour_Shit_Master";
 import EventFlexPage from "../pages/Event/EventFlexPage.jsx/EventFlexPage";
+import MembersPage from "../pages/Super_Admin/Memeber_list";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -266,6 +267,9 @@ const AppRoutingSetup = () => {
             <Route path="/inventory-dashboard" element={<InventoryDashboard />} />
 
             <Route path="/inventory-category-type" element={<RawCategoryType />} />
+
+{/* superadmin routes */}
+<Route path="/superadmin/clients" element={<MembersPage/>}/>
 
             {/* Theme routes */}
             <Route path="/company" element={<CompanyListPage />}></Route>

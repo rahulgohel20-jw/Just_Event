@@ -155,7 +155,7 @@ setStatus(apiMsg);
         </div>
 
         <div className="flex items-center justify-between gap-1">
-          <label className="checkbox-group flex items-center gap-1.5">
+          {/* <label className="checkbox-group flex items-center gap-1.5">
             <input
               className="checkbox checkbox-sm"
               type="checkbox"
@@ -163,8 +163,8 @@ setStatus(apiMsg);
               checked={formik.values.remember}
             />
             <span className="text-sm text-gray-600">Remember Me</span>
-          </label>
-          <Link
+          </label> */}
+          {/* <Link
             to={
               currentLayout?.name === "auth-branded"
                 ? "/auth/reset-password"
@@ -173,7 +173,7 @@ setStatus(apiMsg);
             className="text-sm font-medium shrink-0 hover:underline no-underline text-primary hover:text-primary-active"
           >
             Forgot Password?
-          </Link>
+          </Link> */}
         </div>
 
         <button
