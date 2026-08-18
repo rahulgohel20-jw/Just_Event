@@ -233,6 +233,66 @@ export const MENU_SIDEBAR = [
     ],
   },
 
+   {
+    title: "Raw Material",
+     icon: "  text-lg ki-filled  ki-badge text-primary",
+    
+    children: [
+      {
+        title:"Raw Category Type Master",
+        path: '/master/rowcategorytypemaster'
+      },
+      {
+        title:"Raw Category Master",
+        path: '/master/rowcategorymaster'
+      },
+     
+      {
+        title:"Raw Item Master",
+        path: '/master/rowitemmaster'
+      },
+      {
+        title:"Unit Master",
+        path: '/master/unitmaster'
+      },
+    ],
+  },
+   {
+    title: "Menu Item",
+     icon: "  text-lg ki-filled ki-additem  text-primary",
+  
+    children: [
+      {
+      title:"Menu item Category Type ",
+      path:"/menucattypemaster",
+     },
+     {
+      title:"Menu Item Category",
+      path:"/menucatmaster",
+     },
+     {
+      title:"Menu Item ",
+      path:"/menuitemmaster",
+     },
+      
+    ],
+  },
+  {
+    title: "Members",
+     icon: "  text-lg ki-filled ki-user  text-primary",
+  
+    children: [
+      {
+        title:"Role Master",
+        path: '/rolemaster'
+      },
+      {
+        title:"User Master",
+        path:"/allmember",
+      },
+      
+    ],
+  },
   {
     title: "Masters",
      icon: "  text-lg ki-filled ki-abstract-26 text-primary",
@@ -265,30 +325,9 @@ export const MENU_SIDEBAR = [
         title: "Tax Master",
         path: "/master/taxmaster",
       },
-      {
-        title:"Raw Category Type Master",
-        path: '/master/rowcategorytypemaster'
-      },
-      {
-        title:"Raw Category Master",
-        path: '/master/rowcategorymaster'
-      },
-      {
-        title:"Unit Master",
-        path: '/master/unitmaster'
-      },
-      {
-        title:"Raw Item Master",
-        path: '/master/rowitemmaster'
-      },
-      {
-        title:"Raw Sub Category Master",
-        path: '/master/rowsubcategorymaster'
-      },
-      {
-        title:"Role Master",
-        path: '/rolemaster'
-      },
+     
+     
+     
       {
         title :"Plan Master",
         path:"/planmaster",
@@ -305,18 +344,7 @@ export const MENU_SIDEBAR = [
       title:"Bank Account" , 
       path:"/bankaccount",
      },
-     {
-      title:"Menu item Category Type ",
-      path:"/menucattypemaster",
-     },
-     {
-      title:"Menu Item Category",
-      path:"/menucatmaster",
-     },
-     {
-      title:"Menu Item ",
-      path:"/menuitemmaster",
-     },
+    
       {
       title:"Transportation Master ",
       path:"/transportationmaster",
@@ -325,14 +353,8 @@ export const MENU_SIDEBAR = [
       title:"Trip Master ",
       path:"/tripmaster",
      },
-     {
-        title:"Role Master",
-        path: '/rolemaster'
-      },
-      {
-        title:"User Master",
-        path:"/allmember",
-      },
+    
+      
       {
         title:"labour Shit ",
         path:"/labourshift",
@@ -350,24 +372,24 @@ export const MENU_SIDEBAR = [
   // icon: "ki-filled ki-archive text-primary",
   //   path: "/inventory-dashboard",
   // },
-  {
-    title: "Event Invoice",
-    icon: "ki-filled ki-cheque text-primary",
-    children: [
-      {
-        title: "Invoice Overview",
-        path: "/event-invoice",
-      },
-      {
-        title: "Invoice",
-        path: "/add-invoice",
-      },
-      {
-        title: "View Invoice",
-        path: "/view-invoice",
-      },
-    ],
-  },
+  // {
+  //   title: "Event Invoice",
+  //   icon: "ki-filled ki-cheque text-primary",
+  //   children: [
+  //     {
+  //       title: "Invoice Overview",
+  //       path: "/event-invoice",
+  //     },
+  //     {
+  //       title: "Invoice",
+  //       path: "/add-invoice",
+  //     },
+  //     {
+  //       title: "View Invoice",
+  //       path: "/view-invoice",
+  //     },
+  //   ],
+  // },
  
    {
     title: "setting",
@@ -525,7 +547,7 @@ export const superAdminMenuItems = [
     icon: "ki-filled ki-users text-primary",
     children: [
       { title: "All Clients", path: "/superadmin/clients" },
-      { title: "Client Plans", path: "/superadmin/client-plans" },
+      { title: "Client Plans", path: "" },
     ],
   },
   {

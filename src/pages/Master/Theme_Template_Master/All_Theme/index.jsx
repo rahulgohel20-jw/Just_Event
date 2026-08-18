@@ -10,8 +10,12 @@ import {
   ChevronRight,
   ChevronLeft,
 } from "lucide-react";
-import { getallthememaster, getbyidthememaster, deletetheme } from "@/services/apiServices"; // TODO: confirm real deletetheme function name — not yet given
-import { getalltheme } from "@/services/apiServices"; // modules/tabs list (/template-module/list)
+import {
+  getallthememaster,
+  getbyidthememaster,
+  deletebytemplatemasterid,
+  getalltheme, // modules/tabs list (/template-module/list)
+} from "@/services/apiServices";
 import { confirmDelete, showApiResult, showApiError } from "@/utils/swalHelpers";
 import { ContentLoader } from "@/components/loaders/ContentLoader";
 import { AddTheme } from "./AddTheme"; // TODO: confirm actual path/filename
@@ -22,7 +26,7 @@ const DEBOUNCE_MS = 400;
 const MenuReportThemesPage = () => {
   const [tabs, setTabs] = useState([]);
   const [tabsLoading, setTabsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState(null); // set once tabs load
+  const [activeTab, setActiveTab] = useState(null);
   const [search, setSearch] = useState("");
   const [themes, setThemes] = useState([]);
   const [page, setPage] = useState(0);
@@ -39,7 +43,6 @@ const MenuReportThemesPage = () => {
 
   const hasMore = themes.length < totalElements;
 
-  // Load the template modules that become the tabs
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -49,7 +52,7 @@ const MenuReportThemesPage = () => {
           isAutoAssign: null,
           nameEnglish: "",
           page: 0,
-          size: 50, // TODO: paginate this properly if there can be more than ~50 modules
+          size: 50,
           sortBy: "id",
           sortDirection: "DESC",
         });
@@ -96,13 +99,11 @@ const MenuReportThemesPage = () => {
     [search, activeTab]
   );
 
-  // Refetch page 0 whenever the active tab changes
   useEffect(() => {
     fetchThemes(0, { append: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
-  // Debounced refetch on search
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
@@ -112,7 +113,6 @@ const MenuReportThemesPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
-  // Infinite scroll: load next page when the sentinel div enters the viewport
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el) return;
@@ -128,14 +128,12 @@ const MenuReportThemesPage = () => {
     return () => observer.disconnect();
   }, [fetchThemes, hasMore, loading, loadingMore, page]);
 
-  // TODO: no count field (like the 253/10/5/4 badges in your screenshot)
-  // appears anywhere on the module objects. Badges omitted until confirmed.
-
+  // theme.id here is the templateMasterId per /template-master/list response
   const handleDelete = async (theme) => {
     const confirmed = await confirmDelete(theme.name);
     if (!confirmed) return;
     try {
-      const res = await deletetheme(theme.id);
+      const res = await deletebytemplatemasterid(theme.id);
       showApiResult(res, { onSuccess: () => fetchThemes(0, { append: false }) });
     } catch (err) {
       showApiError(err, { title: "Delete Failed" });
@@ -147,9 +145,6 @@ const MenuReportThemesPage = () => {
   };
 
   const handleAddTheme = () => {
-    // pre-fill templateModuleId with the tab (Theme) the user is currently
-    // viewing; templateMappingId (Theme Type Master) still needs picking
-    // since it's scoped/dependent on the module and can't be assumed
     setEditingTheme({ templateModuleId: activeTab });
     setModalOpen(true);
   };
@@ -176,26 +171,12 @@ const MenuReportThemesPage = () => {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Menu Reportaa Themes</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">Menu Reporta Themes</h1>
           <p className="text-sm text-gray-500 mt-1">
             Discover unique designs, crafted for your reports.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-sm">
-          <Link to="/dashboard" className="text-blue-600 hover:underline">
-            Dashboard
-          </Link>
-          <ChevronRight size={14} className="text-gray-400" />
-          <span className="text-gray-500">Menu Reportaa Themes</span>
-          <button
-            type="button"
-            className="ml-3 flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
-            onClick={() => {}} // TODO: wire "Create New" navigation/action
-          >
-            <Plus size={16} />
-            Create New
-          </button>
-        </div>
+       
       </div>
 
       {/* Search + Add Theme */}
@@ -289,7 +270,6 @@ const MenuReportThemesPage = () => {
             ))}
           </div>
 
-          {/* infinite-scroll sentinel */}
           <div ref={sentinelRef} className="h-1" />
 
           {loadingMore && (
@@ -314,10 +294,6 @@ const MenuReportThemesPage = () => {
 const ThemeCard = ({ theme, onDelete, onEdit, onPreview }) => (
   <div className="group">
     <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-gray-100">
-      {/* No image field exists anywhere in the confirmed /template-master/list
-          response (id, templateModuleId, templateModuleName, templateMappingId,
-          templateMappingName, name, description, backOfficeDescription, price,
-          isDefault) — this data model has no theme preview image at all. */}
       <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
         No preview
       </div>
@@ -328,13 +304,8 @@ const ThemeCard = ({ theme, onDelete, onEdit, onPreview }) => (
         <IconButton icon={Trash2} onClick={onDelete} iconClassName="text-red-500" />
       </div>
     </div>
-    <p className="mt-3 text-sm font-semibold text-primary">{theme.name}</p>
-    <p className="text-xs text-gray-400">{theme.templateMappingName}</p>
-    {theme.isDefault && (
-      <span className="mt-1 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-        Default
-      </span>
-    )}
+    <p className="m-3 text-md font-bold text-primary">{theme.name}</p>
+   
   </div>
 );
 

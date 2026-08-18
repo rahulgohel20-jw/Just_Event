@@ -94,7 +94,7 @@ const handleClearFilters = () => {
                 sortDirection: DEFAULT_SORTING?.sortDirection || "DESC",
                 supplierId: null, // no supplier filter in the toolbar yet
                 unitId: unitFilter ?? null,
-                userId,
+                userId:userId,
             };
 
             const res = await getAllRawItemMaster(payload);

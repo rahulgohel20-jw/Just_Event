@@ -27,6 +27,8 @@ const EventTypeMaster = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGINATION_SIZE || 100);
+const userId = Number(localStorage.getItem("userId"));
+ const [totalRows, setTotalRows] = useState(0);
 
   const normalizeRow = (row, index) => ({
     id: row.id,
@@ -39,28 +41,29 @@ const EventTypeMaster = () => {
     imgPath: row.imgPath || "",
   });
 
-  const fetchEventTypeList = useCallback(async () => {
-    setLoading(true);
-    try {
-      const payload = {
-        nameEnglish: searchText || "",
-        page,
-        size,
-        sortBy: DEFAULT_SORTING?.sortBy || "id",
-        sortDirection: DEFAULT_SORTING?.sortDirection || "ASC",
-        userId: 1, // static for now
-      };
-      const res = await getAllEventTypemaster(payload);
-      const list =
-        res?.data?.data?.content || res?.data?.data || res?.data || [];
-      setTableData(Array.isArray(list) ? list.map(normalizeRow) : []);
-    } catch (err) {
-      console.error("Failed to fetch event type list:", err);
-      setTableData([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [searchText, page, size]);
+
+const fetchEventTypeList = useCallback(async () => {
+  setLoading(true);
+  try {
+    const payload = {
+      nameEnglish: searchText || "",
+      page,
+      size,
+      sortBy: DEFAULT_SORTING?.sortBy || "id",
+      sortDirection: DEFAULT_SORTING?.sortDirection || "ASC",
+      userId,
+    };
+    const res = await getAllEventTypemaster(payload);
+    const list = res?.data?.data?.content || res?.data?.data || res?.data || [];
+    setTableData(Array.isArray(list) ? list.map(normalizeRow) : []);
+    setTotalRows(res?.data?.data?.totalElements ?? list.length);
+  } catch (err) {
+    console.error("Failed to fetch event type list:", err);
+    setTableData([]);
+  } finally {
+    setLoading(false);
+  }
+}, [searchText, page, size, userId]);
 
   useEffect(() => {
     fetchEventTypeList();
@@ -235,14 +238,17 @@ const EventTypeMaster = () => {
         </button>
       </div>
 
-      <TableComponent
-        columns={columns}
-        data={filteredData}
-        loading={loading}
-        paginationSize={size}
-        defaultSorting={DEFAULT_SORTING}
-        toolbar={toolbar}
-      />
+    <TableComponent
+  columns={columns}
+  data={filteredData}
+  loading={loading}
+  paginationSize={size}
+  totalCount={totalRows}
+  currentPage={page}
+  onPageChange={setPage}
+  defaultSorting={DEFAULT_SORTING}
+  toolbar={toolbar}
+/>
 
       <AddEventTypeModal
         open={isAddModalOpen}
