@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useEventDraftStore } from "@/stores/useEventDraftStore";
-import { getbyeventid } from "@/services/apiServices";
+import { getbyeventid ,getAllClientMaster  } from "@/services/apiServices";
 
-const STATUS_MAP_REVERSE = { INQUIRY: "Inquiry", TENTATIVE: "Tentative", CONFIRMED: "Confirmed" };
+const VALID_STATUSES = ["INQUIRY", "TENTATIVE", "CONFIRM", "CANCEL"];
 const PRIORITY_MAP_REVERSE = { HIGH: "High", MED: "Med", LOW: "Low" };
 
 // Turns one API `eventFunctions[]` entry back into a FunctionDetails row.
@@ -41,9 +41,10 @@ export function mapEventToFormData(event) {
   const otherInfo = event.otherInfo || {};
 
   const formData = {
+   
     eventDetails: {
-      inquiryDate: event.inquiryDate || "",
-      eventStatus: STATUS_MAP_REVERSE[event.eventStatus] || "Inquiry",
+  inquiryDate: event.inquiryDate || "",
+  eventStatus: VALID_STATUSES.includes(event.eventStatus) ? event.eventStatus : "INQUIRY",
       eventStartDate: event.eventStartDate || "",
       eventStartTime: event.eventStartTime || "",
       eventEndDate: event.eventEndDate || "",
@@ -71,34 +72,41 @@ export function mapEventToFormData(event) {
       functions: (event.eventFunctions || []).map(mapEventFunctionToRow),
     },
     otherInformation: {
-      id: otherInfo.id ?? null, // eventOtherInfo row id — buildEventPayload reads this to send eventOtherInfo.id on update
-      photographer: {
-        mode: otherInfo.photographerDetailType === "OTHER" ? "other" : "groomBride",
-        photographerName: otherInfo.groomPhotographerName || otherInfo.bridePhotographerName || "",
-        photographerNo:
-          otherInfo.groomPhotographerContactNumber || otherInfo.bridePhotographerContactNumber || "",
-        groom: {
-          name: otherInfo.groomName || "",
-          fatherName: otherInfo.groomFatherName || "",
-          contactNumber: otherInfo.groomContactNumber || "",
-          instaId: otherInfo.groomInstaId || "",
-          birthdate: otherInfo.groomBirthdate || "",
-        },
-        bride: {
-          name: otherInfo.brideName || "",
-          fatherName: otherInfo.brideFatherName || "",
-          contactNumber: otherInfo.brideContactNumber || "",
-          instaId: otherInfo.brideInstaId || "",
-          birthdate: otherInfo.brideBirthdate || "",
-        },
-      },
+  id: otherInfo.id ?? null,
+  photographer: {
+    mode: otherInfo.photographerDetailType === "OTHER" ? "other" : "groomBride",
+    photographerName: otherInfo.photographerDetailType === "OTHER"
+      ? (otherInfo.groomPhotographerName || "")
+      : "",
+    photographerNo: otherInfo.photographerDetailType === "OTHER"
+      ? (otherInfo.groomPhotographerContactNumber || "")
+      : "",
+    groom: {
+      name: otherInfo.groomName || "",
+      fatherName: otherInfo.groomFatherName || "",
+      contactNumber: otherInfo.groomContactNumber || "",
+      instaId: otherInfo.groomInstaId || "",
+      birthdate: otherInfo.groomBirthdate || "",
+      photographerName: otherInfo.groomPhotographerName || "",
+      photographerContactNumber: otherInfo.groomPhotographerContactNumber || "",
     },
+    bride: {
+      name: otherInfo.brideName || "",
+      fatherName: otherInfo.brideFatherName || "",
+      contactNumber: otherInfo.brideContactNumber || "",
+      instaId: otherInfo.brideInstaId || "",
+      birthdate: otherInfo.brideBirthdate || "",
+      photographerName: otherInfo.bridePhotographerName || "",
+      photographerContactNumber: otherInfo.bridePhotographerContactNumber || "",
+    },
+  },
+},
   };
 
-  const draftValues = {
+const draftValues = {
     eventName: event.projectName || "",
     eventType: event.eventTypeId
-      ? { value: event.eventTypeId, label: event.eventNameEnglish || "" }
+      ? { id: event.eventTypeId, value: event.eventTypeId, label: event.eventNameEnglish || "" }
       : null,
     eventDate: event.inquiryDate || "",
     priority: PRIORITY_MAP_REVERSE[event.priority] || "High",
@@ -139,6 +147,33 @@ export function useEventEditLoader(eventId) {
         if (cancelled) return;
 
         const { formData: mappedFormData, draftValues } = mapEventToFormData(event);
+
+        if (event.partyId) {
+  try {
+    const partyRes = await getAllClientMaster({
+      page: 0,
+      size: 1000, // pull enough to reliably contain the target record
+      sortBy: "id",
+      sortDirection: "DESC",
+    });
+    const list = partyRes?.data?.data?.content || [];
+    const party = list.find((c) => Number(c.id) === Number(event.partyId));
+    if (party && !cancelled) {
+      mappedFormData.clientDetails.clients[0] = {
+        ...mappedFormData.clientDetails.clients[0],
+        name: party.nameEnglish || mappedFormData.clientDetails.clients[0].name,
+        mobile: party.mobileNo || "",
+        address: party.address || "",
+      };
+    } else {
+      console.warn("Party not found in list for partyId:", event.partyId);
+    }
+  } catch (partyErr) {
+    console.error("Failed to load party details for edit:", partyErr);
+  }
+}
+
+        if (cancelled) return;
 
         setFormData(mappedFormData);
         setEventName(draftValues.eventName);

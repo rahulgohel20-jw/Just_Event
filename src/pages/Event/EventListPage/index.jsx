@@ -1,15 +1,15 @@
 import { Fragment, useEffect, useState, useCallback } from "react";
-import { BadgeDollarSign, FileText, Receipt, Trash2 } from "lucide-react";
+import { BadgeDollarSign, FileText, Receipt, Trash2, Plus } from "lucide-react";
 import { Tooltip } from "antd";
 import dayjs from "dayjs";
+import { Link, useNavigate } from "react-router-dom";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import useStyle from "./style";
-import { Link } from "react-router-dom";
 import AddEvent from "@/partials/modals/add-event/AddEvent";
-import DateField from "@/components/form-inputs/DatePicker/Datefield"; 
+import DateField from "@/components/form-inputs/DatePicker/Datefield";
 import { getallevent, deleteeventbyid } from "@/services/apiServices";
 import { showApiError, showApiResult, confirmDelete } from "@/utils/swalHelpers";
 
@@ -17,6 +17,7 @@ const DATE_FORMAT = "DD/MM/YYYY";
 const PAGE_SIZE = 10;
 
 const EventListPage = () => {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editData, setEditData] = useState(null);
 
@@ -36,10 +37,16 @@ const EventListPage = () => {
     setIsModalOpen(true);
   };
 
+  // Guessed distinction from "Create New": full multi-step create flow,
+  // vs "Add Event" opening the quick-add modal. Swap the route/behavior
+  // if "Create New" is meant to do something else.
+  const handleCreateNewClick = () => {
+    navigate("/creteevnetname");
+  };
+
   const handleDelete = async (id, name) => {
     const confirmed = await confirmDelete(name || "this event");
     if (!confirmed) return;
-
     try {
       const res = await deleteeventbyid(id);
       const success = showApiResult(res, {
@@ -79,14 +86,14 @@ const EventListPage = () => {
       </Link>
     ),
     quotation: (
-  <Link to={`/quotation/${item.id}`}>
-    <Tooltip className="cursor-pointer" title="Quotation">
-      <div className="flex justify-center items-center w-full">
-        <BadgeDollarSign className="w-5 h-5 text-blue-600" />
-      </div>
-    </Tooltip>
-  </Link>
-),
+      <Link to={`/quotation/${item.id}`}>
+        <Tooltip className="cursor-pointer" title="Quotation">
+          <div className="flex justify-center items-center w-full">
+            <BadgeDollarSign className="w-5 h-5 text-blue-600" />
+          </div>
+        </Tooltip>
+      </Link>
+    ),
     delete: (
       <Tooltip
         className="cursor-pointer"
@@ -111,8 +118,7 @@ const EventListPage = () => {
       const payload = {
         eventStatus: null,
         eventTypeId: null,
-        // fromDate: null || fromDate ,
-        FormData :null,
+        FormData: null,
         page,
         partyId: null,
         priority: null,
@@ -120,8 +126,7 @@ const EventListPage = () => {
         size: PAGE_SIZE,
         sortBy: "id",
         sortDirection: "DESC",
-        // toDate: null || toDate ,
-        toDate :null , 
+        toDate: null,
         userId,
         venueId: null,
       };
@@ -151,7 +156,6 @@ const EventListPage = () => {
     fetchEvents();
   }, [fetchEvents]);
 
-  // Reset to page 0 whenever filters change (not on page changes themselves)
   useEffect(() => {
     setPage(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -160,10 +164,26 @@ const EventListPage = () => {
   return (
     <Fragment>
       <Container>
-        {/* Breadcrumbs */}
-        <div className="gap-2 ">
-       <h1 className="py-5 text-primary text-2xl">Events</h1>
+        {/* Header: title + breadcrumb + Create New */}
+        <div className="flex flex-wrap items-center justify-between gap-3 py-3">
+          <h1 className="text-2xl text-primary m-0">Events</h1>
+          <div className="flex items-center gap-4">
+        
+            <button
+            type="button"
+           onClick={() => navigate("/creteevnetname")}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary hover:bg-rose-950 px-4 py-2 text-sm font-semibold text-white transition-colors"
+            title="Add Event"
+          >
+            <Plus size={16} />
+            Add Event
+          </button>
+          </div>
         </div>
+
+        {/* Add Event, right-aligned */}
+        
+
         {/* filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
           <div
@@ -180,36 +200,21 @@ const EventListPage = () => {
               />
             </div>
 
+            {/* Keeping the custom From/To date filters as-is */}
             <div className="w-40">
               <p className="text-[13px] font-medium text-dark mb-1">From Date</p>
-              <DateField
-                value={fromDate}
-                onChange={(val) => setFromDate(val)}
-              />
+              <DateField value={fromDate} onChange={(val) => setFromDate(val)} />
             </div>
 
             <div className="w-40">
               <p className="text-[13px] font-medium text-dark mb-1">To Date</p>
-              <DateField
-                value={toDate}
-                onChange={(val) => setToDate(val)}
-              />
+              <DateField value={toDate} onChange={(val) => setToDate(val)} />
             </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              className="btn btn-primary"
-              onClick={handleModalOpen}
-              title="Add Event"
-            >
-              <i className="ki-filled ki-plus"></i> Add Event
-            </button>
           </div>
         </div>
 
-
         <TableComponent
-          columns={columns}
+          columns={columns(handleDelete)}
           tableData={tableData}
           loading={loading}
           paginationSize={PAGE_SIZE}
@@ -218,10 +223,10 @@ const EventListPage = () => {
           onPageChange={setPage}
         />
         <AddEvent
-                      isModalOpen={isModalOpen}
-                setIsModalOpen={setIsModalOpen}
-                editData={editData}
-                    />
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          editData={editData}
+        />
       </Container>
     </Fragment>
   );

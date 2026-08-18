@@ -12,11 +12,11 @@ import AddVenuePage from "../../../Master/VenueMaster/AddVenuePage";
 import { AddEventTypeModal } from "../../../Master/EventTypeMaster/AddEventTypeModal";
 
 const STATUS_OPTIONS = [
-  { value: "Inquiry", label: "Inquiry" },
-  { value: "Tentative", label: "Tentative" },
-  { value: "Confirmed", label: "Confirmed" },
+  { value: "INQUIRY", label: "Inquiry" },
+  { value: "TENTATIVE", label: "Tentative" },
+  { value: "CANCEL", label: "Cancel" },
+  { value: "CONFIRM", label: "Confirm" },
 ];
-
 export default function EventDetails({ data, onChange }) {
   const { eventType, setEventType, venue, setVenue } = useEventDraftStore();
 
@@ -31,15 +31,15 @@ export default function EventDetails({ data, onChange }) {
   const set = (field) => (e) =>
     onChange({ [field]: e?.target ? e.target.value : e });
 
-  useEffect(() => {
-    if (!data.inquiryDate) {
-      onChange({ inquiryDate: dayjs().format("DD/MM/YYYY") });
-    }
-    if (!data.eventStatus) {
-      onChange({ eventStatus: "Inquiry" });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+ useEffect(() => {
+  if (!data.inquiryDate) {
+    onChange({ inquiryDate: dayjs().format("DD/MM/YYYY") });
+  }
+  if (!data.eventStatus) {
+    onChange({ eventStatus: "INQUIRY" });
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
   const handleEventTypeCreated = (created) => {
     if (!created) return;
@@ -108,14 +108,14 @@ export default function EventDetails({ data, onChange }) {
             <p className="text-[13px] font-medium text-dark mb-2">
               Event Status<span className="text-danger ml-0.5">*</span>
             </p>
-            <Select
-              value={data.eventStatus || "Inquiry"}
-              onChange={(v) => onChange({ eventStatus: v })}
-              options={STATUS_OPTIONS}
-              placeholder="Select event status..."
-              size="large"
-              className="w-full h-14-select"
-            />
+           <Select
+  value={data.eventStatus}
+  onChange={(v) => onChange({ eventStatus: v })}
+  options={STATUS_OPTIONS}
+  placeholder="Select event status..."
+  size="large"
+  className="w-full h-14-select"
+/>
           </div>
         </div>
       </section>
@@ -215,7 +215,7 @@ export default function EventDetails({ data, onChange }) {
           <div>
             <p className="text-[13px] font-medium text-dark mb-2">Special Instructions / Remarks</p>
             <textarea
-              placeholder="Special Instructions / Remarks"
+              
               value={data.remarks || ""}
               onChange={set("remarks")}
               rows={1}
