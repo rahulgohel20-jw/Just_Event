@@ -243,7 +243,7 @@ const EventHeaderCard = ({
             value={reference}
             onChange={(e) => onReferenceChange(e.target.value)}
             placeholder="Enter reference"
-          />
+        />
         </div>
         <div>
           <FieldLabel>Production Incharge</FieldLabel>

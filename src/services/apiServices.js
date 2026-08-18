@@ -495,9 +495,6 @@ export const ApproveFollowUp = (done,id) => {
 
 
 
-
-
-
 export const GetAllEventExecution = (data) => {
     return POST(`/event-function-execution/list`,data);
 }
@@ -557,4 +554,41 @@ export const getbyiduser = (id) => {
 
 export const GetInventoryByFunction = (eventFunctionId, inventoryItems  ) => {
     return GET(`/event-function-inventory/get-by-function?eventFunctionId=${eventFunctionId}&inventoryItems=${inventoryItems}`);
+};
+
+
+export const updateusermster = (data) => {
+    return PUT(`/users/update`,data);
+};
+
+//labour shit 
+export const addupadtelaourshift = (data) => {
+    return POST(`/labour-shift-master/add-update`,data);
+};
+
+export const getalllabourshift = (data) => {
+    return POST(`/labour-shift-master/list`,data);
+};
+
+export const deletelabourshift = (labourShiftId) =>{
+    return DELETE(`/labour-shift-master/deletebyid?labourShiftId=${labourShiftId}`);
+};
+
+//eventagencydistribution 
+export const addupdateeventagencydistribution = (data) =>{
+    return POST(`/event-function-agency/add-update`,data);
+};
+
+export const geteventagencydistriibution = (eventFunctionId) => {
+    return GET(`/event-function-agency/getbyeventfunctionid?eventFunctionId=${eventFunctionId}`);
+};
+
+//evntflex 
+export const addupdateeventflex = (data) => {
+    return POST(`/event-function-flex/add-update`,data);
+
+};
+
+export const getfunctionflex = (eventFunctionId) => {
+    return GET(`/event-function-flex/getbyeventfunctionid?eventFunctionId=${eventFunctionId}`);
 };

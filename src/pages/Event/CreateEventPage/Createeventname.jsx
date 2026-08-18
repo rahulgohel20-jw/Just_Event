@@ -7,12 +7,13 @@ import {
   Loader2,
 } from "lucide-react";
 import dayjs from "dayjs";
-
 import illustrationImg from "../../../assets/create-event-img.png";
 import { useNavigate, useLocation } from "react-router";
+import { useSearchParams } from "react-router-dom";
 import { getAllEventTypemaster } from "@/services/apiServices";
 import DateField from "../../../components/form-inputs/DatePicker/Datefield";
 import { useEventDraftStore } from "@/stores/useEventDraftStore";
+import { useEventEditLoader } from "./useEventEditLoader"; // adjust to actual path
 
 const PAGE_SIZE = 9;
 const PRIORITIES = ["High", "Med", "Low"];
@@ -20,6 +21,10 @@ const PRIORITIES = ["High", "Med", "Low"];
 export default function CreateEventName() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const eventId = Number(searchParams.get("id")) || 0;
+
+  const { loading: loadingEvent } = useEventEditLoader(eventId > 0 ? eventId : null);
 
   const {
     eventName, setEventName,
@@ -30,17 +35,33 @@ export default function CreateEventName() {
   } = useEventDraftStore();
 
 
+    const canSubmit = eventName.trim().length > 0 && Boolean(eventDate);
+  const resetDraft = () => {
+    setEventName("");
+    setEventType(null);
+    setEventDate("");
+    setPriority("Med");
+    setVenue(null);
+    setSearchTerm("");
+  };
+
+  // Reset for a brand-new workspace, then apply any calendar-picked date on
+  // top. Combined into one effect so reset can never run after — and wipe
+  // out — the incoming date.
   useEffect(() => {
-  const incomingDate = location.state?.eventDate;
-  if (!incomingDate) return;
+    if (eventId !== 0) return;
 
-  const parsed = dayjs(incomingDate, "YYYY-MM-DD", true);
-  if (parsed.isValid()) {
-    setEventDate(parsed.format("DD/MM/YYYY"));
-  }
- 
-}, [location.state?.eventDate]);
+    resetDraft();
 
+    const incomingDate = location.state?.eventDate;
+    if (!incomingDate) return;
+
+    const parsed = dayjs(incomingDate, "YYYY-MM-DD", true);
+    if (parsed.isValid()) {
+      setEventDate(parsed.format("DD/MM/YYYY"));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 
   // ---- Event Type list (local — not shared state) ----
@@ -51,7 +72,7 @@ export default function CreateEventName() {
   const [loadingTypes, setLoadingTypes] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const debounceRef = useRef(null);
-
+const [submitError, setSubmitError] = useState("");
   const fetchEventTypes = async (pageToFetch, search, append = false) => {
     if (append) setLoadingMore(true);
     else setLoadingTypes(true);
@@ -99,23 +120,32 @@ export default function CreateEventName() {
     fetchEventTypes(page + 1, searchTerm, true);
   };
 
-  const canSubmit = eventName.trim().length > 0;
-const resetDraft = () => {
-    setEventName("");
-    setEventType(null);
-    setEventDate("");
-    setPriority("Med");
-    setVenue(null);
-    setSearchTerm("");
-  };
+ 
 
  const handleCreateWorkspace = () => {
+  if (!canSubmit) {
+    setSubmitError(
+      !eventName.trim().length
+        ? "Project name is required."
+        : "Event date is required."
+    );
+    return;
+  }
+  setSubmitError("");
   setSearchTerm(""); // local search input only — safe, doesn't touch the shared draft
-  navigate("/creteEvent");
+  navigate(eventId > 0 ? `/creteEvent?id=${eventId}` : "/creteEvent");
 };
   
 
   const hasMore = page + 1 < totalPages;
+
+  if (eventId > 0 && loadingEvent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -323,17 +353,21 @@ const resetDraft = () => {
           </div>
 
           {/* Submit */}
-          <button
-            type="button"
-            // disabled={!canSubmit}
-            onClick={handleCreateWorkspace}
-            className={`w-full rounded-xl py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${canSubmit
-                ? "bg-primary hover:bg-rose-950 text-white"
-                : "bg-rose-200 text-white cursor-not-allowed"
-              }`}
-          >
-            Create Event Workspace <ArrowRight className="w-4 h-4" />
-          </button>
+        {submitError && (
+  <p className="text-xs text-red-500 mb-3 text-center">{submitError}</p>
+)}
+<button
+  type="button"
+  disabled={!canSubmit}
+  onClick={handleCreateWorkspace}
+  className={`w-full rounded-xl py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${
+    canSubmit
+      ? "bg-primary hover:bg-rose-950 text-white"
+      : "bg-rose-200 text-white cursor-not-allowed"
+  }`}
+>
+  {eventId > 0 ? "Continue Editing" : "Create Event Workspace"} <ArrowRight className="w-4 h-4" />
+</button>
         </section>
       </main>
     </div>

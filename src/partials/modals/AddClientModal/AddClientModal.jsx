@@ -323,7 +323,7 @@ formData.append(
     formData.append("uniqueCode", "");
     formData.append("userId", userId); // Use the userId from localStorage
     kycDocuments.forEach((doc, index) => {
-  formData.append(`kycDetails[${index}].kycType`, doc.type);
+  formData.append(`kycDetails[${index}].kycType`, doc.type ?? "");
   formData.append(`kycDetails[${index}].docNumber`, doc.number);
 
   // Append only if an actual File exists
