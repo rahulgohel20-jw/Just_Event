@@ -347,6 +347,7 @@ export const addupdatethemname = (data ) =>{
 export const getalltheme = (data) => {
     return POST(`/template-module/list`, data) ;
 };
+
 export const deletetheme = (id ) =>{
     return DELETE(`/template-module/delete?id=${id}`);
 };
@@ -361,6 +362,36 @@ export const getallthemetypemaster =  (data) =>{
 
 export const deletethemetype = (id) => {
   return DELETE(`/template-mapping/delete?id=${id}`);
+};
+
+//addtheme
+export const addupdatetheme = (data) => {
+    return POST(`/template-master/add-update`,data);
+};
+
+export const getallthememaster = (data) => {
+    return POST(`/template-master/list`,data);
+};
+
+export const getbyidthememaster = (templateMasterId) =>{
+    return GET(`/template-master/getbyid?templateMasterId=${templateMasterId}`);
+};
+
+export const deletebytemplatemasterid = (templateMasterId) => {
+    return DELETE(`/template-master/deletebyid?templateMasterId=${templateMasterId}`);
+};
+
+//admin-module-report 
+export const getalladmintemplate = (data) => {
+    return POST(`/admin-template/getAllTemplateMaster`,data);
+};
+
+export const deleteadmintemplate  = (adminTemplateId) => {
+    return DELETE(`/admin-template/deleteByAdminTemplateId?adminTemplateId=${adminTemplateId}`);
+};
+
+export const addupdateadmintemplate = (data, userId) => {
+  return POST(`/admin-template/add-update?userId=${userId}`, data);
 };
 
 //qutation 
@@ -526,22 +557,6 @@ export const GetEventFunctionTransportation = (eventFunctionId) => {
     return GET(`/event-function-transportation/getbyeventfunctionid?eventFunctionId=${eventFunctionId}`);
 };
 
-//addtheme
-export const addupdatetheme = (data) => {
-    return POST(`/template-master/add-update`,data);
-};
-
-export const getallthememaster = (data) => {
-    return POST(`/template-master/list`,data);
-};
-
-export const getbyidthememaster = (templateMasterId) =>{
-    return GET(`/template-master/getbyid?templateMasterId=${itemplateMasterId}`);
-};
-
-export const deletebytemplatemasterid = (templateMasterId) => {
-    return DELETE(`/template-master/deletebyid?templateMasterId=${templateMasterId}`);
-};
 
 //usermember 
 export const getalluser = (data) =>{
@@ -591,4 +606,14 @@ export const addupdateeventflex = (data) => {
 
 export const getfunctionflex = (eventFunctionId) => {
     return GET(`/event-function-flex/getbyeventfunctionid?eventFunctionId=${eventFunctionId}`);
+};
+
+export const getMembersService = async (params) => {
+  const res = await GET("/superadmin/members", { params });
+  return res?.data?.data ?? res?.data ?? { list: [], total: 0 };
+};
+
+export const getMemberStatsService = async () => {
+  const res = await GET("/superadmin/members/stats");
+  return res?.data?.data ?? res?.data ?? {};
 };

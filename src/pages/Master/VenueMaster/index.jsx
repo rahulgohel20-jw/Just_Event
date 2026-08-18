@@ -61,14 +61,25 @@ const VenueMaster = () => {
   raw: v, 
 });
 
+  // TODO: this endpoint expects cityId/stateId (numeric ids), but cityFilter/stateFilter
+  // are currently populated from CITY_FILTER_OPTIONS/STATE_FILTER_OPTIONS — confirm those
+  // option `value`s are actually numeric ids and not name strings, or this filter will
+  // silently return nothing / everything.
   const fetchVenues = async () => {
     setLoading(true);
     try {
+      const userId = Number(localStorage.getItem("userId"));
       const res = await getallvenuemmmaster({
+        cityId: cityFilter || null,
+        isActive: null,
+        nameEnglish: searchText || "",
+        page: 0,
+        size: 10,
+        sortBy: "id",
+        sortDirection: "DESC",
+        stateId: stateFilter || null,
+        userId,
         venueType: venueTypeFilter || null,
-        city: cityFilter || null,
-        state: stateFilter || null,
-        search: searchText || null,
       });
 
       const content = res?.data?.data?.content ?? [];
@@ -83,6 +94,7 @@ const VenueMaster = () => {
 
   useEffect(() => {
     fetchVenues();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 const handleToggleStatus = async (record) => {

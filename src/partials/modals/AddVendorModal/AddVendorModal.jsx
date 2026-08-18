@@ -210,10 +210,7 @@ setKycDocuments(
       newErrors.emailAddress = "Enter a valid Email";
     }
 
-    const uploadedDocs = kycDocuments.filter((d) => d.file || d.documentUrl);
-    if (uploadedDocs.length === 0) {
-      newErrors.kyc = "Please upload at least one document";
-    }
+    // KYC is optional — no longer a blocking requirement to save
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -286,7 +283,12 @@ setKycDocuments(
     formData.append("aniversaryDate", form.aniversaryDate);
     formData.append("userId", userId);
 
-    kycDocuments.forEach((doc, index) => {
+    // only include KYC rows the user actually filled in (type or number or file present)
+    const filledDocs = kycDocuments.filter(
+      (doc) => doc.type || doc.number || doc.file instanceof File || doc.documentUrl
+    );
+
+    filledDocs.forEach((doc, index) => {
       formData.append(`kycDetails[${index}].id`, doc.docId ?? "");
       formData.append(`kycDetails[${index}].kycType`, doc.type ?? "");
       formData.append(`kycDetails[${index}].docNumber`, doc.number ?? "");
@@ -485,21 +487,21 @@ setKycDocuments(
 
           <Section title="Identity & Financials">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex rounded-lg border border-gray-400 overflow-hidden">
-                <span className="flex items-center px-3 bg-[#F7E5EA] text-xs font-medium text-[#7A2E45] whitespace-nowrap">
+              <div className="flex h-[42px] rounded-lg border border-gray-400 overflow-hidden">
+                <span className="flex items-center px-3 bg-[#F7E5EA] text-xs font-medium text-[#7A2E45] whitespace-nowrap shrink-0">
                   OPB
                 </span>
                 <input
                   type="text"
                   value={form.opbAmount}
                   onChange={(e) => updateField("opbAmount", e.target.value)}
-                  className="flex-1 px-3 py-2 text-sm focus:outline-none"
+                  className="flex-1 min-w-0 px-3 text-sm focus:outline-none"
                 />
                 <Select
                   value={form.opbType}
                   onChange={(v) => updateField("opbType", v)}
                   options={opbTypeOptions}
-                  className="[&_.ant-select-selector]:!border-0 [&_.ant-select-selector]:!rounded-none w-20"
+                  className="w-20 shrink-0 h-full [&_.ant-select-selector]:!h-full [&_.ant-select-selector]:!border-0 [&_.ant-select-selector]:!border-l [&_.ant-select-selector]:!border-gray-400 [&_.ant-select-selector]:!rounded-none [&_.ant-select-selector]:!items-center"
                 />
               </div>
 
@@ -511,7 +513,7 @@ setKycDocuments(
             </div>
           </Section>
 
-          <Section title="KYC Documents">
+          <Section title="KYC Documents (Optional)">
             <div className="space-y-4">
               <div className="flex justify-end">
                 <button
@@ -625,7 +627,6 @@ setKycDocuments(
                 </div>
               ))}
             </div>
-            {errors.kyc && <p className="text-danger text-sm mt-2">{errors.kyc}</p>}
           </Section>
         </div>
       </div>
