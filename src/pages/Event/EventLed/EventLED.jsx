@@ -30,6 +30,7 @@ import DateField from '../../../components/form-inputs/DatePicker/Datefield';
 import TimeInput12h from '../../../components/form-inputs/Time/Timeinput12h';
 import { useParams } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
+import AddRowItem from '../../../partials/modals/add-row-item/AddRowItem';
 
 const { Text, Title } = Typography;
 
@@ -223,6 +224,11 @@ const PlacementInstructionsModal = ({ open, onClose, placement }) => (
   </Modal>
 );
 
+const extractImageUrls = (images) =>
+  (Array.isArray(images) ? images : [])
+    .map((img) => (typeof img === 'string' ? img : img?.path))
+    .filter(Boolean);
+
 const buildItemPlacements = (itemPlacements, master) => {
   const qtyByExecId = new Map(
     (Array.isArray(itemPlacements) ? itemPlacements : [])
@@ -268,7 +274,7 @@ const mapInventoryItem = (item, master) => ({
     label: item.vendorNameEnglish ?? '',
   },
 
-  qty: item.totalQty ?? 0,
+  qty: item.qty ?? 0,
   rate: item.price ?? 0,
   description: item.description ?? '',
   unit: item.unitNameEnglish ?? '',
@@ -279,7 +285,7 @@ const mapInventoryItem = (item, master) => ({
   height: item.height ?? '',
   note: item.note ?? '',
 
-  images: Array.isArray(item.images) ? item.images : [],
+  images: extractImageUrls(item.images),
   newFiles: [],
 
   placements: buildItemPlacements(item.placements, master),
@@ -322,6 +328,34 @@ const EventLED = () => {
   const [inventoryId, setInventoryId] = useState(null);
 
   const [saveLoading, setSaveLoading] = useState(false);
+
+  const [imageUploadItemId, setImageUploadItemId] = useState(null);
+  const imageFileInputRef = useRef(null);
+
+  const [isAddRowItemModalOpen, setIsAddRowItemModalOpen] = useState(false);
+  const [catalogRefreshKey, setCatalogRefreshKey] = useState(0);
+
+  const openImagePicker = (itemId) => {
+    if (isLocked) return;
+    setImageUploadItemId(itemId);
+    imageFileInputRef.current?.click();
+  };
+
+  const handleImageFileSelected = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || imageUploadItemId == null) return;
+
+    const previewUrl = URL.createObjectURL(file);
+    setItems((prev) =>
+      prev.map((it) => {
+        if (it.id !== imageUploadItemId) return it;
+        if (it.images?.[0]?.startsWith?.('blob:')) URL.revokeObjectURL(it.images[0]);
+        return { ...it, images: [previewUrl], newFiles: [file] };
+      })
+    );
+    setImageUploadItemId(null);
+  };
 
   useEffect(() => {
     if (!eventId) {
@@ -413,11 +447,12 @@ const EventLED = () => {
         const body = res?.data ?? res;
         const list = body?.data?.content ?? body?.data ?? [];
         return (Array.isArray(list) ? list : []).map((item) => ({
-          id: item.id ?? item.rawItemId ?? item.rawItemMasterId ?? item.itemId ?? null,
-          label: item.nameEnglish ?? item.itemNameEnglish ?? item.name ?? '',
+          id: item.id ?? null,
+          label: item.nameEnglish ?? '',
           unitId: item.unitId ?? null,
           unit: item.unitNameEnglish ?? '',
           availableQty: item.closingQuantity ?? null,
+          images: extractImageUrls(item.images),
         }));
       } catch (err) {
         console.error('Failed to fetch LED catalog items:', err);
@@ -564,6 +599,10 @@ const EventLED = () => {
   };
 
   const addItem = () => {
+    if (!catalogPick?.id) {
+      showToast('warning', 'Please select an item from the catalog dropdown first.');
+      return;
+    }
     if (placementMaster.length === 0) {
       showToast('warning', 'Placements are still loading — please wait a moment and try again.');
       return;
@@ -571,22 +610,22 @@ const EventLED = () => {
     const newItem = {
       id: Date.now(),
       serverId: null,
-      rawItemId: catalogPick?.id ?? null,
-      unitId: catalogPick?.unitId ?? null,
-      name: catalogPick?.label || 'New Item',
+      rawItemId: catalogPick.id,
+      unitId: catalogPick.unitId ?? null,
+      name: catalogPick.label,
       vendor: { id: null, label: '' },
       qty: 0,
       rate: 0,
       description: '',
-      unit: catalogPick?.unit ?? '',
-      availableQty: catalogPick?.availableQty ?? null,
+      unit: catalogPick.unit ?? '',
+      availableQty: catalogPick.availableQty ?? null,
       date: '',
       time: '',
       length: '',
       breadth: '',
       height: '',
       note: '',
-      images: [],
+      images: catalogPick.images ?? [],
       newFiles: [],
       placements: placementMaster.map((m) => ({
         id: null,
@@ -644,6 +683,7 @@ const EventLED = () => {
             <div className="relative flex-1">
               <SearchOutlined className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-gray-400" />
               <AsyncSearchSelect
+                key={`catalog-picker-${catalogRefreshKey}`}
                 fetcher={fetchLedCatalogItems}
                 value={catalogPick}
                 onChange={setCatalogPick}
@@ -654,7 +694,7 @@ const EventLED = () => {
             <Button
               icon={<PlusOutlined />}
               onClick={addItem}
-              disabled={itemsLoading || placementMaster.length === 0}
+              disabled={itemsLoading || placementMaster.length === 0 || !catalogPick?.id}
               className="shrink-0 !bg-white rounded-lg"
             >
               Add
@@ -662,8 +702,7 @@ const EventLED = () => {
             <Button
               type="primary"
               icon={<Sparkles size={16} />}
-              onClick={addItem}
-              disabled={itemsLoading || placementMaster.length === 0}
+              onClick={() => setIsAddRowItemModalOpen(true)}
               className="shrink-0 rounded-lg"
             >
               Add Item
@@ -695,8 +734,9 @@ const EventLED = () => {
           ) : (
             <div className="mt-2 space-y-3">
               {items.map((item) => {
-                const total = item.qty * item.rate;
                 const allocatedTotal = item.placements.reduce((sum, p) => sum + Number(p.qty || 0), 0);
+                const combinedQty = Number(item.qty || 0) + allocatedTotal;
+                const total = combinedQty * Number(item.rate || 0);
                 return (
                   <div key={item.id} className="rounded-xl border border-primary-clarity overflow-hidden">
                     <div className="grid grid-cols-2 gap-3 bg-primary-lighest px-4 py-4 sm:grid-cols-[2fr_1.4fr_0.8fr_0.8fr_1fr_auto] sm:items-center">
@@ -788,23 +828,6 @@ const EventLED = () => {
                           </div>
 
                           <div>
-                            <Text type="secondary" className="block !text-xs font-semibold uppercase mb-2">Total Qty</Text>
-                            <InputNumber
-                              style={{ width: '100%' }}
-                              min={0}
-                              max={item.availableQty ?? undefined}
-                              status={item.availableQty != null && item.qty > item.availableQty ? 'error' : ''}
-                              value={item.qty}
-                              onChange={(v) => updateItem(item.id, 'qty', v ?? 0)}
-                            />
-                            {item.availableQty != null && (
-                              <Text type={item.qty > item.availableQty ? 'danger' : 'secondary'} className="mt-1 block !text-xs">
-                                Available in stock: {item.availableQty} {item.unit}
-                              </Text>
-                            )}
-                          </div>
-
-                          <div>
                             <Text type="secondary" className="block !text-xs font-semibold uppercase mb-2">Note</Text>
                             <Input.TextArea rows={2} value={item.note} onChange={(e) => updateItem(item.id, 'note', e.target.value)} placeholder="Add any special instructions…" />
                           </div>
@@ -860,7 +883,12 @@ const EventLED = () => {
                             <span className="flex-1 text-sm text-gray-500">
                               {item.images?.length > 0 ? `${item.images.length} image(s) attached` : 'No image uploaded'}
                             </span>
-                            <Button type="text" className="text-primary bg-primary-lighest rounded-full" disabled={isLocked}>
+                            <Button
+                              type="text"
+                              className="text-primary bg-primary-lighest rounded-full"
+                              disabled={isLocked}
+                              onClick={() => openImagePicker(item.id)}
+                            >
                               Change Image
                             </Button>
                           </div>
@@ -888,6 +916,24 @@ const EventLED = () => {
       <EventSearchModal open={isEventModalOpen} onClose={() => setIsEventModalOpen(false)} onSelect={handleSelectEvent} />
 
       <PlacementInstructionsModal open={!!activePlacement} onClose={() => setActivePlacement(null)} placement={activePlacement} />
+
+      <AddRowItem
+        open={isAddRowItemModalOpen}
+        onClose={() => setIsAddRowItemModalOpen(false)}
+        onSave={async () => {
+          setCatalogRefreshKey((k) => k + 1);
+          setIsAddRowItemModalOpen(false);
+        }}
+        initialData={null}
+      />
+
+      <input
+        type="file"
+        accept="image/*"
+        ref={imageFileInputRef}
+        onChange={handleImageFileSelected}
+        className="hidden"
+      />
     </div>
   );
 };

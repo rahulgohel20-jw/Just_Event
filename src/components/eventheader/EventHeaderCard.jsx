@@ -211,7 +211,7 @@ const EventHeaderCard = ({
     <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <Title level={3} className="!mb-0 !text-primary">{title}</Title>
-        <div className="flex flex-wrap items-center gap-2">
+        {/* <div className="flex flex-wrap items-center gap-2">
           {toolbarActions.map((a) => (
             <Button
               key={a.key}
@@ -223,7 +223,7 @@ const EventHeaderCard = ({
               {a.label}
             </Button>
           ))}
-        </div>
+        </div> */}
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-y-4 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-6">

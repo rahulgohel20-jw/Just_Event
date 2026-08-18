@@ -236,7 +236,7 @@ setUnitOptions(records.map((r) => ({ value: r.id, label: r.unitNameEnglish })));
             openingQuantity: Number(form.openingQty) || 0,
             closingQuantity: Number(form.closingQty) || 0,
             unitId: form.unitType,
-            expiryDate: form.expiryDate,
+            expiryDate: form.expiryDate || "",
             isActive: form.isActive,
             userId,
             suppliers: form.suppliers.map((s) => ({
