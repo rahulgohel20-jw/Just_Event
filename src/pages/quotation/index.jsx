@@ -205,7 +205,7 @@ const getEstimateColumns = ({ onEdit, onDelete, onDescriptionChange, onImageUplo
     const sqft = Number(row.original.sqft || row.original.sqFt || 1);
     const rate = Number(row.original.rate || 0);
     const discountRate = Number(row.original.discountRate || 0);
-    const total = qty * (sqft || 1) * rate * (1 - discountRate / 100);
+    const total = qty * rate * (1 - discountRate / 100);
     return <span className="font-semibold text-primary">₹{total.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</span>;
   },
 },
@@ -735,7 +735,7 @@ const subtotal = allItems.reduce(
   (sum, i) =>
     sum +
     Number(i.qty || 0) *
-      (Number(i.sqFt ?? i.sqft ?? 1) || 1) *
+      
       Number(i.rate || 0) *
       (1 - Number(i.discountRate || 0) / 100),
   0
@@ -958,6 +958,17 @@ const handleCashAmountChange = (value) => {
     () => items.filter((item) => (item.itemName ?? item.description ?? "").toLowerCase().includes(search.toLowerCase())),
     [items, search]
   );
+
+  const tableTotal = useMemo(
+  () =>
+    filteredItems.reduce((sum, item) => {
+      const qty = Number(item.qty || 0);
+      const rate = Number(item.rate || 0);
+      const discountRate = Number(item.discountRate || 0);
+      return sum + qty * rate * (1 - discountRate / 100);
+    }, 0),
+  [filteredItems]
+);
 
   const columns = useMemo(
   () =>
@@ -1199,10 +1210,18 @@ const handleCashAmountChange = (value) => {
         <div className="rounded-lg border bg-light">
           
           <TableComponent columns={columns} data={filteredItems} tableData={filteredItems} paginationSize={DEFAULT_PAGINATION_SIZE} defaultSorting={DEFAULT_SORTING} />
+  <div className="flex items-center justify-between border-t border-primary-clarity px-5 py-4">
+    <span className="text-sm font-bold text-gray-700">
+      Total ({filteredItems.length} item{filteredItems.length === 1 ? "" : "s"})
+    </span>
+    <span className="text-lg font-bold text-primary">
+      ₹ {tableTotal.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
+    </span>
+  </div>
         </div>
 
-        <div className="rounded-lg border border-primary-clarity bg-light p-6">
-          <h4 className="mb-6 text-lg font-bold text-dark">Estimate Summary</h4>
+<div className="rounded-lg border border-primary-clarity bg-light p-6">
+  <h4 className="mb-6 text-lg font-bold text-dark">Estimate Summary</h4>
           <div className="flex justify-end">
             <div className="w-full max-w-2xl space-y-4 text-sm">
             <div className="flex items-center justify-between">
