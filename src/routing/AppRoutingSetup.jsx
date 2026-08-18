@@ -186,6 +186,7 @@ import EventTransportation from "../pages/Event/EventTransportation/EventTranspo
 import { MenuReportThemesPage } from "../pages/Master/Theme_Template_Master/All_Theme";
 import UserMaster from "../pages/Master/user_master";
 import LabourShiftMaster from "../pages/Master/Labour_Shit_Master";
+import EventFlexPage from "../pages/Event/EventFlexPage.jsx/EventFlexPage";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -194,6 +195,7 @@ const AppRoutingSetup = () => {
 
           <Route element={<Demo1Layout />}>
             {/* project routs */} 
+            <Route path="/eventflex" element={<EventFlexPage/>}/>
             <Route path="/labourshift" element={<LabourShiftMaster/>}/>
             <Route path="/allmember" element={<UserMaster/>}/>
             <Route path="/alltheme" element={<MenuReportThemesPage/>}/>

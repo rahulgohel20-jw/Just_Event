@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useEventDraftStore } from "@/stores/useEventDraftStore";
 import { getbyeventid ,getAllClientMaster  } from "@/services/apiServices";
 
-const STATUS_MAP_REVERSE = { INQUIRY: "Inquiry", TENTATIVE: "Tentative", CONFIRMED: "Confirmed" };
+const VALID_STATUSES = ["INQUIRY", "TENTATIVE", "CONFIRM", "CANCEL"];
 const PRIORITY_MAP_REVERSE = { HIGH: "High", MED: "Med", LOW: "Low" };
 
 // Turns one API `eventFunctions[]` entry back into a FunctionDetails row.
@@ -41,9 +41,10 @@ export function mapEventToFormData(event) {
   const otherInfo = event.otherInfo || {};
 
   const formData = {
+   
     eventDetails: {
-      inquiryDate: event.inquiryDate || "",
-      eventStatus: STATUS_MAP_REVERSE[event.eventStatus] || "Inquiry",
+  inquiryDate: event.inquiryDate || "",
+  eventStatus: VALID_STATUSES.includes(event.eventStatus) ? event.eventStatus : "INQUIRY",
       eventStartDate: event.eventStartDate || "",
       eventStartTime: event.eventStartTime || "",
       eventEndDate: event.eventEndDate || "",

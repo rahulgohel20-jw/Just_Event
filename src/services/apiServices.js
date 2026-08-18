@@ -573,3 +573,22 @@ export const getalllabourshift = (data) => {
 export const deletelabourshift = (labourShiftId) =>{
     return DELETE(`/labour-shift-master/deletebyid?labourShiftId=${labourShiftId}`);
 };
+
+//eventagencydistribution 
+export const addupdateeventagencydistribution = (data) =>{
+    return POST(`/event-function-agency/add-update`,data);
+};
+
+export const geteventagencydistriibution = (eventFunctionId) => {
+    return GET(`/event-function-agency/getbyeventfunctionid?eventFunctionId=${eventFunctionId}`);
+};
+
+//evntflex 
+export const addupdateeventflex = (data) => {
+    return POST(`/event-function-flex/add-update`,data);
+
+};
+
+export const getfunctionflex = (eventFunctionId) => {
+    return GET(`/event-function-flex/getbyeventfunctionid?eventFunctionId=${eventFunctionId}`);
+};

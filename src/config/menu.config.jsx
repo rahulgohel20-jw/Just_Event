@@ -471,6 +471,11 @@ export const MENU_CREATE_EVENT_SIDEBAR = [
     icon: "ki-filled ki-people text-primary",
     path: "/labour-agency"
   },
+  {
+    title :"Event Flex Detail" , 
+    icon :"ki-filled ki-wallet text-primary",
+    path:"/eventflex"
+  }
 ];
 
 export const MENU_INVENTORY_SIDEBAR = [

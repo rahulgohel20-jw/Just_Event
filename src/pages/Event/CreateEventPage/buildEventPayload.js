@@ -1,8 +1,9 @@
 
 
 const TITLE_MAP = { "Mr.": "MR", "Mrs.": "MRS", "Ms.": "MS", "Dr.": "DR" };
-const STATUS_MAP = { Inquiry: "INQUIRY", Tentative: "TENTATIVE", Confirmed: "CONFIRMED" };
+const VALID_STATUSES = ["INQUIRY", "TENTATIVE", "CONFIRM", "CANCEL"];
 const PRIORITY_MAP = { High: "HIGH", Med: "MED", Low: "LOW" };
+
 
 function buildEventFunctionPayload(fn) {
   return {
@@ -47,8 +48,9 @@ const userId = Number(localStorage.getItem("userId"));
     venueId: draftStore.venue?.value ?? null,
 
     inquiryDate: eventDetails.inquiryDate || "",
-    eventStatus: STATUS_MAP[eventDetails.eventStatus] || "INQUIRY",
-    eventStartDate: eventDetails.eventStartDate || "",
+eventStatus: VALID_STATUSES.includes(eventDetails.eventStatus)
+  ? eventDetails.eventStatus
+  : "INQUIRY",    eventStartDate: eventDetails.eventStartDate || "",
     eventStartTime: eventDetails.eventStartTime || "",
     eventEndDate: eventDetails.eventEndDate || "",
     eventEndTime: eventDetails.eventEndTime || "",

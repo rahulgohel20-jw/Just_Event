@@ -35,16 +35,22 @@ const mapEventToCalendar = (item) => {
       ? `${projectName} (${eventName})`
       : projectName || eventName || "Event";
 
+  const status = item.eventStatus || "";
+  const color = getStatusColor(status);
+
   return {
     id: item.id,
     title,
     start,
+    backgroundColor: color,
+    borderColor: color,
+    textColor: "#ffffff",
     extendedProps: {
       time: item.eventStartTime || "",
       event_name: eventName || projectName,
       address: item.venueNameEnglish || item.venueAddress || "",
       mobile: item.partyMobile || item.mobileNo || "",
-      status: item.eventStatus || "", 
+      status,
       raw: item,
     },
   };
@@ -52,11 +58,20 @@ const mapEventToCalendar = (item) => {
 
 
 const STATUS_FILTERS = [
-  { value: "INQUIRY", label: "Inquiry", className: "bg-blue-500 text-white" },
-  { value: "CONFIRMED", label: "Confirm", className: "bg-green-500 text-white" },
-  { value: "CANCELLED", label: "Cancel", className: "bg-red-600 text-white" },
+  { value: "INQUIRY", label: "Inquiry" },
+  { value: "TENTATIVE", label: "Tentative" },
+  { value: "CONFIRM", label: "Confirm" },
+  { value: "CANCEL", label: "Cancel" },
 ];
 
+const STATUS_COLORS = {
+  INQUIRY: "#3b82f6",   // blue-500
+  TENTATIVE: "#6b7280", // gray-500
+  CONFIRM: "#22c55e",   // green-500
+  CANCEL: "#dc2626",    // red-600
+};
+
+const getStatusColor = (status) => STATUS_COLORS[status] || "#9ca3af"; // gray-400 fallback for truly unknown/null status
 const CalendarPage = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -146,19 +161,21 @@ const CalendarPage = () => {
         <div className="flex flex-wrap items-center justify-between gap-3 mt-4 mb-4">
           {/* Status legend / filter chips */}
           <div className="flex flex-wrap items-center gap-2">
-            {STATUS_FILTERS.map((s) => (
-              <button
-                key={s.value}
-                type="button"
-                onClick={() => toggleStatus(s.value)}
-                className={`rounded-lg px-4 py-2 text-sm  transition-opacity ${s.className} ${
-                  activeStatus && activeStatus !== s.value ? "opacity-50" : ""
-                }`}
-                title={`Filter by ${s.label}`}
-              >
-                {s.label}
-              </button>
-            ))}
+           {STATUS_FILTERS.map((s) => (
+  <button
+    key={s.value}
+    type="button"
+    onClick={() => toggleStatus(s.value)}
+    style={{
+      backgroundColor: STATUS_COLORS[s.value],
+      opacity: activeStatus && activeStatus !== s.value ? 0.5 : 1,
+    }}
+    className="rounded-lg px-4 py-2 text-sm text-white transition-opacity"
+    title={`Filter by ${s.label}`}
+  >
+    {s.label}
+  </button>
+))}
           </div>
 
           {/* Right-side controls */}

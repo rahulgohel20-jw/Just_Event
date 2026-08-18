@@ -68,6 +68,22 @@ export default function CreateEvent({ onSubmit, existingId: existingIdProp = 0 }
     }
   }, [loadedFormData]);
 
+   useEffect(() => {
+    if (existingId > 0) return;
+    const prefillDate = draftStore.eventDate;
+    if (!prefillDate) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      eventDetails: {
+        ...prev.eventDetails,
+        eventStartDate: prev.eventDetails.eventStartDate || prefillDate,
+        eventEndDate: prev.eventDetails.eventEndDate || prefillDate,
+      },
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  
   const step = STEPS[stepIndex];
   const isFirst = stepIndex === 0;
   const isLast = stepIndex === STEPS.length - 1;

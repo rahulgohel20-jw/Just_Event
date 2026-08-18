@@ -35,17 +35,33 @@ export default function CreateEventName() {
   } = useEventDraftStore();
 
 
+    const canSubmit = eventName.trim().length > 0 && Boolean(eventDate);
+  const resetDraft = () => {
+    setEventName("");
+    setEventType(null);
+    setEventDate("");
+    setPriority("Med");
+    setVenue(null);
+    setSearchTerm("");
+  };
+
+  // Reset for a brand-new workspace, then apply any calendar-picked date on
+  // top. Combined into one effect so reset can never run after — and wipe
+  // out — the incoming date.
   useEffect(() => {
-  const incomingDate = location.state?.eventDate;
-  if (!incomingDate) return;
+    if (eventId !== 0) return;
 
-  const parsed = dayjs(incomingDate, "YYYY-MM-DD", true);
-  if (parsed.isValid()) {
-    setEventDate(parsed.format("DD/MM/YYYY"));
-  }
- 
-}, [location.state?.eventDate]);
+    resetDraft();
 
+    const incomingDate = location.state?.eventDate;
+    if (!incomingDate) return;
+
+    const parsed = dayjs(incomingDate, "YYYY-MM-DD", true);
+    if (parsed.isValid()) {
+      setEventDate(parsed.format("DD/MM/YYYY"));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 
   // ---- Event Type list (local — not shared state) ----
@@ -104,25 +120,7 @@ const [submitError, setSubmitError] = useState("");
     fetchEventTypes(page + 1, searchTerm, true);
   };
 
-  const canSubmit = eventName.trim().length > 0 && Boolean(eventDate);
-  const resetDraft = () => {
-    setEventName("");
-    setEventType(null);
-    setEventDate("");
-    setPriority("Med");
-    setVenue(null);
-    setSearchTerm("");
-  };
-
-  // Only reset for a brand-new workspace. In edit mode (eventId > 0) we
-  // don't want to blank the store — useEventEditLoader above is
-  // responsible for populating it from the fetched event instead.
-  useEffect(() => {
-    if (eventId === 0) {
-      resetDraft();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+ 
 
  const handleCreateWorkspace = () => {
   if (!canSubmit) {
