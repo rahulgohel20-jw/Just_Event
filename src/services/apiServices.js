@@ -572,6 +572,11 @@ export const GetInventoryByFunction = (eventFunctionId, inventoryItems  ) => {
 };
 
 
+export const AddUpdateIventory = (data) =>{
+    return POST(`/event-function-inventory/add-update`,data);
+};
+
+
 export const updateusermster = (data) => {
     return PUT(`/users/update`,data);
 };
