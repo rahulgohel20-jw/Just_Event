@@ -10,6 +10,7 @@ import {
   Avatar,
   Empty,
   Spin,
+  message,
 } from 'antd';
 import {
   SearchOutlined,
@@ -22,13 +23,9 @@ import {
   UpOutlined,
   DownOutlined,
 } from '@ant-design/icons';
-import { Sparkles } from 'lucide-react';
-import {
-  getbyeventid,
-  getalllistfuntionmaster,
-  getAllClientMaster,
-  GetInventoryByFunction,
-} from '@/services/apiServices';
+import { Save, Sparkles } from 'lucide-react';
+import { AddUpdateIventory, getbyeventid, getalllistfuntionmaster, getAllClientMaster, getAllRawItemMaster, GetInventoryByFunction } from '@/services/apiServices';
+import Swal from 'sweetalert2';
 import EventHeaderCard from '../../../components/eventheader/EventHeaderCard';
 import DateField from '../../../components/form-inputs/DatePicker/Datefield';
 import TimeInput12h from '../../../components/form-inputs/Time/Timeinput12h';
@@ -39,12 +36,7 @@ const { Text, Title } = Typography;
 
 const currency = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 
-const DEFAULT_PLACEMENTS = [
-  { label: 'Welcome Board', qty: 0 },
-  { label: 'Entry Gate', qty: 0 },
-  { label: 'Props', qty: 0 },
-  { label: 'Artiste Stage Platform', qty: 0 },
-];
+
 
 const CATALOG_OPTIONS = [
   'Flowers & Props',
@@ -57,6 +49,7 @@ const CATALOG_OPTIONS = [
 
 // This page only ever shows the flowers inventory category.
 const INVENTORY_ITEMS_FILTER = 'FLOWERS';
+const FLOWER_RAW_CATEGORY_ID = 16;
 
 const PLACEMENT_DETAILS = {
   'Welcome Board': {
@@ -89,15 +82,57 @@ const AsyncSearchSelect = ({ fetcher, value, onChange, placeholder, className, d
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const debounceRef = useRef(null);
+  const cacheRef = useRef(new Map()); // query -> mapped {value, label} options
+  const inFlightQueryRef = useRef(null);
+
+  const runSearch = useCallback(
+    async (query) => {
+      if (cacheRef.current.has(query)) {
+        setOptions(cacheRef.current.get(query));
+        return;
+      }
+      inFlightQueryRef.current = query;
+      setLoading(true);
+      const results = (await fetcher(query)) || [];
+const mapped = results
+  .map((o) => ({ ...o, value: o.id, label: o.label }))
+  .filter((o) => o.value != null);
+      if (inFlightQueryRef.current === query) {
+        cacheRef.current.set(query, mapped);
+        setOptions(mapped);
+        setLoading(false);
+      }
+    },
+    [fetcher]
+  );
 
   const handleSearch = (query) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (cacheRef.current.has(query)) {
+      setOptions(cacheRef.current.get(query));
+      return;
+    }
     setLoading(true);
-    debounceRef.current = setTimeout(async () => {
-      const results = await fetcher(query);
-      setOptions((results || []).map((o) => ({ value: o.id, label: o.label })));
-      setLoading(false);
-    }, debounceMs);
+    debounceRef.current = setTimeout(() => runSearch(query), debounceMs);
+  };
+
+  const handleFocus = () => {
+    if (cacheRef.current.has('')) {
+      setOptions(cacheRef.current.get(''));
+      return;
+    }
+    runSearch('');
+  };
+
+  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
+
+    const handleSelectChange = (opt) => {
+    if (!opt) {
+      onChange({ id: null, label: '' });
+      return;
+    }
+    const full = options.find((o) => o.value === opt.value) || {};
+    onChange({ ...full, id: opt.value, label: opt.label });
   };
 
   return (
@@ -111,8 +146,8 @@ const AsyncSearchSelect = ({ fetcher, value, onChange, placeholder, className, d
       style={{ width: '100%' }}
       filterOption={false}
       onSearch={handleSearch}
-      onFocus={() => handleSearch('')}
-      onChange={(opt) => onChange(opt ? { id: opt.value, label: opt.label } : { id: null, label: '' })}
+      onFocus={handleFocus}
+      onChange={handleSelectChange} 
       notFoundContent={loading ? <Spin size="small" /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No matches" />}
       options={options}
     />
@@ -180,53 +215,106 @@ const PlacementInstructionsModal = ({ open, onClose, placement }) => (
   >
     {placement && (
       <>
-        <div className="grid grid-cols-3 gap-3 rounded-xl bg-primary-lighest p-4">
+        <div className="grid grid-cols-2 gap-3 rounded-xl bg-primary-lighest p-4">
           <div>
-            <Text type="secondary" className="!text-[11px] font-semibold uppercase tracking-wide">Size</Text>
-            <div className="mt-1 text-sm font-bold text-gray-900">{placement.size}</div>
+            <Text type="secondary" className="!text-[11px] font-semibold uppercase tracking-wide">Placement</Text>
+            <div className="mt-1 text-sm font-bold text-gray-900">{placement.label}</div>
           </div>
           <div>
             <Text type="secondary" className="!text-[11px] font-semibold uppercase tracking-wide">Quantity</Text>
             <div className="mt-1 text-sm font-bold text-gray-900">{placement.qty}</div>
           </div>
-          <div>
-            <Text type="secondary" className="!text-[11px] font-semibold uppercase tracking-wide">Sq Ft</Text>
-            <div className="mt-1 text-sm font-bold text-gray-900">{placement.sqFt}</div>
-          </div>
         </div>
-        <div className="mt-5">
-          <Text strong className="text-primary !text-xs uppercase tracking-wide">Notes</Text>
-          <p className="mt-2 rounded-xl bg-primary-lighest p-3 text-sm leading-relaxed text-gray-700">{placement.notes}</p>
-        </div>
-        <div className="mt-5">
-          <Text strong className="text-primary !text-xs uppercase tracking-wide">Elements &amp; Material</Text>
-          <p className="mt-2 rounded-xl bg-primary-lighest p-3 text-sm leading-relaxed text-gray-700">{placement.elements}</p>
-        </div>
+        {(placement.notes || placement.elements) ? (
+          <>
+            {placement.notes && (
+              <div className="mt-5">
+                <Text strong className="text-primary !text-xs uppercase tracking-wide">Notes</Text>
+                <p className="mt-2 rounded-xl bg-primary-lighest p-3 text-sm leading-relaxed text-gray-700">{placement.notes}</p>
+              </div>
+            )}
+            {placement.elements && (
+              <div className="mt-5">
+                <Text strong className="text-primary !text-xs uppercase tracking-wide">Elements &amp; Material</Text>
+                <p className="mt-2 rounded-xl bg-primary-lighest p-3 text-sm leading-relaxed text-gray-700">{placement.elements}</p>
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="mt-4 text-sm text-gray-500">No placement instructions on file for this item yet.</p>
+        )}
       </>
     )}
   </Modal>
 );
 
+const buildItemPlacements = (itemPlacements, master) => {
+  const qtyByExecId = new Map(
+    (Array.isArray(itemPlacements) ? itemPlacements : [])
+      .filter((p) => p.executionItemId != null)
+      .map((p) => [p.executionItemId, p])
+  );
+
+  if (master.length > 0) {
+    return master.map((m) => {
+      const own = qtyByExecId.get(m.executionItemId);
+      return {
+        id: own?.id ?? null,
+        executionItemId: m.executionItemId,
+        label: m.label,
+        qty: own?.qty ?? 0,
+      };
+    });
+  }
+
+  // Master hasn't loaded — fall back to whatever the item itself carries,
+  // never to a hardcoded list.
+  return (Array.isArray(itemPlacements) ? itemPlacements : []).map((p) => ({
+    id: p.id ?? null,
+    executionItemId: p.executionItemId,
+    label: p.executionItemNameEnglish ?? '',
+    qty: p.qty ?? 0,
+  }));
+};
+
 // Maps one item from GetInventoryByFunction into this page's local item
 // shape. Field names on the left of each `??` chain are guesses at the
 // API's actual response — confirm against a real payload and adjust.
-const mapInventoryItem = (item) => ({
-  id: item.id ?? Date.now() + Math.random(),
-  name: item.itemNameEnglish ?? item.nameEnglish ?? item.name ?? '',
+const mapInventoryItem = (item, master) => ({
+  id: item.id ?? Date.now() + Math.random(), 
+  serverId: item.id ?? null,                
+  rawItemId: item.rawItemId ?? null,
+  unitId: item.unitId ?? null,
+
+  name:
+    item.rawItemNameEnglish ??
+    item.description ??
+    'Untitled Item',
+
   vendor: {
-    id: item.vendorId ?? item.partyId ?? null,
-    label: item.vendorName ?? item.partyName ?? '',
+    id: item.vendorId ?? null,
+    label: item.vendorNameEnglish ?? '',
   },
-  qty: item.qty ?? item.quantity ?? 0,
-  rate: item.rate ?? item.basePrice ?? 0,
-  description: item.descriptionEnglish ?? item.description ?? '',
-  unit: item.unit ?? '',
-  date: item.date ?? '',
-  time: item.time ?? item.timing ?? '',
-  note: item.remarkEnglish ?? item.note ?? '',
-  placements: Array.isArray(item.placements) && item.placements.length > 0
-    ? item.placements.map((p) => ({ label: p.label ?? p.placementName ?? '', qty: p.qty ?? 0 }))
-    : DEFAULT_PLACEMENTS.map((p) => ({ ...p })),
+
+  qty: item.totalQty ?? 0,
+  rate: item.price ?? 0,
+  description: item.description ?? '',
+  unit: item.unitNameEnglish ?? '',
+  date: item.itemDate ?? '',
+  time: item.itemTime ?? '',
+  length: item.length ?? '',
+  breadth: item.breadth ?? '',
+  height: item.height ?? '',
+  note: item.note ?? '',
+
+  images: Array.isArray(item.images) ? item.images : [],
+  newFiles: [],
+
+  placements: buildItemPlacements(
+    item.placements,
+    master
+  ),
+
   expanded: false,
 });
 
@@ -247,7 +335,8 @@ const EventFlower = () => {
   });
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [activePlacement, setActivePlacement] = useState(null);
-
+  const [inventoryStatus, setInventoryStatus] = useState(null);   // ⬅ new
+const [isLocked, setIsLocked] = useState(false)
   const [reference, setReference] = useState('');
   const [incharge, setIncharge] = useState(null);
   const [note, setNote] = useState('');
@@ -257,9 +346,13 @@ const EventFlower = () => {
   const [selectedFunction, setSelectedFunction] = useState({ id: null, label: '' });
   const [functionOptions, setFunctionOptions] = useState([]);
 
-  const [catalogPick, setCatalogPick] = useState('');
+ const [catalogPick, setCatalogPick] = useState(null);
   const [items, setItems] = useState([]);
   const [itemsLoading, setItemsLoading] = useState(false);
+  const [placementMaster, setPlacementMaster] = useState([]); 
+  const [inventoryId, setInventoryId] = useState(null);   // ⬅ new — top-level record id
+
+const [saveLoading, setSaveLoading] = useState(false);  
 
   // ---- Event details + function list (same pattern as EventTransportation) ----
   useEffect(() => {
@@ -295,25 +388,80 @@ const EventFlower = () => {
   }, [eventId, routeFunctionId]);
 
   // ---- Inventory for the selected function ----
-  const fetchInventoryForFunction = useCallback(async (eventFunctionId) => {
-    if (!eventFunctionId) {
-      setItems([]);
-      return;
-    }
-    setItemsLoading(true);
+const fetchInventoryForFunction = useCallback(async (eventFunctionId) => {
+  if (!eventFunctionId) {
+    setItems([]);
+    return;
+  }
+  setItemsLoading(true);
+  try {
+    const res = await GetInventoryByFunction(eventFunctionId, INVENTORY_ITEMS_FILTER);
+    const body = res?.data ?? res;
+    const data = body?.data ?? {};
+
+    setInventoryId(data?.id ?? null);
+    setReference(data?.reference ?? '');
+    setIncharge(data?.productionInchargeId ?? null);
+    setNote(data?.note ?? '');
+    setSetUpDateTime(data?.setupDateTime ?? '');
+    setDismantlingDateTime(data?.dismantleDateTime ?? '');
+    setInventoryStatus(data?.status ?? null);
+    setIsLocked(!!data?.isLocked);
+
+   const master = (Array.isArray(data?.placements) ? data.placements : [])
+  .filter((p) => p.executionItemId != null)
+  .map((p) => ({
+    executionItemId: p.executionItemId,
+    label: p.executionItemNameEnglish ?? '',
+  }));
+setPlacementMaster(master);
+console.log('placementMaster loaded:', master);
+
+    const rawItems = Array.isArray(data?.items) ? data.items : [];
+    setItems(rawItems.map((item) => mapInventoryItem(item, master)));
+  } catch (err) {
+    console.error('Failed to fetch inventory for function:', err);
+    setItems([]);
+    setPlacementMaster([]);
+  } finally {
+    setItemsLoading(false);
+  }
+}, []);
+
+
+const fetchFlowerCatalogItems = useCallback(
+  async (query) => {
     try {
-      const res = await GetInventoryByFunction(eventFunctionId, INVENTORY_ITEMS_FILTER);
+      const res = await getAllRawItemMaster({
+        isActive: true,
+        nameEnglish: query || '',
+        page: 0,
+        rawCategoryId: FLOWER_RAW_CATEGORY_ID,
+        rawSubCategoryId: null,
+        size: 1000,
+        sortBy: 'id',
+        sortDirection: 'DESC',
+        supplierId: null,
+        unitId: null,
+        userId,
+      });
       const body = res?.data ?? res;
-      const data = body?.data ?? [];
-      const content = Array.isArray(data) ? data : data?.content ?? [];
-      setItems((Array.isArray(content) ? content : []).map(mapInventoryItem));
+      const list = body?.data?.content ?? body?.data ?? [];
+      console.log('raw item master sample:', list[0]); // TEMP — check the real id field name
+    return (Array.isArray(list) ? list : []).map((item) => ({
+  id: item.id ?? item.rawItemId ?? item.rawItemMasterId ?? item.itemId ?? null,
+  label: item.nameEnglish ?? item.itemNameEnglish ?? item.name ?? '',
+  unitId: item.unitId ?? null,
+  unit: item.unitNameEnglish ?? '',
+  availableQty: item.closingQuantity ?? null,   // for the stock check below
+}));
     } catch (err) {
-      console.error('Failed to fetch inventory for function:', err);
-      setItems([]);
-    } finally {
-      setItemsLoading(false);
+      console.error('Failed to fetch flower catalog items:', err);
+      return [];
     }
-  }, []);
+  },
+  [userId]
+);
 
   useEffect(() => {
     if (selectedFunction?.id) {
@@ -325,6 +473,7 @@ const EventFlower = () => {
     async (query) => {
       try {
         const res = await getAllClientMaster({
+          categoryType:-1,
           categoryId: null,
           isActive: null,
           nameEnglish: query,
@@ -348,6 +497,93 @@ const EventFlower = () => {
     },
     [userId]
   );
+
+
+ 
+
+
+ const buildInventoryFormData = () => {
+  const formData = new FormData();
+
+  // top-level id: only send when updating an existing inventory record
+  if (inventoryId != null) {
+    formData.append('id', inventoryId);
+  }
+  formData.append('eventFunctionId', selectedFunction?.id ?? '');
+  formData.append('inventoryItem', INVENTORY_ITEMS_FILTER);
+  formData.append('reference', reference ?? '');
+  formData.append('productionInchargeId', incharge ?? '');
+  formData.append('note', note ?? '');
+  formData.append('setupDateTime', setUpDateTime ?? '');
+  formData.append('dismantleDateTime', dismantlingDateTime ?? '');
+  formData.append('status', inventoryStatus ?? '');
+  formData.append('userId', userId);
+
+  items.forEach((item, i) => {
+    // item id: only send when updating an existing item
+    if (item.serverId != null) {
+      formData.append(`items[${i}].id`, item.serverId);
+    }
+    formData.append(`items[${i}].rawItemId`, item.rawItemId ?? '');
+    formData.append(`items[${i}].unitId`, item.unitId ?? '');
+    formData.append(`items[${i}].vendorId`, item.vendor?.id ?? '');
+    formData.append(`items[${i}].description`, item.description ?? '');
+    formData.append(`items[${i}].itemDate`, item.date ?? '');
+    formData.append(`items[${i}].itemTime`, item.time ?? '');
+    formData.append(`items[${i}].length`, item.length ?? '');
+    formData.append(`items[${i}].breadth`, item.breadth ?? '');
+    formData.append(`items[${i}].height`, item.height ?? '');
+    formData.append(`items[${i}].price`, item.rate ?? 0);
+    formData.append(`items[${i}].qty`, item.qty ?? 0);
+    formData.append(`items[${i}].note`, item.note ?? '');
+
+    // Only newly staged File objects are uploaded — existing `images` URLs
+    // from the API are display-only and aren't re-sent as files.
+    (item.newFiles || []).forEach((file) => {
+      formData.append(`items[${i}].files`, file);
+    });
+
+    item.placements.forEach((p, j) => {
+      // placement id: only send when updating an existing placement
+      if (p.id != null) {
+        formData.append(`items[${i}].placements[${j}].id`, p.id);
+      }
+      formData.append(`items[${i}].placements[${j}].executionItemId`, p.executionItemId ?? '');
+      formData.append(`items[${i}].placements[${j}].qty`, p.qty ?? 0);
+    });
+  });
+
+  return formData;
+};
+
+const handleSave = async () => {
+  if (!selectedFunction?.id) {
+    message.warning('Please select a function first.');
+    return;
+  }
+  setSaveLoading(true);
+  try {
+    const formData = buildInventoryFormData();
+    const res = await AddUpdateIventory(formData);
+    const body = res?.data ?? res;
+    if (body?.success === false) {
+      throw new Error(body?.msg || 'Save failed');
+    }
+    message.success(body?.msg || 'Inventory saved successfully.');
+    // Refresh from server so ids assigned by the backend (new items/placements) come back in sync.
+    fetchInventoryForFunction(selectedFunction.id);
+  } catch (err) {
+    console.error('Failed to save inventory:', err);
+    Swal.fire({
+      title: 'Error',
+      text: err?.message || 'Failed to save inventory. Please try again.',
+      icon: 'error',
+      confirmButtonColor: '#005BA8',
+    });
+  } finally {
+    setSaveLoading(false);
+  }
+};
 
   const toggleExpand = (id) => setItems((prev) => prev.map((it) => (it.id === id ? { ...it, expanded: !it.expanded } : it)));
 
@@ -373,24 +609,42 @@ const EventFlower = () => {
     setIsEventModalOpen(false);
   };
 
-  const addItem = () => {
-    const newItem = {
-      id: Date.now(),
-      name: catalogPick || 'New Item',
-      vendor: { id: null, label: '' },
+const addItem = () => {
+  if (placementMaster.length === 0) {
+    message.warning('Placements are still loading — please wait a moment and try again.');
+    return;
+  }
+  const newItem = {
+    id: Date.now(),
+     serverId: null,  
+    rawItemId: catalogPick?.id ?? null,
+     unitId: catalogPick?.unitId ?? null, 
+    name: catalogPick?.label || 'New Item',
+    vendor: { id: null, label: '' },
+    qty: 0,
+    rate: 0,
+    description: '',
+    unit: catalogPick?.unit ?? '',
+    availableQty: catalogPick?.availableQty ?? null,
+    date: '',
+    time: '',
+    length: '',
+    breadth: '',
+    height: '',
+    note: '',
+    images: [],
+    newFiles: [],
+    placements: placementMaster.map((m) => ({
+      id: null,
+      executionItemId: m.executionItemId,
+      label: m.label,
       qty: 0,
-      rate: 0,
-      description: '',
-      unit: '',
-      date: '',
-      time: '',
-      note: '',
-      placements: DEFAULT_PLACEMENTS.map((p) => ({ ...p })),
-      expanded: true,
-    };
-    setItems((prev) => [...prev, newItem]);
-    setCatalogPick('');
+    })),
+    expanded: true,
   };
+  setItems((prev) => [...prev, newItem]);
+  setCatalogPick(null);
+};
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-6">
@@ -433,25 +687,42 @@ const EventFlower = () => {
           </div>
 
           <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-primary-lighest p-3 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
+           <div className="relative flex-1">
               <SearchOutlined className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-gray-400" />
-              <Select
-                showSearch
-                allowClear
-                value={catalogPick || undefined}
+              <AsyncSearchSelect
+                fetcher={fetchFlowerCatalogItems}
+                value={catalogPick}
                 onChange={setCatalogPick}
-                options={CATALOG_OPTIONS}
-                optionFilterProp="label"
                 placeholder="Pick a catalog item to add…"
                 className="w-full [&_.ant-select-selector]:!bg-white [&_.ant-select-selector]:!border-dashed [&_.ant-select-selector]:!border-gray-300 [&_.ant-select-selector]:!pl-9"
               />
             </div>
-            <Button icon={<PlusOutlined />} onClick={addItem} className="shrink-0 !bg-white rounded-lg">
-              Add
-            </Button>
-            <Button type="primary" icon={<Sparkles size={16} />} onClick={addItem} className="shrink-0 rounded-lg">
-              Add Item
-            </Button>
+           <Button
+  icon={<PlusOutlined />}
+  onClick={addItem}
+  disabled={itemsLoading || placementMaster.length === 0}   // ⬅ new
+  className="shrink-0 !bg-white rounded-lg"
+>
+  Add
+</Button>
+<Button
+  type="primary"
+  icon={<Sparkles size={16} />}
+  onClick={addItem}
+  disabled={itemsLoading || placementMaster.length === 0}   // ⬅ new
+  className="shrink-0 rounded-lg"
+>
+  Add Item
+</Button>
+            <Button
+  type="primary"
+  onClick={handleSave}
+  loading={saveLoading}
+  disabled={isLocked}
+  className="shrink-0 rounded-lg"
+>
+  <Save size={16}/> Save
+</Button>
           </div>
 
           <div className="mt-6 hidden grid-cols-[2fr_1.4fr_0.8fr_0.8fr_1fr_auto] gap-3 px-4 pb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 sm:grid">
@@ -481,8 +752,23 @@ const EventFlower = () => {
                       <span className="text-gray-600 sm:text-center">{currency(item.rate)}</span>
                       <span className="font-bold text-primary sm:text-right">{currency(total)}</span>
                       <div className="flex items-center gap-3 justify-end col-span-2 sm:col-span-1">
-                        <Button type="text" size="small" icon={<EditOutlined />} onClick={() => toggleExpand(item.id)} aria-label="Edit item" />
-                        <Button type="text" size="small" danger icon={<DeleteOutlined />} onClick={() => deleteItem(item.id)} aria-label="Delete item" />
+                        <Button
+                            type="text"
+                            size="small"
+                            icon={<EditOutlined />}
+                            onClick={() => toggleExpand(item.id)}
+                            disabled={isLocked}
+                            aria-label="Edit item"
+                          />
+                          <Button
+                            type="text"
+                            size="small"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() => deleteItem(item.id)}
+                            disabled={isLocked}
+                            aria-label="Delete item"
+                          />
                         <Button
                           type="text"
                           size="small"
@@ -532,7 +818,19 @@ const EventFlower = () => {
                             </div>
                             <div>
                               <Text type="secondary" className="block !text-xs font-semibold uppercase mb-2">Total Qty</Text>
-                              <InputNumber style={{ width: '100%' }} min={0} value={item.qty} onChange={(v) => updateItem(item.id, 'qty', v ?? 0)} />
+                              <InputNumber
+                                style={{ width: '100%' }}
+                                min={0}
+                                max={item.availableQty ?? undefined}
+                                status={item.availableQty != null && item.qty > item.availableQty ? 'error' : ''}
+                                value={item.qty}
+                                onChange={(v) => updateItem(item.id, 'qty', v ?? 0)}
+                              />
+                              {item.availableQty != null && (
+                                <Text type={item.qty > item.availableQty ? 'danger' : 'secondary'} className="mt-1 block !text-xs">
+                                  Available in stock: {item.availableQty} {item.unit}
+                                </Text>
+                              )}
                             </div>
                           </div>
                           <div>
@@ -551,20 +849,20 @@ const EventFlower = () => {
                             </div>
                             <div className="space-y-2.5">
                               {item.placements.map((p, i) => (
-                                <div key={p.label} className="flex items-center justify-between gap-3">
-                                  <span className="flex items-center gap-1.5 text-sm text-gray-700">
-                                    {p.label}
-                                    <Button
-                                      type="text"
-                                      size="small"
-                                      icon={<InfoCircleOutlined className="text-gray-400 hover:text-primary" />}
-                                      onClick={() => setActivePlacement({ ...(PLACEMENT_DETAILS[p.label] || {}), label: p.label, qty: p.qty })}
-                                      aria-label={`${p.label} placement instructions`}
-                                    />
-                                  </span>
-                                  <InputNumber min={0} value={p.qty} onChange={(v) => updatePlacement(item.id, i, v ?? 0)} className="w-20" />
-                                </div>
-                              ))}
+                                  <div key={p.executionItemId ?? i} className="flex items-center justify-between gap-3">
+                                    <span className="flex items-center gap-1.5 text-sm text-gray-700">
+                                      {p.label}
+                                      <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<InfoCircleOutlined className="text-gray-400 hover:text-primary" />}
+                                        onClick={() => setActivePlacement({ label: p.label, qty: p.qty })}
+                                        aria-label={`${p.label} placement instructions`}
+                                      />
+                                    </span>
+                                    <InputNumber min={0} value={p.qty} onChange={(v) => updatePlacement(item.id, i, v ?? 0)} className="w-20" />
+                                  </div>
+                                ))}
                             </div>
                             <div className="mt-3 flex items-center justify-between border-t border-primary-clarity pt-3">
                               <span className="text-sm font-bold text-gray-900">
@@ -574,15 +872,21 @@ const EventFlower = () => {
                             </div>
                           </div>
 
-                          <div>
-                            <Text type="secondary" className="block !text-xs font-semibold uppercase mb-2">Reference Image</Text>
-                            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-300 p-4">
+                         <Text type="secondary" className="block !text-xs font-semibold uppercase mb-2">Reference Image</Text>
+                          <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-300 p-4">
+                            {item.images?.length > 0 ? (
+                              <img src={item.images[0]} alt={item.name} className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                            ) : (
                               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
                                 <PictureOutlined style={{ fontSize: 20 }} />
                               </div>
-                              <span className="flex-1 text-sm text-gray-500">No image uploaded</span>
-                              <Button type="text" className="text-primary bg-primary-lighest rounded-full">Change Image</Button>
-                            </div>
+                            )}
+                            <span className="flex-1 text-sm text-gray-500">
+                              {item.images?.length > 0 ? `${item.images.length} image(s) attached` : 'No image uploaded'}
+                            </span>
+                            <Button type="text" className="text-primary bg-primary-lighest rounded-full" disabled={isLocked}>
+                              Change Image
+                            </Button>
                           </div>
 
                           <Button icon={<MessageOutlined />}>SMS</Button>

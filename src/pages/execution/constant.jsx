@@ -21,7 +21,10 @@ export const DEFAULT_MATERIAL_CATEGORIES = [
   "ARTIST_ENTERTAINMENT",
   "PRINTING",
   "OUTSOURCE",
-  "NEW_PURCHASE",
+  "PURCHASE_ITEM",
+  "SFX",
+  "NEW_MAKING",
+  "GODOWN",
 ];
 
 export const PRODUCTION_INCHARGE_OPTIONS = [
@@ -47,7 +50,10 @@ export const MATERIAL_OPTIONS = [
   { value: "ARTIST_ENTERTAINMENT", label: "Artist / Entertainment" },
   { value: "PRINTING", label: "Printing" },
   { value: "OUTSOURCE", label: "Outsource" },
-  { value: "NEW_PURCHASE", label: "New Purchase" },
+  { value: "PURCHASE_ITEM", label: "New Purchase" },
+ { value: "SFX", label: "SFX" },
+  { value: "GODOWN", label: "Godown" },
+   { value: "NEW_MAKING", label: "New Making" },
 ];
 
 

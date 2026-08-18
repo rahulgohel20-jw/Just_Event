@@ -558,3 +558,8 @@ export const getbyiduser = (id) => {
 export const GetInventoryByFunction = (eventFunctionId, inventoryItems  ) => {
     return GET(`/event-function-inventory/get-by-function?eventFunctionId=${eventFunctionId}&inventoryItems=${inventoryItems}`);
 };
+
+
+export const AddUpdateIventory = (data) =>{
+    return POST(`/event-function-inventory/add-update`,data);
+};
