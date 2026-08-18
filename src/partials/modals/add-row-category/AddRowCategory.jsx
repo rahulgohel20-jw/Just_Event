@@ -39,8 +39,11 @@ const userId = Number(localStorage.getItem("userId"));
             try {
                 const res = await getAllRawCategoryTypeMaster({
                     page: 0,
+                    
                     pageSize: 100, // pull enough for a dropdown; paginate/search here if the list grows large
                     status: "active",
+                    sortBy:"nameEnglish",
+                    sort:"ASC",
                     userId,
                 });
                 const records = res?.data?.data?.content ?? [];
