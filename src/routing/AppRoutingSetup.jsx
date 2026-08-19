@@ -187,6 +187,7 @@ import UserMaster from "../pages/Master/user_master";
 import LabourShiftMaster from "../pages/Master/Labour_Shit_Master";
 import EventFlexPage from "../pages/Event/EventFlexPage.jsx/EventFlexPage";
 import MembersPage from "../pages/Super_Admin/Memeber_list";
+import EventOverview from "../pages/Event/Overview/EventOverview";
 import EventDashboard from "../pages/dashboard/Dashboard";
 const AppRoutingSetup = () => {
   return (
@@ -231,7 +232,7 @@ const AppRoutingSetup = () => {
             <Route path="/contacts" element={<ContactListPage />} />
             <Route path="/lead" element={<LeadPage />} />
             <Route path="/lead/details" element={<LeadDetailPage />} />
-            <Route path="/overview" element={<OverviewPage />} />
+           <Route path="/eventoverview" element={<EventOverview />} />
 
           {/* Quotation */}
           <Route path="/quotation/:eventId" element={<QuotationPage />} />
