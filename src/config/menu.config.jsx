@@ -1,6 +1,6 @@
 export const MENU_SIDEBAR = [
   {
-    title: "MyApp",
+    title: "DashBoard",
     icon: "element-11 text-primary",
     path: "/",
   },
@@ -232,67 +232,7 @@ export const MENU_SIDEBAR = [
       
     ],
   },
-
-   {
-    title: "Raw Material",
-     icon: "  text-lg ki-filled  ki-badge text-primary",
-    
-    children: [
-      {
-        title:"Raw Category Type Master",
-        path: '/master/rowcategorytypemaster'
-      },
-      {
-        title:"Raw Category Master",
-        path: '/master/rowcategorymaster'
-      },
-     
-      {
-        title:"Raw Item Master",
-        path: '/master/rowitemmaster'
-      },
-      {
-        title:"Unit Master",
-        path: '/master/unitmaster'
-      },
-    ],
-  },
-   {
-    title: "Menu Item",
-     icon: "  text-lg ki-filled ki-additem  text-primary",
-  
-    children: [
-      {
-      title:"Menu item Category Type ",
-      path:"/menucattypemaster",
-     },
-     {
-      title:"Menu Item Category",
-      path:"/menucatmaster",
-     },
-     {
-      title:"Menu Item ",
-      path:"/menuitemmaster",
-     },
-      
-    ],
-  },
-  {
-    title: "Members",
-     icon: "  text-lg ki-filled ki-user  text-primary",
-  
-    children: [
-      {
-        title:"Role Master",
-        path: '/rolemaster'
-      },
-      {
-        title:"User Master",
-        path:"/allmember",
-      },
-      
-    ],
-  },
+  // master
   {
     title: "Masters",
      icon: "  text-lg ki-filled ki-abstract-26 text-primary",
@@ -313,6 +253,10 @@ export const MENU_SIDEBAR = [
         title: "Vendor Master",
         path: "/master/vendormaster",
       },
+        {
+        title :"Event Type Master",
+        path:"/eventtypemaster",
+      },
       {
         title: "Function Master",
         path: "/master/functionmaster",
@@ -327,15 +271,12 @@ export const MENU_SIDEBAR = [
       },
      
      
-     
-      {
-        title :"Plan Master",
-        path:"/planmaster",
-      },
-      {
-        title :"Event Type Master",
-        path:"/eventtypemaster",
-      },
+    
+      // {
+      //   title :"Plan Master",
+      //   path:"/planmaster",
+      // },
+    
      {
       title :"Cash Account",
       path:"/cashaccount",
@@ -361,6 +302,74 @@ export const MENU_SIDEBAR = [
       },
     ],
   },
+// Raw Material
+   {
+    title: "Raw Material",
+     icon: "  text-lg ki-filled  ki-badge text-primary",
+    
+    children: [
+      {
+        title:"Raw Category Type Master",
+        path: '/master/rowcategorytypemaster'
+      },
+      {
+        title:"Raw Category Master",
+        path: '/master/rowcategorymaster'
+      },
+       {
+        title:"Raw Sub Category Master",
+        path: '/master/rowsubcategorymaster'
+      },
+      {
+        title:"Raw Item Master",
+        path: '/master/rowitemmaster'
+      },
+      {
+        title:"Unit Master",
+        path: '/master/unitmaster'
+      },
+    ],
+  },
+  // menu item
+   {
+    title: "Menu Item ",
+     icon: "  text-lg ki-filled ki-additem  text-primary",
+  
+    children: [
+      {
+      title:"Menu item Type Master  ",
+      path:"/menucattypemaster",
+     },
+     {
+      title:"Menu Item Category Master",
+      path:"/menucatmaster",
+     },
+     {
+      title:"Menu Item Master",
+      path:"/menuitemmaster",
+     },
+      
+    ],
+  },
+  // Mmeber
+  {
+    title: "Members",
+     icon: "  text-lg ki-filled ki-user  text-primary",
+  
+    children: [
+      {
+        title:"Department Master",
+        path: '/rolemaster'
+      },
+      {
+        title:"User Master",
+        path:"/allmember",
+      },
+      
+    ],
+  },
+  
+  
   // {
   //   title: "Quotation",
   //   icon: "ki-filled ki-file-sheet text-primary",
@@ -392,7 +401,7 @@ export const MENU_SIDEBAR = [
   // },
  
    {
-    title: "setting",
+    title: "Setting",
      icon: "  text-lg ki-filled ki-calendar text-primary",
      path:"/creteevnetname",
     children: [
@@ -400,10 +409,7 @@ export const MENU_SIDEBAR = [
         title:"Report Key Configuration",
         path:"/userwisereportkey",
       },
-     
-      
-      
-      
+   
     ],
   },
 ];
@@ -421,16 +427,25 @@ export const MENU_CREATE_EVENT_SIDEBAR = [
     icon: "ki-filled ki-bill text-primary",
     path: "/quotation"
   },
+  
+ 
   {
     title: "Execution",
     icon: "ki-filled ki-abstract-26 text-primary",
     path: "/execution"
   },
+
   {
+    title: "Inventory Allocation",
+     icon: "  text-lg ki-filled ki-element-11 text-primary",
+    
+    children: [
+   {
     title: "Event Flower",
     icon: "ki-filled ki-abstract-14 text-primary",
     path: "/flower"
   },
+
   {
     title: "Event Lighting",
     icon: "ki-filled ki-electricity text-primary",
@@ -498,6 +513,9 @@ export const MENU_CREATE_EVENT_SIDEBAR = [
     icon :"ki-filled ki-wallet text-primary",
     path:"/eventflex"
   }
+   
+    ],
+  },  
 ];
 
 export const MENU_INVENTORY_SIDEBAR = [

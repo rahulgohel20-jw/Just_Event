@@ -1,4 +1,3 @@
-// src/config/eventModuleLinks.js
 import {
   Receipt,
   ClipboardList,
@@ -14,12 +13,9 @@ import {
   PlusSquare,
   Warehouse,
   Users,
+  FileBarChart,
 } from "lucide-react";
 
-// Only these two routes are defined with an :eventId path param
-// (see App routes: "/quotation/:eventId", "/execution/:eventId").
-// Everything else reads eventId via query string, same pattern
-// ExecutionPage already uses: routeEventId ?? searchParams.get("eventId").
 const ROUTE_PARAM_PATHS = new Set(["/quotation", "/execution"]);
 
 export const EVENT_MODULE_LINKS = [
@@ -37,6 +33,8 @@ export const EVENT_MODULE_LINKS = [
   { title: "Event New Making", path: "/new-making", icon: PlusSquare },
   { title: "Event Godown", path: "/godown", icon: Warehouse },
   { title: "Event Labour Agency", path: "/labour-agency", icon: Users },
+  // Not a route — opens SelectReportTypeModal instead of navigating.
+  { title: "Itinerary Report", path: "/itinerary-report", icon: FileBarChart, action: "openReportModal" },
 ];
 
 /**

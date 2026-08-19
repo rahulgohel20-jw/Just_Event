@@ -303,7 +303,7 @@ const EventLabourAgency = () => {
           sortBy: 'id',
           sortDirection: 'DESC',
           userId,
-          categoryTypeId: 15,
+          categoryTypeId: 2,
         });
         const body = res?.data?.data ?? res?.data ?? {};
         const content = body?.content ?? [];
@@ -353,6 +353,7 @@ const EventLabourAgency = () => {
       if (!categoryId) return [];
       try {
         const res = await getAllClientMaster({
+
           categoryId,
           isActive: true,
           nameEnglish: query,

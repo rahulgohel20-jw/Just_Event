@@ -72,6 +72,7 @@ const userId = Number(localStorage.getItem("userId"));
 const fetchCategories = useCallback(async () => {
     try {
       const payload = {
+        categoryTypeId :1,
         nameEnglish: "",
         page: 0,
         size: 1000,
@@ -89,10 +90,10 @@ const fetchCategories = useCallback(async () => {
         [];
 
       const options = list
-        .filter(
-          (item) =>
-            item.categoryTypeNameEnglish?.trim().toLowerCase() === "customer"
-        )
+  .filter(
+    (item) =>
+      item.categoryTypeNameEnglish?.trim().toLowerCase() === "customers"
+  )
         .map((item) => ({
           value: item.id,
           label: item.nameEnglish,

@@ -180,7 +180,7 @@ function ClientCard({
             <div className="flex-1">
               <PaginatedSearchSelect
   fetchFn={getAllClientMaster}
-  extraParams={{ sortBy: "id", sortDirection: "DESC", userId ,categoryId: null , categoryTypeId:6 }}
+  extraParams={{ sortBy: "id", sortDirection: "DESC", userId ,categoryId: null , categoryTypeId:1 }}
   labelKey="nameEnglish"
   valueKey="id"
   searchParamName="nameEnglish"

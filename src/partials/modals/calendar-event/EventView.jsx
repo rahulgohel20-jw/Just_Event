@@ -5,6 +5,7 @@ import { MapPin, Calendar, Phone, Pencil, Copy, Trash2, Loader2, X, BadgeCheck }
 import { EVENT_MODULE_LINKS, buildModuleUrl } from "@/config/eventModuleLinks";
 import { deleteeventbyid } from "@/services/apiServices";
 import { showApiError, showApiResult, confirmDelete } from "@/utils/swalHelpers";
+import { SelectReportTypeModal } from "../Reports_Modal/Selectreporttypemodal";
 
 // Matches the backend EventStatus enum: INQUIRY, TENTATIVE, CONFIRM, CANCEL
 const STATUS_STYLES = {
@@ -17,6 +18,7 @@ const STATUS_STYLES = {
 const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData, onDeleted }) => {
   const navigate = useNavigate();
   const [deleting, setDeleting] = useState(false);
+ const [reportModalOpen, setReportModalOpen] = useState(false);
 
   const eventId = eventData?.id ?? null;
   const eventName = eventData?.eventNameEnglish || eventData?.partyNameEnglish || "Event";
@@ -29,15 +31,18 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData, onDeleted }) =
     label: currentStatus || "Unknown",
     className: "border-gray-300 bg-gray-50 text-gray-500",
   };
-
-  const handleModalClose = () => setIsModalOpen(false);
-
-  const handleModuleClick = (path) => {
+  const handleModuleClick = (link) => {
     if (!eventId) return;
-    navigate(buildModuleUrl(path, eventId));
+    if (link.action === "openReportModal") {
+      setReportModalOpen(true);
+      return;
+    }
+    navigate(buildModuleUrl(link.path, eventId));
     handleModalClose();
   };
+  const handleModalClose = () => setIsModalOpen(false);
 
+ 
   const handleDelete = async () => {
     if (!eventId) return;
 
@@ -65,6 +70,7 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData, onDeleted }) =
 
   return (
     isModalOpen && (
+    <>
       <CustomModal
         open={isModalOpen}
         onClose={handleModalClose}
@@ -119,26 +125,26 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData, onDeleted }) =
               Go to module
             </p>
             <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4">
-              {EVENT_MODULE_LINKS.map((link) => {
-                const Icon = link.icon;
-                return (
-                  <button
-                    key={link.path}
-                    type="button"
-                    onClick={() => handleModuleClick(link.path)}
-                    disabled={!eventId}
-                    title={link.title}
-                    className={
-                      link.primary
-                        ? "flex flex-col items-center gap-1.5 rounded-xl bg-primary px-3 py-3.5 text-center text-white shadow-sm transition hover:bg-rose-950 disabled:opacity-50"
-                        : "flex flex-col items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-3.5 text-center text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50"
-                    }
-                  >
-                    <Icon size={18} />
-                    <span className="text-[11px] font-medium leading-tight">{link.title}</span>
-                  </button>
-                );
-              })}
+            {EVENT_MODULE_LINKS.map((link) => {
+  const Icon = link.icon;
+  return (
+    <button
+      key={link.path}
+      type="button"
+      onClick={() => handleModuleClick(link)}
+      disabled={!eventId}
+      title={link.title}
+      className={
+        link.primary
+          ? "flex flex-col items-center gap-1.5 rounded-xl bg-primary px-3 py-3.5 text-center text-white shadow-sm transition hover:bg-rose-950 disabled:opacity-50"
+          : "flex flex-col items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-3.5 text-center text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50"
+      }
+    >
+      <Icon size={18} />
+      <span className="text-[11px] font-medium leading-tight">{link.title}</span>
+    </button>
+  );
+})}
             </div>
           </div>
 
@@ -172,6 +178,15 @@ const EventViewModal = ({ isModalOpen, setIsModalOpen, eventData, onDeleted }) =
           </div>
         </div>
       </CustomModal>
+      <SelectReportTypeModal
+        open={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        eventId={eventId}
+        onGenerateReport={(params) => {
+          console.log("generate report", params);
+        }}
+      />
+    </>
     )
   );
 };

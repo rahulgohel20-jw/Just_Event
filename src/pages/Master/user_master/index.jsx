@@ -24,6 +24,7 @@ const UserMaster = () => {
   const [pageSize] = useState(DEFAULT_PAGINATION_SIZE);
   const [totalElements, setTotalElements] = useState(0);
 const [editLoading, setEditLoading] = useState(false); 
+const userId = Number(localStorage.getItem("userId"));
   const searchDebounceRef = useRef(null);
 
   const fetchUserList = useCallback(
@@ -32,7 +33,7 @@ const [editLoading, setEditLoading] = useState(false);
       try {
         const payload = {
   cityId: null,
-  clientId: null,
+  clientId: userId,
   companyName: "",
   countryId: null,
   isActive: true,

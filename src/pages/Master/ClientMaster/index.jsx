@@ -96,7 +96,7 @@ const userId = Number(localStorage.getItem("userId"));
 
     try {
       const payload = {
-        categoryTypeId : 6,
+        categoryTypeId : 1,
         categoryId: categoryFilter ? Number(categoryFilter) : null,
         isActive:
           statusFilter === ""

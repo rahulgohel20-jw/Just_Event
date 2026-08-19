@@ -73,6 +73,8 @@ export default function CreateEventName() {
   const [loadingMore, setLoadingMore] = useState(false);
   const debounceRef = useRef(null);
 const [submitError, setSubmitError] = useState("");
+const userId = Number(localStorage.getItem("userId"));
+
   const fetchEventTypes = async (pageToFetch, search, append = false) => {
     if (append) setLoadingMore(true);
     else setLoadingTypes(true);
@@ -84,6 +86,7 @@ const [submitError, setSubmitError] = useState("");
         size: PAGE_SIZE,
         sortBy: "id",
         sortDirection: "DESC",
+        userId,
       });
       const body = res?.data ?? res;
       const pageData = body?.data ?? body;
