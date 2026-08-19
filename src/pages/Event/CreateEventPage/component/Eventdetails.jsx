@@ -24,7 +24,7 @@ export default function EventDetails({ data, onChange }) {
   // immediately, without a refetch.
   const [extraEventTypes, setExtraEventTypes] = useState([]);
   const [extraVenues, setExtraVenues] = useState([]);
-
+    const userId = Number(localStorage.getItem("userId"));
   const [showAddEventType, setShowAddEventType] = useState(false);
   const [showAddVenue, setShowAddVenue] = useState(false);
 
@@ -88,7 +88,7 @@ export default function EventDetails({ data, onChange }) {
             </div>
             <PaginatedSearchSelect
               fetchFn={getAllEventTypemaster}
-              extraParams={{ sortBy: "id", sortDirection: "DESC" }}
+              extraParams={{ sortBy: "id", sortDirection: "DESC"  , userId}}
               labelKey="nameEnglish"
               valueKey="id"
               searchParamName="nameEnglish"
@@ -191,7 +191,7 @@ export default function EventDetails({ data, onChange }) {
         <div className="relative mb-2">
           <PaginatedSearchSelect
             fetchFn={getallvenuemmmaster}
-            extraParams={{ sortBy: "id", sortDirection: "DESC" }}
+            extraParams={{ sortBy: "id", sortDirection: "DESC" , userId }}
             labelKey="nameEnglish"
             valueKey="id"
             searchParamName="search"

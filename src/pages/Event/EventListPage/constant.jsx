@@ -43,27 +43,36 @@ export const columns = (handleDelete) => [
       cellClassName: "w-[12%]",
     },
   },
-  {
-    accessorKey: "proforma_invoice",
-    header: "Proforma Invoice",
-    cell: ({ cell }) => cell.getValue(),
-    meta: {
-      headerClassName: "w-[6%] text-center",
-      cellClassName: "w-[6%] text-center",
-    },
-  },
-  {
-    accessorKey: "invoice",
-    header: "Invoice",
-    cell: ({ cell }) => cell.getValue(),
-    meta: {
-      headerClassName: "w-[6%] text-center",
-      cellClassName: "w-[6%] text-center",
-    },
-  },
+  // {
+  //   accessorKey: "proforma_invoice",
+  //   header: "Proforma Invoice",
+  //   cell: ({ cell }) => cell.getValue(),
+  //   meta: {
+  //     headerClassName: "w-[6%] text-center",
+  //     cellClassName: "w-[6%] text-center",
+  //   },
+  // },
+  // {
+  //   accessorKey: "invoice",
+  //   header: "Invoice",
+  //   cell: ({ cell }) => cell.getValue(),
+  //   meta: {
+  //     headerClassName: "w-[6%] text-center",
+  //     cellClassName: "w-[6%] text-center",
+  //   },
+  // },
   {
     accessorKey: "quotation",
     header: "Quotation",
+    cell: ({ cell }) => cell.getValue(),
+    meta: {
+      headerClassName: "w-[6%] text-center",
+      cellClassName: "w-[6%] text-center",
+    },
+  },
+   {
+    accessorKey: "execution",
+    header: "Execution ",
     cell: ({ cell }) => cell.getValue(),
     meta: {
       headerClassName: "w-[6%] text-center",
@@ -85,7 +94,7 @@ export const columns = (handleDelete) => [
               </button>
             </Link>
           </Tooltip>
-          <Popconfirm
+          {/* <Popconfirm
             title="Are you sure to copy this item?"
             onConfirm={() => console.log('confirm')}
             onCancel={() => console.log('Cancelled')}
@@ -97,7 +106,7 @@ export const columns = (handleDelete) => [
                 <i className="ki-filled ki-copy text-success"></i>
               </button>
             </Tooltip>
-          </Popconfirm>
+          </Popconfirm> */}
           <Tooltip className="cursor-pointer" title="Remove Event">
             <button
               className="btn btn-sm btn-icon btn-clear"
@@ -107,7 +116,7 @@ export const columns = (handleDelete) => [
               <i className="ki-filled ki-trash text-danger"></i>
             </button>
           </Tooltip>
-          <Tooltip title="Menu Preparation">
+          {/* <Tooltip title="Menu Preparation">
             <Link to="/menu-preparation">
               <button
                 className="btn btn-sm btn-icon btn-clear"
@@ -116,9 +125,9 @@ export const columns = (handleDelete) => [
                 <i className="ki-filled ki-notepad text-warning"></i>
               </button>
             </Link>
-          </Tooltip>
+          </Tooltip> */}
 
-          <Tooltip title="Menu Allocation">
+          {/* <Tooltip title="Menu Allocation">
             <Link to="/menu-allocation">
               <button
                 className="btn btn-sm btn-icon btn-clear"
@@ -127,7 +136,7 @@ export const columns = (handleDelete) => [
                 <i className="ki-filled ki-grid  text-info"></i>
               </button>
             </Link>
-          </Tooltip>
+          </Tooltip> */}
         </div>
       );
     },

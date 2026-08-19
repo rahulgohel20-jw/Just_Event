@@ -102,7 +102,6 @@ import {
   ProgressChecklistPage,
 } from "@/pages/support";
 import { FollowUpListPage } from "@/pages/follow-up";
-import { Dashboard } from "@/pages/dashboard";
 import GuestDashboard from "../pages/Guest/GuestDashboard/GuestDashboard";
 import {
   TaskListPage,
@@ -189,6 +188,7 @@ import LabourShiftMaster from "../pages/Master/Labour_Shit_Master";
 import EventFlexPage from "../pages/Event/EventFlexPage.jsx/EventFlexPage";
 import MembersPage from "../pages/Super_Admin/Memeber_list";
 import EventOverview from "../pages/Event/Overview/EventOverview";
+import EventDashboard from "../pages/dashboard/Dashboard";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -227,7 +227,7 @@ const AppRoutingSetup = () => {
             <Route path="/master/unitmaster" element={<UnitMaster />} />
             <Route path="/master/rowitemmaster" element={<RowItemMaster />} />
             <Route path="/master/rowsubcategorymaster" element={<RawSubCategoryMaster />} />
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<EventDashboard />} />
             <Route path="/contacts/details" element={<ContactDetail />} />
             <Route path="/contacts" element={<ContactListPage />} />
             <Route path="/lead" element={<LeadPage />} />
