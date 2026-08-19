@@ -12,6 +12,7 @@ import AddEvent from "@/partials/modals/add-event/AddEvent";
 import DateField from "@/components/form-inputs/DatePicker/Datefield";
 import { getallevent, deleteeventbyid } from "@/services/apiServices";
 import { showApiError, showApiResult, confirmDelete } from "@/utils/swalHelpers";
+import { SelectReportTypeModal } from "../../../partials/modals/Reports_Modal/Selectreporttypemodal";
 
 const DATE_FORMAT = "DD/MM/YYYY";
 const PAGE_SIZE = 10;
@@ -30,7 +31,14 @@ const EventListPage = () => {
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false);
 
+const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+const [reportEventId, setReportEventId] = useState(null);
   const classes = useStyle();
+
+  const handleOpenReport = (eventId) => {
+  setReportEventId(eventId);
+  setIsReportModalOpen(true);
+};
 
   const handleModalOpen = () => {
     setEditData(null);
@@ -223,7 +231,7 @@ const EventListPage = () => {
         </div>
 
         <TableComponent
-          columns={columns(handleDelete)}
+          columns={columns(handleDelete , handleOpenReport)}
           tableData={tableData}
           loading={loading}
           paginationSize={PAGE_SIZE}
@@ -236,6 +244,16 @@ const EventListPage = () => {
           setIsModalOpen={setIsModalOpen}
           editData={editData}
         />
+        <SelectReportTypeModal
+  open={isReportModalOpen}
+  onClose={() => setIsReportModalOpen(false)}
+  eventId={reportEventId}
+  onGenerateReport={(payload) => {
+    // TODO: wire real generate-report API
+    console.log("generate report", payload);
+  }}
+/>
+
       </Container>
     </Fragment>
   );
