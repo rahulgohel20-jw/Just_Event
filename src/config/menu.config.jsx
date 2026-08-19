@@ -436,7 +436,7 @@ export const MENU_CREATE_EVENT_SIDEBAR = [
   },
 
   {
-    title: "Inventory",
+    title: "Inventory Allocation",
      icon: "  text-lg ki-filled ki-element-11 text-primary",
     
     children: [

@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState, useCallback } from "react";
-import { BadgeDollarSign, FileText, Receipt, Trash2, Plus } from "lucide-react";
+import { BadgeDollarSign, FileText, Receipt, Trash2, Plus, ClipboardList, ClipboardListIcon } from "lucide-react";
 import { Tooltip } from "antd";
 import dayjs from "dayjs";
 import { Link, useNavigate } from "react-router-dom";
@@ -67,29 +67,38 @@ const EventListPage = () => {
     event_date: item.eventStartDate || item.inquiryDate || "",
     customer: item.partyNameEnglish || "",
     event_type: item.eventNameEnglish || item.projectName || "",
-    proforma_invoice: (
-      <Link to={`/proforma-invoice?eventId=${item.id}`}>
-        <Tooltip className="cursor-pointer" title="Proforma Invoice">
-          <div className="flex justify-center items-center w-full">
-            <FileText className="w-5 h-5 text-primary" />
-          </div>
-        </Tooltip>
-      </Link>
-    ),
-    invoice: (
-      <Link to={`/event-invoice?eventId=${item.id}`}>
-        <Tooltip className="cursor-pointer" title="Invoice">
-          <div className="flex justify-center items-center w-full">
-            <Receipt className="w-5 h-5 text-success" />
-          </div>
-        </Tooltip>
-      </Link>
-    ),
+    // proforma_invoice: (
+    //   <Link to={`/proforma-invoice?eventId=${item.id}`}>
+    //     <Tooltip className="cursor-pointer" title="Proforma Invoice">
+    //       <div className="flex justify-center items-center w-full">
+    //         <FileText className="w-5 h-5 text-primary" />
+    //       </div>
+    //     </Tooltip>
+    //   </Link>
+    // ),
+    // invoice: (
+    //   <Link to={`/event-invoice?eventId=${item.id}`}>
+    //     <Tooltip className="cursor-pointer" title="Invoice">
+    //       <div className="flex justify-center items-center w-full">
+    //         <Receipt className="w-5 h-5 text-success" />
+    //       </div>
+    //     </Tooltip>
+    //   </Link>
+    // ),
     quotation: (
       <Link to={`/quotation/${item.id}`}>
         <Tooltip className="cursor-pointer" title="Quotation">
           <div className="flex justify-center items-center w-full">
             <BadgeDollarSign className="w-5 h-5 text-blue-600" />
+          </div>
+        </Tooltip>
+      </Link>
+    ),
+     execution: (
+      <Link to={`/execution/${item.id}`}>
+        <Tooltip className="cursor-pointer" title="Execution">
+          <div className="flex justify-center items-center w-full">
+            <ClipboardListIcon className="w-5 h-5 text-primary" />
           </div>
         </Tooltip>
       </Link>
