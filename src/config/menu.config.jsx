@@ -392,7 +392,7 @@ export const MENU_SIDEBAR = [
   // },
  
    {
-    title: "setting",
+    title: "Setting",
      icon: "  text-lg ki-filled ki-calendar text-primary",
      path:"/creteevnetname",
     children: [
@@ -411,10 +411,17 @@ export const MENU_SIDEBAR = [
 
 
 export const MENU_CREATE_EVENT_SIDEBAR = [
+  
   {
     title: "Back to main menu",
     icon: "black-left-line",
     path: "/"
+  },
+ 
+{
+    title: "Overviiew",
+    icon: "ki-filled ki-bill text-primary",
+    path: "/eventoverview"
   },
   {
     title: "Quotation",

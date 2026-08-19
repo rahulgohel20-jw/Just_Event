@@ -890,6 +890,7 @@ const handleCashAmountChange = (value) => {
         isActive: true,
         sortBy: "id",
         sortDirection: "ASC",
+        userId:userId
       });
       const body = res?.data ?? res;
       const pageData = body?.data ?? body;

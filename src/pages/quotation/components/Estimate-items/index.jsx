@@ -29,7 +29,7 @@ const EstimateItems = ({
   const [page, setPage] = useState(0);
   const [isLastPage, setIsLastPage] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
-
+  const userId = localStorage.getItem("userId")
   // Generate Item -> Add Menu Item modal
   const [generateModalOpen, setGenerateModalOpen] = useState(false);
 
@@ -100,6 +100,7 @@ const EstimateItems = ({
         isActive: true,
         sortBy: "id",
         sortDirection: "ASC",
+        userId:userId,
       });
 
       const body = res?.data ?? res;
