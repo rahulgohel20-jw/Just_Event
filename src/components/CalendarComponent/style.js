@@ -37,10 +37,10 @@ const useStyles = makeStyles({
                   height: "20px",
                   "& .fc-event-title-container": {
                     "& .fc-event-title": {
-                      height: "20px",
+                      height: "28px",
                       lineHeight: "1.3",
-                      paddingLeft: "4px",
-                      fontSize: "12px",
+                      paddingLeft: "7px",
+                      fontSize: "14px",
                       textTransform: "uppercase",
                     },
                   },
@@ -50,7 +50,7 @@ const useStyles = makeStyles({
           },
         },
         "&.fc-day-today": {
-          backgroundColor: "var(--tw-primary-lighter)",
+          backgroundColor: "var(--tw-primary-inverse)",
           cursor: "pointer",
           "& .fc-daygrid-day-top": {
             marginBottom: "5px",

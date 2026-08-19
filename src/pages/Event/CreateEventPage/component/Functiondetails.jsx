@@ -47,6 +47,7 @@ export default function FunctionDetails({ data, onChange }) {
   const functions = data.functions || [];
   const [query, setQuery] = useState("");
   const [notesRowId, setNotesRowId] = useState(null); // which row's notes modal is open
+    const userId = Number(localStorage.getItem("userId"));
 
   // Newly-created function types pushed here so PaginatedSearchSelect shows
   // them immediately, without a refetch.
@@ -195,7 +196,7 @@ export default function FunctionDetails({ data, onChange }) {
                       <div className="flex-1">
                         <PaginatedSearchSelect
                           fetchFn={getalllistfuntionmaster}
-                          extraParams={{ sortBy: "id", sortDirection: "DESC" }}
+                          extraParams={{ sortBy: "id", sortDirection: "DESC"  , userId}}
                           labelKey="nameEnglish"
                           valueKey="id"
                           searchParamName="nameEnglish"
@@ -247,7 +248,7 @@ export default function FunctionDetails({ data, onChange }) {
                   <td className="px-4 py-4 border-y-2 border-primary-inverse min-w-[200px]">
                     <PaginatedSearchSelect
                       fetchFn={getallvenuemmmaster}
-                      extraParams={{ sortBy: "id", sortDirection: "DESC" }}
+                      extraParams={{ sortBy: "id", sortDirection: "DESC" ,userId }}
                       labelKey="nameEnglish"
                       valueKey="id"
                       searchParamName="search"
