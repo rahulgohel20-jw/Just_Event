@@ -11,7 +11,9 @@ import {
 } from "lucide-react";
 import { Select } from "antd";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
-import { getbyeventid, getalltheme } from "@/services/apiServices";
+import { getbyeventid, getalltheme , getByModuleIdlistoftheme  ,getreportpdf } from "@/services/apiServices";
+import { useAuthStore } from "@/store/useAuthStore";
+import { MenuKeyReportmodal } from "./MenuKeyReportmodal";
 
 const toId = (v) => (v === null || v === undefined || v === "" ? null : Number(v));
 
@@ -33,8 +35,13 @@ const SelectReportTypeModal = ({ open, onClose, eventId, onGenerateReport }) => 
 
   const [selectedFunctionId, setSelectedFunctionId] = useState(null); // null = "All Functions"
   const [activeThemeId, setActiveThemeId] = useState(null);
-
+const [showItineraryReport, setShowItineraryReport] = useState(false);
   const tabStripRef = useRef(null);
+  const [reports, setReports] = useState([]);
+const [loadingReports, setLoadingReports] = useState(false);
+const [selectedTemplate, setSelectedTemplate] = useState(null);
+const [menuModalOpen, setMenuModalOpen] = useState(false);
+const userId = useAuthStore((state) => state.userId);
 
   useEffect(() => {
     if (!open || !eventId) return;
@@ -83,6 +90,35 @@ const SelectReportTypeModal = ({ open, onClose, eventId, onGenerateReport }) => 
     })) ?? []),
   ];
 
+ useEffect(() => {
+  if (!open || activeThemeId == null) {
+    setReports([]);
+    return;
+  }
+  setLoadingReports(true);
+
+  const payload = {
+    page: 0,
+    size: 10,
+    sortBy: "template_master_id",
+    sortDirection: "ASC",
+    templateModuleId: activeThemeId,
+    userId: Number(localStorage.getItem("userId")) || null,
+  };
+  console.log("getByModuleIdlistoftheme payload:", payload);
+
+  getByModuleIdlistoftheme(payload)
+    .then((res) => {
+      const list = res?.data?.data?.content ?? [];
+      setReports(list);
+    })
+    .catch((err) => {
+      console.error("Failed to load templates for module:", err);
+      console.error("Response body:", err?.response?.data);
+      setReports([]);
+    })
+    .finally(() => setLoadingReports(false));
+}, [open, activeThemeId, userId]);
   const selectedFunctionLabel =
     selectedFunctionId == null
       ? "All Function"
@@ -102,16 +138,41 @@ const SelectReportTypeModal = ({ open, onClose, eventId, onGenerateReport }) => 
     tabStripRef.current?.scrollBy({ left: dir * 160, behavior: "smooth" });
   };
 
-  const handleGenerate = (report) => {
-    // TODO: wire to the real generate-report API once provided.
-    onGenerateReport?.({
-      themeId: activeThemeId,
-      reportId: report.id,
-      eventId,
-      functionId: selectedFunctionId,
-    });
-  };
+ const handleGenerate = (report) => {
+  const hasReportKeys = Array.isArray(report.reportKeys) && report.reportKeys.length > 0;
 
+  if (hasReportKeys) {
+    setSelectedTemplate(report);
+    setMenuModalOpen(true);
+    return;
+  }
+
+  const payload = {
+    adminTemplateModuleId: report.templateModuleId,
+    eventFunctionId: selectedFunctionId ?? 0,
+    eventId: eventId ?? 0,
+    reportKeys: {},
+    userId: Number(localStorage.getItem("userId")) || 0,
+  };
+  console.log("getreportpdf payload:", payload);
+
+   getreportpdf(payload)
+    .then((res) => {
+      const body = res?.data ?? res;
+      const url = body?.data;
+      if (url) window.open(url, "_blank");
+      onGenerateReport?.(body);
+    })
+    .catch((err) => {
+      console.error("Failed to generate report:", err);
+      console.error("Response body:", err?.response?.data);
+    });
+};
+const handleMenuGenerate = (result) => {
+  onGenerateReport?.(result);
+  setMenuModalOpen(false);
+  setSelectedTemplate(null);
+};
   return (
     <CustomModal
       open={open}
@@ -153,86 +214,104 @@ const SelectReportTypeModal = ({ open, onClose, eventId, onGenerateReport }) => 
         </div>
 
         {/* Theme tabs */}
-        <div className="mt-5 flex items-center gap-1 border-b border-gray-100">
-          <button
-            type="button"
-            onClick={() => scrollTabs(-1)}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:bg-gray-50"
-          >
-            <ChevronLeft size={14} />
-          </button>
+       {/* Theme tabs */}
+<div className="mt-5 flex items-center gap-1 border-b border-gray-100">
+  <button
+    type="button"
+    onClick={() => scrollTabs(-1)}
+    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:bg-gray-50"
+  >
+    <ChevronLeft size={14} />
+  </button>
 
-          <div ref={tabStripRef} className="flex flex-1 gap-6 overflow-x-hidden px-1">
-            {loadingThemes ? (
-              <span className="py-2.5 text-sm text-gray-400">Loading themes…</span>
-            ) : themes.length === 0 ? (
-              <span className="py-2.5 text-sm text-gray-400">No themes found.</span>
-            ) : (
-              themes.map((theme) => {
-                const isActive = theme.id === activeThemeId;
-                return (
-                  <button
-                    key={theme.id}
-                    type="button"
-                    onClick={() => setActiveThemeId(theme.id)}
-                    className={`flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 pb-2.5 pt-1 text-sm font-medium transition ${
-                      isActive
-                        ? "border-primary text-primary"
-                        : "border-transparent text-gray-500 hover:text-gray-700"
-                    }`}
-                  >
-                    <FileText size={14} className={isActive ? "text-primary" : "text-gray-400"} />
-                    {theme.nameEnglish}
-                  </button>
-                );
-              })
-            )}
-          </div>
-
+  <div ref={tabStripRef} className="flex flex-1 gap-6 overflow-x-hidden px-1">
+    {loadingThemes ? (
+      <span className="py-2.5 text-sm text-gray-400">Loading themes…</span>
+    ) : themes.length === 0 ? (
+      <span className="py-2.5 text-sm text-gray-400">No themes found.</span>
+    ) : (
+      themes.map((theme) => {
+        const isActive = theme.id === activeThemeId;
+        return (
           <button
+            key={theme.id}
             type="button"
-            onClick={() => scrollTabs(1)}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:bg-gray-50"
+            onClick={() => setActiveThemeId(theme.id)}
+            className={`flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 pb-2.5 pt-1 text-sm font-medium transition ${
+              isActive
+                ? "border-primary text-primary"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
           >
-            <ChevronRight size={14} />
+            <FileText size={14} className={isActive ? "text-primary" : "text-gray-400"} />
+            {theme.nameEnglish}
           </button>
-        </div>
+        );
+      })
+    )}
+  </div>
+
+  <button
+    type="button"
+    onClick={() => scrollTabs(1)}
+    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:bg-gray-50"
+  >
+    <ChevronRight size={14} />
+  </button>
+</div>
 
         {/* Report list */}
-        <div className="mt-4 flex flex-col gap-3">
-          {!activeTheme ? (
-            <div className="flex items-center justify-center py-12 text-sm text-gray-400">
-              {loadingThemes ? "Loading…" : "Select a theme."}
-            </div>
-          ) : activeReports.length === 0 ? (
-            <div className="flex items-center justify-center py-12 text-sm text-gray-400">
-              No reports available for this theme yet.
-            </div>
-          ) : (
-            activeReports.map((report) => (
-              <div
-                key={report.id}
-                className="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3.5"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-50">
-                    <FileText size={16} className="text-gray-500" />
-                  </div>
-                  <span className="text-sm font-medium text-gray-800">{report.name}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleGenerate(report)}
-                  className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-blue-800"
-                >
-                  Generate Report
-                </button>
-              </div>
-            ))
-          )}
+        {/* Report list */}
+<div className="mt-4 flex flex-col gap-3">
+  {!activeTheme ? (
+    <div className="flex items-center justify-center py-12 text-sm text-gray-400">
+      {loadingThemes ? "Loading…" : "Select a theme."}
+    </div>
+  ) : loadingReports ? (
+    <div className="flex items-center justify-center py-12 text-sm text-gray-400">
+      Loading…
+    </div>
+  ) : reports.length === 0 ? (
+    <div className="flex items-center justify-center py-12 text-sm text-gray-400">
+      No reports available for this theme yet.
+    </div>
+  ) : (
+    reports.map((report) => (
+      <div
+        key={report.id}
+        className="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3.5"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-50">
+            <FileText size={16} className="text-gray-500" />
+          </div>
+          <span className="text-sm font-medium text-gray-800">{report.name}</span>
         </div>
+        <button
+          type="button"
+          onClick={() => handleGenerate(report)}
+          className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-blue-800"
+        >
+          Generate Report
+        </button>
       </div>
+    ))
+  )}
+</div>
+      </div>
+      <MenuKeyReportmodal
+  open={menuModalOpen}
+  onClose={() => {
+    setMenuModalOpen(false);
+    setSelectedTemplate(null);
+  }}
+  template={selectedTemplate}
+  eventId={eventId}
+  functionId={selectedFunctionId}
+  onGenerate={handleMenuGenerate}
+/>
     </CustomModal>
+    
   );
 };
 

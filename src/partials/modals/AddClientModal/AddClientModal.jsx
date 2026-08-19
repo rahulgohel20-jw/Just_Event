@@ -92,7 +92,7 @@ const fetchCategories = useCallback(async () => {
       const options = list
   .filter(
     (item) =>
-      item.categoryTypeNameEnglish?.trim().toLowerCase() === "customers"
+      item.categoryTypeNameEnglish?.trim().toLowerCase() === "customer"
   )
         .map((item) => ({
           value: item.id,
