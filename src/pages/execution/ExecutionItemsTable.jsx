@@ -37,6 +37,8 @@ const ExecutionItemsTable = ({ items, setItems, loading, onAddDecoration }) => {
   const [menuPage, setMenuPage] = useState(0);
   const [menuIsLastPage, setMenuIsLastPage] = useState(true);
   const [menuHasLoadedOnce, setMenuHasLoadedOnce] = useState(false);
+    const userId = localStorage.getItem("userId")
+
 
   const fetchMenuItems = async (query, pageNum, append) => {
     if (append) setMenuLoadingMore(true);
@@ -49,6 +51,7 @@ const ExecutionItemsTable = ({ items, setItems, loading, onAddDecoration }) => {
         isActive: true,
         sortBy: "id",
         sortDirection: "ASC",
+        userId:userId,
       });
       const body = res?.data ?? res;
       const pageData = body?.data ?? body;

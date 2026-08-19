@@ -6,7 +6,6 @@ import { CalendarPlus, CalendarCheck, Plus } from "lucide-react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import CalendarComponent from "@/components/CalendarComponent";
-import EventViewModal from "@/partials/modals/calendar-event/EventView";
 import { getallevent } from "@/services/apiServices";
 import { showApiError } from "@/utils/swalHelpers";
 
@@ -74,8 +73,6 @@ const STATUS_COLORS = {
 const getStatusColor = (status) => STATUS_COLORS[status] || "#9ca3af"; // gray-400 fallback for truly unknown/null status
 const CalendarPage = () => {
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [eventModalData, setEventModalData] = useState(null);
 
   const [calendarEvents, setCalendarEvents] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -135,8 +132,9 @@ const CalendarPage = () => {
   }, [calendarEvents, activeStatus]);
 
   const openEvent = (clickInfo) => {
-    setEventModalData(clickInfo.event.extendedProps.raw || null);
-    setIsModalOpen(true);
+    const eventId = clickInfo.event.id;
+    if (!eventId) return;
+    navigate(`/eventoverview?eventId=${eventId}`);
   };
 
   const goToCreateEvent = (eventDate) => {
@@ -206,15 +204,6 @@ const CalendarPage = () => {
           onAddEventClick={handleAddEventClick}
         />
       </Container>
-
-      {isModalOpen && (
-        <EventViewModal
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
-          eventData={eventModalData}
-          onDeleted={fetchCalendarEvents}
-        />
-      )}
     </Fragment>
   );
 };
