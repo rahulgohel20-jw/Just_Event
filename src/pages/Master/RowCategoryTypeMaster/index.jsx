@@ -27,10 +27,10 @@ const RowMaterialTypeMaster = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState(null);
     const searchDebounceRef = useRef(null);
-const userId = Number(localStorage.getItem("userId"));
+const userId =2;
 
 
-    // Debounce search input so we don't hit the API on every keystroke
+   
     useEffect(() => {
         if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
         searchDebounceRef.current = setTimeout(() => {

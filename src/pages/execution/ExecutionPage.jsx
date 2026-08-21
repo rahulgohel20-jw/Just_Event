@@ -24,6 +24,7 @@ import {
   getalluser,
 } from "../../services/apiServices";
 import DateTimeField from "../../components/form-inputs/DatePicker/DateTimeField";
+import { SelectReportTypeModal } from "../../partials/modals/Reports_Modal/Selectreporttypemodal";
 // import { AddDecorationModal } from "./AddDecorationModal"; // hook up when built
 
 dayjs.extend(customParseFormat);
@@ -94,6 +95,7 @@ const ExecutionPage = () => {
   const [inchargeSearching, setInchargeSearching] = useState(false);
   const [inchargeHasLoadedOnce, setInchargeHasLoadedOnce] = useState(false);
   const inchargeDebounceRef = useRef(null);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
 
   const inchargeDisplayName = (user) =>
     [user.firstName, user.lastName].filter(Boolean).join(" ").trim() ||
@@ -386,8 +388,7 @@ formData.append("userId", dto.userId);
             <h1 className="mt-1 text-2xl font-semibold text-primary">Menu Execution</h1>
           </div>
           <div className="flex items-center gap-2">
-            <TopBarButton icon={Printer} label="Print" />
-            <TopBarButton icon={BarChart3} label="Status" />
+<TopBarButton icon={Printer} label="Print" onClick={() => setReportModalOpen(true)} />            <TopBarButton icon={BarChart3} label="Status" />
             <TopBarButton icon={FileSpreadsheet} label="Estimate" />
             <TopBarButton icon={MonitorPlay} label="Presentation" />
             <TopBarButton icon={ArrowUpRight} label="Go To" />
@@ -512,6 +513,15 @@ formData.append("userId", dto.userId);
   onAddDecoration={handleAddDecoration}
   materialOptions={MATERIAL_OPTIONS}
 />
+<SelectReportTypeModal
+  open={reportModalOpen}
+  onClose={() => setReportModalOpen(false)}
+  eventId={eventId}
+  mode="Execution"
+  onGenerateReport={() => {
+    setReportModalOpen(false);
+  }}
+/>
         </section>
 
         {/* Footer actions */}
@@ -534,8 +544,11 @@ formData.append("userId", dto.userId);
   );
 };
 
-const TopBarButton = ({ icon: Icon, label }) => (
-  <button className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3.5 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50">
+const TopBarButton = ({ icon: Icon, label, onClick }) => (
+  <button
+    onClick={onClick}
+    className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3.5 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50"
+  >
     <Icon size={15} />
     {label}
   </button>

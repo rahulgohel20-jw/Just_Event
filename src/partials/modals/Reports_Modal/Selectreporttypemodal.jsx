@@ -14,6 +14,8 @@ import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { getbyeventid, getalltheme , getByModuleIdlistoftheme  ,getreportpdf } from "@/services/apiServices";
 import { useAuthStore } from "@/store/useAuthStore";
 import { MenuKeyReportmodal } from "./MenuKeyReportmodal";
+import {  showApiError } from "@/utils/swalHelpers"; // ← adjust path if needed
+import { ReportPdfViewerModal } from "./ReportPdfViewerModal"; // ← adjust path
 
 const toId = (v) => (v === null || v === undefined || v === "" ? null : Number(v));
 
@@ -26,7 +28,7 @@ const THEME_LIST_PAYLOAD = {
   sortDirection: "DESC",
 };
 
-const SelectReportTypeModal = ({ open, onClose, eventId, onGenerateReport }) => {
+const SelectReportTypeModal = ({ open, onClose, eventId, onGenerateReport , mode , estimateId   }) => {
   const [eventData, setEventData] = useState(null);
   const [loadingEvent, setLoadingEvent] = useState(false);
 
@@ -42,6 +44,8 @@ const [loadingReports, setLoadingReports] = useState(false);
 const [selectedTemplate, setSelectedTemplate] = useState(null);
 const [menuModalOpen, setMenuModalOpen] = useState(false);
 const userId = useAuthStore((state) => state.userId);
+const [pdfUrl, setPdfUrl] = useState(null);
+const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     if (!open || !eventId) return;
@@ -59,12 +63,25 @@ const userId = useAuthStore((state) => state.userId);
       .finally(() => setLoadingEvent(false));
   }, [open, eventId]);
 
-  useEffect(() => {
+   useEffect(() => {
     if (!open) return;
     setLoadingThemes(true);
     getalltheme(THEME_LIST_PAYLOAD)
       .then((res) => {
-        const list = res?.data?.data?.content ?? [];
+        let list = res?.data?.data?.content ?? [];
+
+       if (mode === "estimate") {
+        list = list.filter((t) => t.nameEnglish === "Estimate");
+      } else if (mode === "itinerary") {
+        list = list.filter((t) => t.nameEnglish === "Itinerary Theme");
+      }  else if (mode === "Execution") {
+  list = list.filter((t) => t.nameEnglish === "Production Report");
+  
+} else if (mode === "flower") {
+  list = list.filter((t) => t.nameEnglish === "Flower Report");
+}
+        // add more mode branches here as other pages start using this modal
+
         setThemes(list);
         setActiveThemeId(list.length ? list[0].id : null);
       })
@@ -74,7 +91,7 @@ const userId = useAuthStore((state) => state.userId);
         setActiveThemeId(null);
       })
       .finally(() => setLoadingThemes(false));
-  }, [open]);
+  }, [open, mode]);
 
   useEffect(() => {
     if (open) {
@@ -119,6 +136,7 @@ const userId = useAuthStore((state) => state.userId);
     })
     .finally(() => setLoadingReports(false));
 }, [open, activeThemeId, userId]);
+
   const selectedFunctionLabel =
     selectedFunctionId == null
       ? "All Function"
@@ -131,14 +149,13 @@ const userId = useAuthStore((state) => state.userId);
       : "—";
 
   const activeTheme = themes.find((t) => t.id === activeThemeId) ?? null;
-  // TODO: swap for real per-theme report-list API once provided; empty until then.
   const activeReports = [];
 
   const scrollTabs = (dir) => {
     tabStripRef.current?.scrollBy({ left: dir * 160, behavior: "smooth" });
   };
 
- const handleGenerate = (report) => {
+const handleGenerate = (report) => {
   const hasReportKeys = Array.isArray(report.reportKeys) && report.reportKeys.length > 0;
 
   if (hasReportKeys) {
@@ -148,32 +165,44 @@ const userId = useAuthStore((state) => state.userId);
   }
 
   const payload = {
-    adminTemplateModuleId: report.templateModuleId,
-    eventFunctionId: selectedFunctionId ?? 0,
-    eventId: eventId ?? 0,
+    adminTemplateModuleId: report.id,
+    estimateId: estimateId ?? 0,
+    eventFunctionId: selectedFunctionId ?? -1,
+    eventId: Number(eventId) || 0,
     reportKeys: {},
     userId: Number(localStorage.getItem("userId")) || 0,
   };
   console.log("getreportpdf payload:", payload);
 
-   getreportpdf(payload)
+  getreportpdf(payload)
     .then((res) => {
       const body = res?.data ?? res;
       const url = body?.data;
-      if (url) window.open(url, "_blank");
-      onGenerateReport?.(body);
+      const ok = body?.success !== false;
+
+      if (ok && url) {
+        setPdfUrl(url);
+        setPreviewOpen(true);
+        onGenerateReport?.(body);
+      } else {
+        showApiError({ response: { data: body } }, { title: "Failed to generate report" });
+      }
     })
     .catch((err) => {
       console.error("Failed to generate report:", err);
       console.error("Response body:", err?.response?.data);
+      showApiError(err, { title: "Failed to generate report" });
     });
 };
+
 const handleMenuGenerate = (result) => {
   onGenerateReport?.(result);
   setMenuModalOpen(false);
   setSelectedTemplate(null);
+   
 };
   return (
+       <>
     <CustomModal
       open={open}
       onClose={onClose}
@@ -237,10 +266,10 @@ const handleMenuGenerate = (result) => {
             key={theme.id}
             type="button"
             onClick={() => setActiveThemeId(theme.id)}
-            className={`flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 pb-2.5 pt-1 text-sm font-medium transition ${
+            className={`flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 pb-2.5 pt-1 text-lg font-medium transition ${
               isActive
                 ? "border-primary text-primary"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+                : "border-transparent text-gray-500  hover:text-gray-700"
             }`}
           >
             <FileText size={14} className={isActive ? "text-primary" : "text-gray-400"} />
@@ -261,10 +290,10 @@ const handleMenuGenerate = (result) => {
 </div>
 
         {/* Report list */}
-        {/* Report list */}
+   
 <div className="mt-4 flex flex-col gap-3">
   {!activeTheme ? (
-    <div className="flex items-center justify-center py-12 text-sm text-gray-400">
+    <div className="flex items-center justify-center py-12 text-md text-gray-400">
       {loadingThemes ? "Loading…" : "Select a theme."}
     </div>
   ) : loadingReports ? (
@@ -279,18 +308,18 @@ const handleMenuGenerate = (result) => {
     reports.map((report) => (
       <div
         key={report.id}
-        className="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3.5"
+        className="flex items-center justify-between rounded-xl border border-gray-400 px-4 py-3.5"
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-50">
-            <FileText size={16} className="text-gray-500" />
+          <div className="flex h-9 w-9 items-center justify-center   rounded-lg bg-gray-50">
+            <FileText size={16} className="text-primary" />
           </div>
-          <span className="text-sm font-medium text-gray-800">{report.name}</span>
+          <span className="text-md font-medium text-gray-800">{report.name}</span>
         </div>
         <button
           type="button"
           onClick={() => handleGenerate(report)}
-          className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-blue-800"
+          className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white "
         >
           Generate Report
         </button>
@@ -299,7 +328,9 @@ const handleMenuGenerate = (result) => {
   )}
 </div>
       </div>
-      <MenuKeyReportmodal
+     
+    </CustomModal>
+    <MenuKeyReportmodal
   open={menuModalOpen}
   onClose={() => {
     setMenuModalOpen(false);
@@ -307,11 +338,18 @@ const handleMenuGenerate = (result) => {
   }}
   template={selectedTemplate}
   eventId={eventId}
+  estimateId={estimateId}
   functionId={selectedFunctionId}
+  mode={mode}
   onGenerate={handleMenuGenerate}
 />
-    </CustomModal>
-    
+<ReportPdfViewerModal
+  open={previewOpen}
+  onClose={() => { setPreviewOpen(false); setPdfUrl(null); }}
+  pdfUrl={pdfUrl}
+  title="Report Preview"
+/>
+</>
   );
 };
 

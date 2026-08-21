@@ -19,7 +19,7 @@ import {
   ClockCircleOutlined,
   CheckCircleOutlined,
 } from '@ant-design/icons';
-import { Save, MessageSquareText } from 'lucide-react';
+import { Save, MessageSquareText, Printer } from 'lucide-react';
 import EventHeaderCard from '../../../components/eventheader/EventHeaderCard';
 import DateField from '../../../components/form-inputs/DatePicker/Datefield';
 import TimeInput12h from '../../../components/form-inputs/Time/Timeinput12h';
@@ -35,6 +35,7 @@ import { AddTransportationModal } from '../../Master/TransportationMaster/AddTra
 import { showApiResult, showApiError } from '@/utils/swalHelpers';
 import { useParams } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
+import { SelectReportTypeModal } from "@/partials/modals/Reports_Modal/Selectreporttypemodal";
 
 const { Text, Title } = Typography;
 
@@ -199,6 +200,7 @@ const EventTransportation = () => {
   const [saving, setSaving] = useState(false);
   const [loadingRows, setLoadingRows] = useState(false);
   const [rows, setRows] = useState([]);
+const [reportModalOpen, setReportModalOpen] = useState(false);
 
   const headerLoadedRef = useRef(false);
 
@@ -551,8 +553,14 @@ const EventTransportation = () => {
               className="min-w-[160px] [&_.ant-select-selector]:!border-primary-clarity"
             />
           </div>
-
           <div>
+ <Button
+    icon={<Printer size={16} />}
+    onClick={() => setReportModalOpen(true)}
+    className="shrink-0 !bg-white rounded-lg "
+  >
+    Print
+  </Button>
              <Button icon={<Save size={15} />} type="primary" loading={saving} onClick={handleSaveAll} className="rounded-lg">
               Save
             </Button>
@@ -700,6 +708,16 @@ const EventTransportation = () => {
         onSave={handleTransportationCreated}
         initialData={null}
       />
+      <SelectReportTypeModal
+  open={reportModalOpen}
+  onClose={() => setReportModalOpen(false)}
+  eventId={eventId}
+  mode="transportation"
+  onGenerateReport={() => {
+    setReportModalOpen(false);
+  }}
+/>
+
     </div>
   );
 };
