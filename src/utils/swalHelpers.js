@@ -1,5 +1,16 @@
 import Swal from "sweetalert2";
-
+const SWAL_Z_INDEX = 99999;
+const SWAL_STYLE_ID = "swal-zindex-override";
+if (typeof document !== "undefined" && !document.getElementById(SWAL_STYLE_ID)) {
+  const style = document.createElement("style");
+  style.id = SWAL_STYLE_ID;
+  style.textContent = `
+    .swal2-container {
+      z-index: ${SWAL_Z_INDEX} !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
 // Reads your Tailwind primary color CSS var, with a safe fallback
 export const getPrimaryColor = () =>
   getComputedStyle(document.documentElement)

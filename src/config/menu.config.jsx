@@ -449,75 +449,64 @@ export const MENU_CREATE_EVENT_SIDEBAR = [
     children: [
    {
     title: "Event Flower",
-    icon: "ki-filled ki-abstract-14 text-primary",
+    
     path: "/flower"
   },
 
   {
     title: "Event Lighting",
-    icon: "ki-filled ki-electricity text-primary",
+    
     path: "/lighting"
   },
   {
     title: "Event LED Wall",
-    icon: "ki-filled ki-screen text-primary",
+    
     path: "/ledwall"
   },
  
 
 {
     title: "Event Sound",
-    icon: "ki-filled ki-microphone-2 text-primary",
     path: "/sound"
   },
   {
   title: "Event Transportation",
-  icon: "ki-filled ki-delivery-3",
   path: "/transportation",
 },
   {
     title: "Event Mandap",
-    icon: "ki-filled ki-home-2 text-primary",
     path: "/mandap"
   },
    {
     title: "Event Furniture",
-    icon: "ki-filled ki-home-2 text-primary",
     path: "/furniture"
   },
   {
     title: "Event Artist Entertainment",
-    icon: "ki-filled ki-user-square text-primary",
     path: "/artist-entertainment"
   },
    {
     title: "Event Printing",
-    icon: "ki-filled ki-printer text-primary",
     path: "/printing"
   },
   {
     title: "Event Outsource Agency",
-    icon: "ki-filled ki-briefcase text-primary",
     path: "/outsource-agency"
   },
  {
     title: "Event New Making",
-    icon: "ki-filled ki-plus-squared text-primary",
     path: "/new-making"
   },
 {
     title: "Event Godown",
-    icon: "ki-filled ki-home-3 text-primary",
     path: "/godown"
   },
  {
     title: "Event Labour Agency",
-    icon: "ki-filled ki-people text-primary",
     path: "/labour-agency"
   },
   {
     title :"Event Flex Detail" , 
-    icon :"ki-filled ki-wallet text-primary",
     path:"/eventflex"
   }
    
@@ -585,6 +574,10 @@ export const superAdminMenuItems = [
       {title: "Theme Name" , path:"/templatenamemaster"},
       {title:"Theme Type " , path :"/templatetypemaster"},
       {title:"All Theme " , path:"/alltheme"},
+       {
+        title:"Raw Category Type Master",
+        path: '/master/rowcategorytypemaster'
+      },
     ],
   },
 ];

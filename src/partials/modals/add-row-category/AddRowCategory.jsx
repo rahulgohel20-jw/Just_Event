@@ -44,7 +44,7 @@ const userId = Number(localStorage.getItem("userId"));
                     status: "active",
                     sortBy:"nameEnglish",
                     sort:"ASC",
-                    userId,
+                    userId:2,
                 });
                 const records = res?.data?.data?.content ?? [];
                 setItemTypeOptions(

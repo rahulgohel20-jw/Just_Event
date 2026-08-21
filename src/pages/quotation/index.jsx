@@ -46,6 +46,7 @@ import { getallbankaccount, getallcashaccount } from "../../services/apiServices
 import { useAuthStore } from "../../store/useAuthStore";
 import { AddMenuitemmaster } from "../Master/MenuItemMaster/menuitemmaster/AddMenuitemmaster";
 import DateTimeField from "../../components/form-inputs/DatePicker/DateTimeField";
+import { SelectReportTypeModal } from "../../partials/modals/Reports_Modal/Selectreporttypemodal";
 
 
 const toId = (v) => (v === null || v === undefined || v === "" ? null : Number(v));
@@ -384,7 +385,7 @@ const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [eventData, setEventData] = useState(null);
   const [saving, setSaving] = useState(false);
-
+const [reportModalOpen, setReportModalOpen] = useState(false);
   // New Estimate header
   const [estimateId, setEstimateId] = useState(null);
   const [estimateDate, setEstimateDate] = useState("");
@@ -1122,11 +1123,29 @@ const handleCashAmountChange = (value) => {
   eventData={eventData}
 />
         <InfoModel open={infoModel} onClose={() => setInfoModel(false)} />
-        <PrintModel open={printModel} onClose={() => setPrintModel(false)} />
+    <PrintModel
+  open={printModel}
+  onClose={() => setPrintModel(false)}
+  onPrint={(selectedOption) => {
+    setPrintModel(false);
+    setReportModalOpen(true);   
+  }}
+/>
+
             <SubtotalBreakdownModal
   open={openSubtotalModal}
   onClose={() => setOpenSubtotalModal(false)}
   functions={functionsWithLiveTotal}
+/>
+<SelectReportTypeModal
+  open={reportModalOpen}
+  onClose={() => setReportModalOpen(false)}
+  eventId={eventId}
+  estimateId={estimateId}
+  mode="estimate"
+  onGenerateReport={(result) => {
+    setReportModalOpen(false);
+  }}
 />
       </div>
 

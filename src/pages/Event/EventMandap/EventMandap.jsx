@@ -22,7 +22,7 @@ import {
   UpOutlined,
   DownOutlined,
 } from '@ant-design/icons';
-import { Save, Sparkles } from 'lucide-react';
+import { Printer, Save, Sparkles } from 'lucide-react';
 import { AddUpdateIventory, getbyeventid, getalllistfuntionmaster, getAllClientMaster, getAllRawItemMaster, GetInventoryByFunction } from '@/services/apiServices';
 import Swal from 'sweetalert2';
 import EventHeaderCard from '../../../components/eventheader/EventHeaderCard';
@@ -31,6 +31,7 @@ import TimeInput12h from '../../../components/form-inputs/Time/Timeinput12h';
 import { useParams } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import AddRowItem from '../../../partials/modals/add-row-item/AddRowItem';
+import { SelectReportTypeModal } from "@/partials/modals/Reports_Modal/Selectreporttypemodal";
 
 const { Text, Title } = Typography;
 
@@ -332,6 +333,7 @@ const [catalogRefreshKey, setCatalogRefreshKey] = useState(0);
 
 const [imageUploadItemId, setImageUploadItemId] = useState(null);
 const imageFileInputRef = useRef(null);
+const [reportModalOpen, setReportModalOpen] = useState(false);
 
 
 const openImagePicker = (itemId) => {
@@ -447,8 +449,9 @@ const handleImageFileSelected = (e) => {
           isActive: true,
           nameEnglish: query || '',
           page: 0,
-          rawCategoryId: MANDAP_RAW_CATEGORY_ID,
-          rawSubCategoryId: null,
+ rawCategoryTypeId: 11,
+        rawCategoryId: null,
+                  rawSubCategoryId: null,
           size: 1000,
           sortBy: 'id',
           sortDirection: 'DESC',
@@ -707,6 +710,13 @@ const handleImageFileSelected = (e) => {
 >
   Add Item
 </Button>
+ <Button
+    icon={<Printer size={16} />}
+    onClick={() => setReportModalOpen(true)}
+    className="shrink-0 !bg-white rounded-lg"
+  >
+    Print
+  </Button>
             <Button
               type="primary"
               onClick={handleSave}
@@ -939,6 +949,15 @@ const handleImageFileSelected = (e) => {
     setIsAddRowItemModalOpen(false);
   }}
   initialData={null}
+/>
+<SelectReportTypeModal
+  open={reportModalOpen}
+  onClose={() => setReportModalOpen(false)}
+  eventId={eventId}
+  mode="mandap"
+  onGenerateReport={() => {
+    setReportModalOpen(false);
+  }}
 />
 
 

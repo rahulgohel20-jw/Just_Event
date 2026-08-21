@@ -225,7 +225,7 @@ const [reportEventId, setReportEventId] = useState(null);
 
             <div className="w-40">
               <p className="text-[13px] font-medium text-dark mb-1">To Date</p>
-              <DateField value={toDate} onChange={(val) => setToDate(val)} />
+              <DateField value={toDate} onChange={(val)  => setToDate(val)} />
             </div>
           </div>
         </div>
@@ -248,6 +248,7 @@ const [reportEventId, setReportEventId] = useState(null);
   open={isReportModalOpen}
   onClose={() => setIsReportModalOpen(false)}
   eventId={reportEventId}
+  mode="itinerary"
   onGenerateReport={(payload) => {
     // TODO: wire real generate-report API
     console.log("generate report", payload);
