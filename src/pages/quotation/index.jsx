@@ -805,15 +805,19 @@ const handleCashAmountChange = (value) => {
         }),
       };
     });
+const discountAmount = Number(summary.discount || 0);
+const discountPercent =
+  subtotal > 0 ? Number(((discountAmount / subtotal) * 100).toFixed(2)) : 0;
+
 
     const payload = {
-      id: estimateId, // null => create, present => edit — same endpoint either way
+      id: estimateId, 
       eventId: Number(eventId),
       estimateType: "MAIN",
       estimateDate,
       statusType: STATUS_TYPE_MAP[statusType] ?? "PENDING",
-      discount: Number(summary.discount || 0),
-      discountAmount: subtotal - amountAfterDiscount,
+    discount: discountPercent,        // ✅ percentage, matching the backend field
+  discountAmount,
       cashAmount: Number(summary.cashAmount || 0),
       chequeAmount: Number(summary.chequeAmount || 0),
       cgst: Number(summary.cgst || 0),
