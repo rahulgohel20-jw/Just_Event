@@ -394,6 +394,15 @@ export const addupdateadmintemplate = (data, userId) => {
   return POST(`/admin-template/add-update?userId=${userId}`, data);
 };
 
+export const getByModuleIdlistoftheme = (data) => {
+    return POST(`/admin-template/getByModuleId`,data);
+};
+
+// report PDf 
+export const getreportpdf = (data) => {
+    return POST(`/reports/get`,data);
+};
+
 //qutation 
 export const AddEstimate = (data) => {
     return POST(`/event-estimate/add-update`, data) ;

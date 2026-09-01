@@ -22,7 +22,7 @@ import {
   UpOutlined,
   DownOutlined,
 } from '@ant-design/icons';
-import { Save, Sparkles } from 'lucide-react';
+import { Printer, Save, Sparkles } from 'lucide-react';
 import { AddUpdateIventory, getbyeventid, getalllistfuntionmaster, getAllClientMaster, getAllRawItemMaster, GetInventoryByFunction } from '@/services/apiServices';
 import Swal from 'sweetalert2';
 import EventHeaderCard from '../../../components/eventheader/EventHeaderCard';
@@ -31,6 +31,7 @@ import TimeInput12h from '../../../components/form-inputs/Time/Timeinput12h';
 import { useParams } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import AddRowItem from '../../../partials/modals/add-row-item/AddRowItem';
+import { SelectReportTypeModal } from "@/partials/modals/Reports_Modal/Selectreporttypemodal";
 
 const { Text, Title } = Typography;
 
@@ -334,6 +335,8 @@ const EventLighting = () => {
 
   const [isAddRowItemModalOpen, setIsAddRowItemModalOpen] = useState(false);
   const [catalogRefreshKey, setCatalogRefreshKey] = useState(0);
+const [reportModalOpen, setReportModalOpen] = useState(false);
+
 
   const openImagePicker = (itemId) => {
     if (isLocked) return;
@@ -435,7 +438,8 @@ const EventLighting = () => {
           isActive: true,
           nameEnglish: query || '',
           page: 0,
-          rawCategoryId: LIGHTING_RAW_CATEGORY_ID,
+           rawCategoryTypeId: 8,
+        rawCategoryId: null,
           rawSubCategoryId: null,
           size: 1000,
           sortBy: 'id',
@@ -707,6 +711,13 @@ const EventLighting = () => {
             >
               Add Item
             </Button>
+             <Button
+                icon={<Printer size={16} />}
+                onClick={() => setReportModalOpen(true)}
+                className="shrink-0 !bg-white rounded-lg"
+              >
+                Print
+              </Button>
             <Button
               type="primary"
               onClick={handleSave}
@@ -905,6 +916,15 @@ const EventLighting = () => {
         }}
         initialData={null}
       />
+<SelectReportTypeModal
+  open={reportModalOpen}
+  onClose={() => setReportModalOpen(false)}
+  eventId={eventId}
+  mode="lighting"
+  onGenerateReport={() => {
+    setReportModalOpen(false);
+  }}
+/>
 
       <input
         type="file"

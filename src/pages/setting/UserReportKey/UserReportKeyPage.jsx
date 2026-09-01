@@ -47,7 +47,7 @@ const UserReportKeyPage = () => {
         page: 0,
         size: 100,
         sortBy: "id",
-        sortDirection: "DSEC",
+        sortDirection: "ASC",
         templateMappingId: null,
         userId,
       });
@@ -127,7 +127,7 @@ const UserReportKeyPage = () => {
       <div className="mb-6">
        
         <h1 className="text-2xl font-bold text-gray-900">
-          Report KeyConfiguration
+          Report Key Configuration
         </h1>
         <p className="text-sm text-gray-500 mt-1">
           Choose which sections appear on your generated reports.

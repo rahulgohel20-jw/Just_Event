@@ -23,7 +23,7 @@ import {
   UpOutlined,
   DownOutlined,
 } from '@ant-design/icons';
-import { Save, Sparkles } from 'lucide-react';
+import { Printer, Save, Sparkles } from 'lucide-react';
 import { AddUpdateIventory, getbyeventid, getalllistfuntionmaster, getAllClientMaster, getAllRawItemMaster, GetInventoryByFunction } from '@/services/apiServices';
 import Swal from 'sweetalert2';
 import EventHeaderCard from '../../../components/eventheader/EventHeaderCard';
@@ -32,7 +32,7 @@ import TimeInput12h from '../../../components/form-inputs/Time/Timeinput12h';
 import { useParams } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import AddRowItem from '../../../partials/modals/add-row-item/AddRowItem';
-
+import { SelectReportTypeModal } from "@/partials/modals/Reports_Modal/Selectreporttypemodal";
 const { Text, Title } = Typography;
 
 const currency = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
@@ -374,7 +374,7 @@ const imageFileInputRef = useRef(null);
 
 const [isAddRowItemModalOpen, setIsAddRowItemModalOpen] = useState(false);
 const [catalogRefreshKey, setCatalogRefreshKey] = useState(0);
-
+const [reportModalOpen, setReportModalOpen] = useState(false);
 
 
 const openImagePicker = (itemId) => {
@@ -481,7 +481,8 @@ const fetchFlowerCatalogItems = useCallback(
         isActive: true,
         nameEnglish: query || '',
         page: 0,
-        rawCategoryId: FLOWER_RAW_CATEGORY_ID,
+        rawCategoryTypeId: 7,
+        rawCategoryId: null,
         rawSubCategoryId: null,
         size: 1000,
         sortBy: 'id',
@@ -735,43 +736,51 @@ const addItem = () => {
           </div>
 
           <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-primary-lighest p-3 sm:flex-row sm:items-center">
-           <div className="relative flex-1">
-              <SearchOutlined className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-gray-400" />
-              <AsyncSearchSelect
-  key={`catalog-picker-${catalogRefreshKey}`}
-  fetcher={fetchFlowerCatalogItems}
-  value={catalogPick}
-  onChange={setCatalogPick}
-  placeholder="Pick a catalog item to add…"
-  className="w-full [&_.ant-select-selector]:!bg-white [&_.ant-select-selector]:!border-dashed [&_.ant-select-selector]:!border-gray-300 [&_.ant-select-selector]:!pl-9"
-/>
-            </div>
-           <Button
-  icon={<PlusOutlined />}
-  onClick={addItem}
-  disabled={itemsLoading || placementMaster.length === 0 || !catalogPick?.id}
-  className="shrink-0 !bg-white rounded-lg"
->
-  Add
-</Button>
-<Button
-  type="primary"
-  icon={<Sparkles size={16} />}
-  onClick={() => setIsAddRowItemModalOpen(true)}
-  className="shrink-0 rounded-lg"
->
-  Add Item
-</Button>
-            <Button
-  type="primary"
-  onClick={handleSave}
-  loading={saveLoading}
-  disabled={isLocked}
-  className="shrink-0 rounded-lg"
->
-  <Save size={16}/> Save
-</Button>
-          </div>
+  <div className="relative flex-1">
+    <SearchOutlined className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-gray-400" />
+    <AsyncSearchSelect
+      key={`catalog-picker-${catalogRefreshKey}`}
+      fetcher={fetchFlowerCatalogItems}
+      value={catalogPick}
+      onChange={setCatalogPick}
+      placeholder="Pick a catalog item to add…"
+      className="w-full [&_.ant-select-selector]:!bg-white [&_.ant-select-selector]:!border-dashed [&_.ant-select-selector]:!border-gray-300 [&_.ant-select-selector]:!pl-9"
+    />
+  </div>
+  <Button
+    icon={<PlusOutlined />}
+    onClick={addItem}
+    disabled={itemsLoading || placementMaster.length === 0 || !catalogPick?.id}
+    className="shrink-0 !bg-white rounded-lg"
+  >
+    Add
+  </Button>
+  <Button
+    type="primary"
+    icon={<Sparkles size={16} />}
+    onClick={() => setIsAddRowItemModalOpen(true)}
+    className="shrink-0 rounded-lg"
+  >
+    Add Item
+  </Button>
+  <Button
+    icon={<Printer size={16} />}
+    onClick={() => setReportModalOpen(true)}
+    className="shrink-0 !bg-white rounded-lg"
+  >
+    Print
+  </Button>
+  <Button
+    type="primary"
+    onClick={handleSave}
+    loading={saveLoading}
+    disabled={isLocked}
+    className="shrink-0 rounded-lg"
+  >
+    <Save size={16}/> Save
+  </Button>
+</div>
+
 
           <div className="mt-6 hidden grid-cols-[2fr_1.4fr_0.8fr_0.8fr_1fr_auto] gap-3 px-4 pb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 sm:grid">
             <span>Item Name</span>
@@ -979,6 +988,16 @@ const addItem = () => {
         }}
         initialData={null}
       />
+      
+<SelectReportTypeModal
+  open={reportModalOpen}
+  onClose={() => setReportModalOpen(false)}
+  eventId={eventId}
+  mode="flower"
+  onGenerateReport={() => {
+    setReportModalOpen(false);
+  }}
+/>
 
          <input
         type="file"

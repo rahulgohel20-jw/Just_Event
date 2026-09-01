@@ -39,7 +39,7 @@ export default function NewEstimate({
   const [chatBoxModel, setChatBoxModel] = useState(false);
   const [infoModel, setInfoModel] = useState(false);
   const [printModel, setPrintModel] = useState(false);
-
+const [reportModalOpen, setReportModalOpen] = useState(false);
  const functionOptions =
   eventData?.eventFunctions?.map((f) => ({
     value: f.id,

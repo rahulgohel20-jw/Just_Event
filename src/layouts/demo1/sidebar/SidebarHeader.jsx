@@ -19,7 +19,7 @@ const SidebarHeader = forwardRef((props, ref) => {
     </Fragment>;
   const darkLogo = () => <Link to="/">
       <img src={toAbsoluteUrl('/images/jw-logo.png')} className="default-logo h-[40px] max-w-none transition-all" />
-      <img src={toAbsoluteUrl('/images/jw-logo-favicon.png')} className="small-logo h-[36px] max-w-none transition-all" />
+      <img src={toAbsoluteUrl('/imagesjw-logo-favicon.png')} className="small-logo h-[36px] max-w-none transition-all" />
     </Link>;
   return <div ref={ref} className="sidebar-header hidden lg:flex items-center relative justify-between px-3 lg:px-6 shrink-0 transition-all">
       {layout.options.sidebar.theme === 'light' ? lightLogo() : darkLogo()}

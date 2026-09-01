@@ -87,6 +87,7 @@ const handleClearFilters = () => {
                 isActive: statusFilter === "" ? null : statusFilter === "active",
                 nameEnglish: searchText,
                 page,
+                rawCategoryTypeId:null,
                 rawCategoryId: categoryFilter ?? null,
                 rawSubCategoryId: subCategoryFilter ?? null,
                 size: PAGE_SIZE,

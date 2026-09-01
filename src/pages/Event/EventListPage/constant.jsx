@@ -1,8 +1,9 @@
 import { Popconfirm, Tooltip } from "antd";
 import { Link } from "react-router-dom";
+import { FileText } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-export const columns = (handleDelete) => [
+export const columns = (handleDelete , handleOpenReport) => [
   {
     accessorKey: "sr_no",
     header: "#",
@@ -93,6 +94,15 @@ export const columns = (handleDelete) => [
                 <i className="ki-filled ki-notepad-edit text-primary"></i>
               </button>
             </Link>
+          </Tooltip>
+          <Tooltip className="cursor-pointer" title="Itinerary Report">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              title="Itinerary Report"
+              onClick={() => handleOpenReport?.(eventId)}
+            >
+              <FileText className="w-4 h-4 text-primary" />
+            </button>
           </Tooltip>
           {/* <Popconfirm
             title="Are you sure to copy this item?"

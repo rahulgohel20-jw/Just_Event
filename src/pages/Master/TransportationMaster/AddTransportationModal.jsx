@@ -66,6 +66,8 @@ const fetchAgencyOptions = useCallback(async () => {
   setAgenciesLoading(true);
   try {
     const res = await getAllClientMaster({
+      categoryTypeId:-1,
+      categoryId:null,
       nameEnglish: "",
       page: 0,
       size: 1000,
