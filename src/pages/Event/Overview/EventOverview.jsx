@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { getbyeventid } from "@/services/apiServices";
 import {
   Heart,
@@ -645,8 +645,10 @@ const StateScreen = ({ children }) => (
 
 // ─── Page ──────────────────────────────────────────────────────────────────
 export default function EventOverviewPage() {
-  const [searchParams] = useSearchParams();
-  const eventId = searchParams.get("eventId");
+   const { eventId: routeEventId, functionId: routeFunctionId } = useParams();
+    const [searchParams] = useSearchParams();
+    const eventId = routeEventId ?? searchParams.get('eventId');
+  
 
   const [status, setStatus] = useState("loading"); // loading | error | ready
   const [rawResponse, setRawResponse] = useState(null);
